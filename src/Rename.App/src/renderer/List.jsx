@@ -1,22 +1,23 @@
-const React = require('react');
-const { ipcRenderer } = require('electron');
+const React = require("react");
 
 class List extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { files: [] };
     }
-    componentDidMount() {
-        ipcRenderer.on('get-selected-file', (ev, files) => {
-            this.setState({ files: files });
-        });
-    }
+    componentDidMount() {}
+
     render() {
-        const { files } = this.state;
+        const { files } = this.props;
+
         return (
-            <ul>
+            <ul className='list-group'>
                 {files.map((v, i) => {
-                    return <li key={i}>{v}</li>;
+                    return (
+                        <li className='list-group-item' key={i}>
+                            {v.name}
+                            {v.extention}
+                        </li>
+                    );
                 })}
             </ul>
         );
