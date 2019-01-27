@@ -11,7 +11,7 @@ module.exports = {
     //     extensions: ['.js']
     // },
     entry: {
-        //'main/index': './src/main/index.js',
+        // 'main/index': './src/main/index.js',
         'renderer/app': './src/renderer/app.jsx'
     },
     output: {
