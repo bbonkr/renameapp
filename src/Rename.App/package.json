@@ -5,9 +5,14 @@
     "main": "main.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "webpack",
+        "build": "webpack --config webpack.config.js",
+        "build:development": "webpack --config webpack.config.js",
+        "build:production": "webpack --config webpack.config.production.js",
         "start": "electron .",
-        "electron": "electron ."
+        "electron": "electron .",
+        "pack": "electron-packager . Rename.App --out=pack --all=true",
+        "pack:win": "electron-packager . Rename.App --out=pack --platform=win32 --arch=x64",
+        "pack:mac": "electron-packager . Rename.App --out=pack --platform=darwin --arch=x64"
     },
     "author": "",
     "license": "ISC",
@@ -33,6 +38,7 @@
     "dependencies": {
         "autoprefixer": "^9.4.6",
         "bootstrap": "^4.2.1",
+        "electron-packager": "^13.0.1",
         "jquery": "^3.3.1",
         "popper.js": "^1.14.6",
         "postcss-loader": "^3.0.0",
