@@ -12,7 +12,8 @@ class List extends React.Component {
         return (
             <ul className='list-group'>
                 {files.map((v, i) => {
-                    let liClasses = 'list-group-item';
+                    let liClasses =
+                        'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
 
                     if (v.hasError) {
                         liClasses += ' list-group-item-danger';
@@ -23,18 +24,23 @@ class List extends React.Component {
                     return (
                         <li className={liClasses} key={v.fullPath}>
                             <div>
-                                {v.name}
-                                {v.extension}
-                            </div>
-                            <div>
-                                <small>{v.directoryName}</small>
-                            </div>
-                            {v.hasError ? (
                                 <div>
-                                    <h4>Error:</h4>
-                                    <p>{v.error}</p>
+                                    {v.name}
+                                    {v.extension}
                                 </div>
-                            ) : null}
+                                <div>
+                                    <small className='text-muted'>
+                                        {v.directoryName}
+                                    </small>
+                                </div>
+
+                                {v.hasError ? (
+                                    <div>
+                                        <h4>Error:</h4>
+                                        <p>{v.error}</p>
+                                    </div>
+                                ) : null}
+                            </div>
                         </li>
                     );
                 })}

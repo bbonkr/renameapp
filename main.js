@@ -1,34 +1,71 @@
+'use strict';
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
+const { format } = require('url');
 const fs = require('fs');
 const FileInfo = require('./FileInfo.js');
-let window;
 
-var createWindow = () => {
-    window = new BrowserWindow({
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+let mainWindow;
+
+var createMainWindow = () => {
+    const win = new BrowserWindow({
         width: 800,
         height: 600,
         minWidth: 800,
         minHeight: 480
     });
 
-    window.setMenu(null);
-
-    // 앱의 index.html 파일을 로드합니다.
-    window.loadFile('./index.html');
+    win.setMenu(null);
 
     // 개발자 도구를 엽니다.
-    window.webContents.openDevTools();
+    if (isDevelopment) {
+        win.webContents.openDevTools();
+    }
 
-    window.on('closed', () => {
-        window = null;
+    // 앱의 index.html 파일을 로드합니다.
+    win.loadURL(
+        format({
+            pathname: path.join(__dirname, 'index.html'),
+            protocol: 'file',
+            slashes: true
+        })
+    );
+    // if (isDevelopment) {
+    //     win.loadURL(
+    //         `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
+    //     );
+    // } else {
+    //     win.loadURL(
+    //         formatUrl({
+    //             pathname: path.join(__dirname, 'index.html'),
+    //             protocol: 'file',
+    //             slashes: true
+    //         })
+    //     );
+    // }
+
+    win.webContents.on('devtools-opened', () => {
+        win.focus();
+        setImmediate(() => {
+            win.focus();
+        });
     });
+
+    win.on('closed', () => {
+        mainWindow = null;
+    });
+
+    return win;
 };
 
 // 이 메서드는 Electron이 초기화를 마치고
 // 브라우저 창을 생성할 준비가 되었을 때  호출될 것입니다.
 // 어떤 API는 이 이벤트가 나타난 이후에만 사용할 수 있습니다.
-app.on('ready', createWindow);
+app.on('ready', () => {
+    mainWindow = createMainWindow();
+});
 
 app.on('window-all-closed', () => {
     // macOS에서는 사용자가 명확하게 Cmd + Q를 누르기 전까지는
@@ -41,8 +78,8 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
     // macOS에서는 dock 아이콘이 클릭되고 다른 윈도우가 열려있지 않았다면
     // 앱에서 새로운 창을 다시 여는 것이 일반적입니다.
-    if (window == null) {
-        createWindow();
+    if (mainWindow == null) {
+        mainWindow = createMainWindow();
     }
 });
 

@@ -12,7 +12,7 @@ module.exports = {
     // },
     entry: {
         // 'main/index': './src/main/index.js',
-        'renderer/app': './src/renderer/app.jsx'
+        'renderer/index': './src/renderer/index.jsx'
     },
     output: {
         path: path.resolve(__dirname, 'dist'),

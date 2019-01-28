@@ -1,5 +1,7 @@
 const { ipcRenderer } = require('electron');
 const React = require('react');
+const jquery = require('react');
+const bootstrap = require('bootstrap');
 const FileInput = require('./FileInput.jsx');
 const List = require('./List.jsx');
 
@@ -10,7 +12,7 @@ class RenameApp extends React.Component {
         this.state = {
             files: [],
             renamedFiles: [],
-            type: '2',
+            type: '1',
             append: '',
             lookup: '',
             replace: '',
@@ -80,56 +82,66 @@ class RenameApp extends React.Component {
     }
 
     onTypeChanged(event) {
+        const { type } = this.state;
+
         let selectedValue = event.target.value;
-        this.setState({
-            type: selectedValue,
-            append: '',
-            lookup: '',
-            replace: '',
-            lookupRegExp: '',
-            replaceRegExp: '',
-            enablePreviewButton: false,
-            enabledRenameButton: false
-        });
-        // console.log('type: ', selectedValue);
+        if (type !== selectedValue) {
+            this.setState({
+                type: selectedValue,
+                append: '',
+                lookup: '',
+                replace: '',
+                lookupRegExp: '',
+                replaceRegExp: '',
+                enablePreviewButton: false,
+                enabledRenameButton: false
+            });
+        }
 
         this.validateCanPreview();
     }
 
     onAppendChanged(event) {
+        const { append } = this.state;
         let changedValue = event.target.value;
-        this.setState({ append: changedValue });
-        // console.log('append:', changedValue);
-
+        if (append !== changedValue) {
+            this.setState({ append: changedValue });
+        }
         this.validateCanPreview();
     }
 
     onLookupChanged(event) {
+        const { lookup } = this.state;
         let changedValue = event.target.value;
-        this.setState({ lookup: changedValue });
-        // console.log('lookup:', changedValue);
+        if (changedValue !== lookup) {
+            this.setState({ lookup: changedValue });
+        }
         this.validateCanPreview();
     }
 
     onReplaceChanged(event) {
+        const { replace } = this.state;
         let changedValue = event.target.value;
-        this.setState({ replace: changedValue });
-        //console.log('replace:', changedValue);
-        //this.validateCanPreview();
+        if (replace !== changedValue) {
+            this.setState({ replace: changedValue });
+        }
     }
 
     onLookupRegExpChanged(event) {
+        const { lookupRegExp } = this.state;
         let changedValue = event.target.value;
-
-        this.setState({ lookupRegExp: changedValue });
-
+        if (lookupRegExp !== changedValue) {
+            this.setState({ lookupRegExp: changedValue });
+        }
         this.validateCanPreview();
     }
 
     onReplaceRegExpChanged(event) {
+        const { replaceRegExp } = this.state;
         let changedValue = event.target.value;
-
-        this.setState({ replaceRegExp: changedValue });
+        if (replaceRegExp !== changedValue) {
+            this.setState({ replaceRegExp: changedValue });
+        }
     }
 
     onPreviewClick(event) {
@@ -251,12 +263,14 @@ class RenameApp extends React.Component {
         } = this.state;
         return (
             <div>
-                <div>
-                    <FileInput />
+                <div className='row'>
+                    <div className='col-12'>
+                        <FileInput />
+                    </div>
                 </div>
                 <hr />
                 <div className='row'>
-                    <div className='col-4'>
+                    <div className='col-3'>
                         <div className='form-group'>
                             <label
                                 htmlFor='selectOperationType'
@@ -266,7 +280,7 @@ class RenameApp extends React.Component {
                             </label>
                             <select
                                 id='selectOperationType'
-                                className='form-control'
+                                className='form-control form-control-sm'
                                 value={type}
                                 onChange={this.onTypeChanged}
                             >
@@ -280,7 +294,7 @@ class RenameApp extends React.Component {
                             </select>
                         </div>
                     </div>
-                    <div className='col-8'>
+                    <div className='col-9'>
                         {type === '2' || type === '3' ? (
                             <div className='form-group'>
                                 <label className='control-label'>
@@ -290,7 +304,7 @@ class RenameApp extends React.Component {
                                     value={append}
                                     onChange={this.onAppendChanged}
                                     type='text'
-                                    className='form-control'
+                                    className='form-control form-control-sm'
                                 />
                             </div>
                         ) : null}
@@ -305,7 +319,8 @@ class RenameApp extends React.Component {
                                             value={lookup}
                                             onChange={this.onLookupChanged}
                                             type='text'
-                                            className='form-control'
+                                            className='form-control form-control-sm'
+                                            placeholder='찾는 문자열'
                                         />
                                     </div>
                                 </div>
@@ -318,13 +333,14 @@ class RenameApp extends React.Component {
                                             value={replace}
                                             onChange={this.onReplaceChanged}
                                             type='text'
-                                            className='form-control'
+                                            className='form-control form-control-sm'
+                                            placeholder='변경할 문자열'
                                         />
+                                        <small className='form-text text-muted'>
+                                            첫번째 발견된 문자열만 변경됩니다.
+                                        </small>
                                     </div>
                                 </div>
-                                <small className='form-text text-muted'>
-                                    첫번째 발견된 문자열만 변경됩니다.
-                                </small>
                             </div>
                         ) : null}
 
@@ -335,14 +351,30 @@ class RenameApp extends React.Component {
                                         <label className='control-label'>
                                             찾는 정규식
                                         </label>
-                                        <input
-                                            value={lookupRegExp}
-                                            onChange={
-                                                this.onLookupRegExpChanged
-                                            }
-                                            type='text'
-                                            className='form-control'
-                                        />
+                                        <div className='input-group input-group-sm'>
+                                            <div className='input-group-prepend'>
+                                                <span className='input-group-text'>
+                                                    /
+                                                </span>
+                                            </div>
+                                            <input
+                                                value={lookupRegExp}
+                                                onChange={
+                                                    this.onLookupRegExpChanged
+                                                }
+                                                type='text'
+                                                className='form-control form-control-sm'
+                                                placeholder='정규식'
+                                            />
+                                            <div className='input-group-append'>
+                                                <span className='input-group-text'>
+                                                    /gi
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <small className='form-text text-muted'>
+                                            발견된 모든 문자열이 변경됩니다.
+                                        </small>
                                     </div>
                                 </div>
                                 <div className='col-6'>
@@ -356,13 +388,10 @@ class RenameApp extends React.Component {
                                                 this.onReplaceRegExpChanged
                                             }
                                             type='text'
-                                            className='form-control'
+                                            className='form-control form-control-sm'
                                         />
                                     </div>
                                 </div>
-                                <small className='form-text text-muted'>
-                                    발견된 모든 문자열이 변경됩니다.
-                                </small>
                             </div>
                         ) : null}
                     </div>
@@ -403,6 +432,21 @@ class RenameApp extends React.Component {
                         <h3>After</h3>
                         <List files={renamedFiles} />
                     </div>
+                </div>
+                <div
+                    className='alert alert-warning alert-dismissible fade show'
+                    role='alert'
+                >
+                    <strong>Holy guacamole!</strong> You should check in on some
+                    of those fields below.
+                    <button
+                        type='button'
+                        className='close'
+                        data-dismiss='alert'
+                        aria-label='Close'
+                    >
+                        <span aria-hidden='true'>&times;</span>
+                    </button>
                 </div>
             </div>
         );
