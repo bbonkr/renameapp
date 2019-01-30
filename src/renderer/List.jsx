@@ -1,4 +1,4 @@
-const React = require('react');
+import React from 'react';
 
 class List extends React.Component {
     constructor(props) {
@@ -22,7 +22,11 @@ class List extends React.Component {
                     }
 
                     return (
-                        <li className={liClasses} key={v.fullPath}>
+                        <li
+                            className={liClasses}
+                            key={v.fullPath}
+                            title={v.fullPath}
+                        >
                             <div>
                                 <div>
                                     {v.name}
@@ -49,4 +53,4 @@ class List extends React.Component {
     }
 }
 
-module.exports = List;
+export default List;

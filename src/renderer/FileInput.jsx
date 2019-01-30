@@ -1,5 +1,5 @@
-const React = require('react');
-const { ipcRenderer } = require('electron');
+import React from 'react';
+import { ipcRenderer } from 'electron';
 
 class FileInput extends React.Component {
     constructor(props) {
@@ -20,4 +20,4 @@ class FileInput extends React.Component {
     }
 }
 
-module.exports = FileInput;
+export default FileInput;

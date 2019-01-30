@@ -1,11 +1,11 @@
 'use strict';
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const { format } = require('url');
 const fs = require('fs');
 const FileInfo = require('./FileInfo.js');
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 let mainWindow;
 
@@ -94,50 +94,94 @@ ipcMain.on('openFileDialog', event => {
 
                 event.sender.send('get-selected-file', fileInfos);
             } else {
-                console.log('Canceled');
+                // console.log('Canceled');
             }
         }
     );
 });
 
 ipcMain.on('rename-files', (event, args) => {
-    var renameResult = args.map((v, i) => {
+    const renameFilePromise = (o, n) => {
+        return new Promise((resolve, reject) => {
+            fs.rename(o, n, err => {
+                if (err) {
+                    reject(o, err);
+                } else {
+                    resolve(n);
+                }
+            });
+        });
+    };
+
+    let renameResults = args.map((v, i) => {
         let oldPath = v.fullPath;
-        var dirname = path.dirname(v.fullPath);
-        var extension = path.extname(v.fullPath);
-        var newPath = path.join(dirname, `${v.name}${extension}`);
+        let dirname = path.dirname(v.fullPath);
+        let extension = path.extname(v.fullPath);
+        let newPath = path.join(dirname, `${v.name}${extension}`);
 
         let error = '';
         let hasError = false;
         let renamed = false;
+        var resultName = oldPath;
 
         if (oldPath !== newPath) {
-            console.log(`Rename: ${oldPath} ==> ${newPath}`);
-            fs.rename(oldPath, newPath, err => {
-                if (err) {
-                    console.log(err);
-                    error = err;
-                    renamed = false;
-                } else {
-                    renamed = true;
-                }
-            });
+            // console.log(`Rename: ${oldPath} ==> ${newPath}`);
+            // async
+            // fs.rename(oldPath, newPath, err => {
+            //     if (err) {
+            //         error = err.message;
+            //         renamed = false;
+            //         hasError = true;
+            //     } else {
+            //         error = null;
+            //         renamed = true;
+            //         hasError = false;
+            //     }
+            // });
+
+            // promise
+            // renameFilePromise(oldPath, newPath)
+            //     .then(t => {
+            //         resultName = t;
+            //     })
+            //     .catch((t, err) => {
+            //         resultName = t;
+            //         hasError = true;
+            //         error = err;
+            //     });
+
+            // sync
+            try {
+                fs.renameSync(oldPath, newPath);
+                resultName = newPath;
+                renamed = true;
+            } catch (err) {
+                resultName = oldPath;
+                error = err;
+                hasError = true;
+                renamed = false;
+            }
         }
 
-        return {
-            name: v.name,
-            extension: v.extension,
-            directoryName: v.directoryName,
-            fullPath: v.fullPath,
-            error: error,
-            hasError: hasError,
-            renamed: renamed
-        };
+        let resuleFileInfo = getFileInfo(resultName);
+
+        resuleFileInfo.error = error;
+        resuleFileInfo.renamed = renamed;
+        resuleFileInfo.hasError = hasError;
+
+        return resuleFileInfo;
     });
 
-    console.log('rename-files', renameResult);
+    // console.log('rename-files', renameResults);
 
-    event.sender.send('renameFiles-callback', renameResult);
+    event.sender.send('renameFiles-callback', renameResults);
+});
+
+ipcMain.on('showItemInFolder', (event, args) => {
+    let dirname = args['path'];
+    let result = shell.showItemInFolder(dirname);
+
+    event.sender.send('showItemInFolder-callback', result);
 });
 
 var getFileInfo = filePath => {
@@ -150,5 +194,6 @@ var getFileInfo = filePath => {
     obj.error = null;
     obj.hasError = false;
     obj.renamed = false;
+
     return obj;
 };

@@ -1,15 +1,24 @@
 //import 'bootstrap';
 import '../scss/app.scss';
 
-const React = require('react');
-const ReactDOM = require('react-dom');
-const RenameApp = require('./RenameApp.jsx');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import RenameApp from './RenameApp.jsx';
+import { Provider as AlertProvider } from 'react-alert';
+import AlertTemplate from 'react-alert-template-basic';
+
+const options = {
+    position: 'top right',
+    timeout: 2000,
+    offset: '30px',
+    transition: 'scale'
+};
 
 ReactDOM.render(
     <div>
-        <div>
+        <AlertProvider template={AlertTemplate} {...options}>
             <RenameApp />
-        </div>
+        </AlertProvider>
     </div>,
     document.getElementById('app')
 );

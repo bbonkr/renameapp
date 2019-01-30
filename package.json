@@ -1,21 +1,21 @@
 {
     "name": "rename.app",
     "version": "1.0.0",
-    "description": "",
+    "description": "Rename files.",
     "main": "main.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "webpack --config webpack.config.js",
-        "build:development": "webpack --config webpack.config.js",
-        "build:production": "webpack --config webpack.config.production.js",
+        "build:dev": "webpack --config webpack.config.js",
+        "build:prod": "webpack --config webpack.config.production.js",
         "start": "electron .",
         "electron": "electron .",
         "pack": "electron-packager . Rename.App --out=pack --all=true",
         "pack:win": "electron-packager . Rename.App --out=pack --platform=win32 --arch=x64",
         "pack:mac": "electron-packager . Rename.App --out=pack --platform=darwin --arch=x64"
     },
-    "author": "",
-    "license": "ISC",
+    "author": "Pon Cheol Ku (bbon@bbon.kr)",
+    "license": "MIT",
     "babel": {
         "presets": [
             "@babel/preset-env",
@@ -42,7 +42,11 @@
         "jquery": "^3.3.1",
         "popper.js": "^1.14.6",
         "postcss-loader": "^3.0.0",
+        "prop-types": "^15.6.2",
         "react": "^16.7.0",
-        "react-dom": "^16.7.0"
+        "react-alert": "^4.0.4",
+        "react-alert-template-basic": "^1.0.0",
+        "react-dom": "^16.7.0",
+        "react-transition-group": "^2.5.3"
     }
 }

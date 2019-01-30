@@ -1,9 +1,10 @@
-const { ipcRenderer } = require('electron');
-const React = require('react');
-const jquery = require('react');
-const bootstrap = require('bootstrap');
-const FileInput = require('./FileInput.jsx');
-const List = require('./List.jsx');
+import { ipcRenderer } from 'electron';
+import React from 'react';
+import jquery from 'react';
+import bootstrap from 'bootstrap';
+import FileInput from './FileInput.jsx';
+import List from './List.jsx';
+import { withAlert } from 'react-alert';
 
 class RenameApp extends React.Component {
     constructor(props) {
@@ -47,37 +48,32 @@ class RenameApp extends React.Component {
             });
         });
 
-        ipcRenderer.on('renameFiles-callback', (ev, renameResult) => {
-            const { renamedFiles } = this.state;
-
-            let results = renamedFiles.map((renamedFile, i) => {
-                let foundItem = renameResult.find((renameFileResult, i) => {
-                    return renamedFile.fullPath === renameFileResult.fullPath;
-                });
-
-                let error = null;
-                let hasError = false;
-                let renamed = false;
-                if (foundItem) {
-                    renamed = foundItem.renamed;
-                    error = foundItem.error;
-                    if (error) {
-                        hasError = true;
-                    }
-                }
-
+        ipcRenderer.on('renameFiles-callback', (ev, args) => {
+            let renamedResults = args.map((v, i) => {
                 return {
-                    name: renamedFile.name,
-                    extension: renamedFile.extension,
-                    directoryName: renamedFile.directoryName,
-                    fullPath: renamedFile.fullPath,
-                    hasError: hasError,
-                    error: error,
-                    renamed: renamed
+                    name: v.name,
+                    extension: v.extension,
+                    directoryName: v.directoryName,
+                    fullPath: v.fullPath,
+                    error: v.error,
+                    hasError: v.hasError,
+                    renamed: v.renamed
                 };
             });
 
-            this.setState({ renamedFiles: results });
+            this.setState({
+                files: renamedResults,
+                renamedFiles: [],
+                append: '',
+                lookup: '',
+                replace: '',
+                lookupRegExp: '',
+                replaceRegExp: '',
+                enablePreviewButton: false,
+                enabledRenameButton: false
+            });
+
+            this.props.alert.show('Renamed!');
         });
     }
 
@@ -433,24 +429,9 @@ class RenameApp extends React.Component {
                         <List files={renamedFiles} />
                     </div>
                 </div>
-                <div
-                    className='alert alert-warning alert-dismissible fade show'
-                    role='alert'
-                >
-                    <strong>Holy guacamole!</strong> You should check in on some
-                    of those fields below.
-                    <button
-                        type='button'
-                        className='close'
-                        data-dismiss='alert'
-                        aria-label='Close'
-                    >
-                        <span aria-hidden='true'>&times;</span>
-                    </button>
-                </div>
             </div>
         );
     }
 }
 
-module.exports = RenameApp;
+export default withAlert(RenameApp);
