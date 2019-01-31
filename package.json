@@ -13,8 +13,8 @@
         "pack": "electron-packager . Rename.App --out=pack --all=true --asar --overwrite",
         "pack:win": "electron-packager . Rename.App --out=pack --platform=win32 --arch=x64 --asar --overwrite",
         "pack:mac": "electron-packager . Rename.App --out=pack --platform=darwin --arch=x64 --asar --overwrite",
-        "pack:installer:win": "node make-win-installer.js",
-        "pack:installer:mac": "electron-installer-dmg ./pack/Rename.App-darwin-x64/Rename.App.app Rename.App --out=./pack/installer-mac"
+        "installer:win": "node make-win-installer.js",
+        "installer:mac": "electron-installer-dmg ./pack/Rename.App-darwin-x64/Rename.App.app Rename.App --out=./pack/installer-mac"
     },
     "author": "bbon (bbon@bbon.kr)",
     "license": "MIT",
@@ -52,6 +52,7 @@
         "react-alert": "^4.0.4",
         "react-alert-template-basic": "^1.0.0",
         "react-dom": "^16.7.0",
-        "react-transition-group": "^2.5.3"
+        "react-transition-group": "^2.5.3",
+        "electron-squirrel-startup": "^1.0.0"
     }
 }

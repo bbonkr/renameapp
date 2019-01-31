@@ -7,6 +7,14 @@ const FileInfo = require('./FileInfo.js');
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
+if (require('electron-squirrel-startup')) app.quit();
+// if first time install on windows, do not run application, rather
+// let squirrel installer do its work
+const setupEvents = require('./setup-events.js');
+if (setupEvents.handleSquirrelEvent()) {
+    process.exit();
+}
+
 let mainWindow;
 
 var createMainWindow = () => {
