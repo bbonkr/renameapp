@@ -4,7 +4,7 @@ resultPromise = electronInstaller.createWindowsInstaller({
     appDirectory: './pack/Rename.App-win32-x64',
     outputDirectory: './pack/installer-win32-x64',
     exe: 'Rename.App.exe',
-    setupExe: 'Rename.App.Setup.exe'
+    setupExe: 'Rename.App.exe'
 });
 
 resultPromise.then(
