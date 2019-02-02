@@ -334,3 +334,6 @@ ASALocalRun/
 # dist
 dist/
 pack/
+
+# macos
+.[Dd][Ss]_[Ss]tore
