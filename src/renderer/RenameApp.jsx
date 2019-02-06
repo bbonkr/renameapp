@@ -178,6 +178,10 @@ class RenameApp extends React.Component {
             };
 
             if (type === '1') {
+                console.log('name: ', obj.name);
+                console.log('lookup: ', lookup);
+                console.log('replace: ', replace);
+
                 obj.name = obj.name.replace(lookup, replace);
             }
             if (type === '2') {

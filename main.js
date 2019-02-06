@@ -93,6 +93,7 @@ app.on('activate', () => {
 
 ipcMain.on('openFileDialog', event => {
     dialog.showOpenDialog(
+        mainWindow,
         { properties: ['openFile', 'multiSelections'] },
         (filePaths, bookmarks) => {
             if (filePaths) {
