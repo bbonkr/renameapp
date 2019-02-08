@@ -1,5 +1,12 @@
 'use strict';
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const {
+    app,
+    BrowserWindow,
+    ipcMain,
+    dialog,
+    shell,
+    Menu
+} = require('electron');
 const path = require('path');
 const { format } = require('url');
 const fs = require('fs');
@@ -22,7 +29,8 @@ var createMainWindow = () => {
         width: 800,
         height: 600,
         minWidth: 800,
-        minHeight: 480
+        minHeight: 480,
+        title: 'Rename App'
     });
 
     win.setMenu(null);
@@ -73,6 +81,8 @@ var createMainWindow = () => {
 // 어떤 API는 이 이벤트가 나타난 이후에만 사용할 수 있습니다.
 app.on('ready', () => {
     mainWindow = createMainWindow();
+    mainWindow.setMenu(null);
+    Menu.setApplicationMenu(null);
 });
 
 app.on('window-all-closed', () => {
@@ -197,7 +207,7 @@ var getFileInfo = filePath => {
     let obj = new FileInfo();
 
     obj.extension = path.extname(filePath);
-    obj.name = path.basename(filePath, obj.extension);
+    obj.name = path.basename(filePath, obj.extension).normalize();
     obj.directoryName = path.dirname(filePath);
     obj.fullPath = filePath;
     obj.error = null;

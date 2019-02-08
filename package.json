@@ -1,5 +1,6 @@
 {
     "name": "rename.app",
+    "peoductName": "Rename App",
     "version": "1.0.0",
     "description": "Rename files.",
     "main": "main.js",
@@ -12,9 +13,9 @@
         "electron": "electron .",
         "pack": "electron-packager . Rename.App --out=pack --all=true --asar --overwrite",
         "pack:win": "electron-packager . Rename.App --out=pack --platform=win32 --arch=x64 --asar --overwrite",
-        "pack:mac": "electron-packager . Rename.App --out=pack --platform=darwin --arch=x64 --asar --overwrite",
+        "pack:mac": "electron-packager . Rename.App --out=pack --platform=darwin --arch=x64 --asar --overwrite -m",
         "installer:win": "node make-win-installer.js",
-        "installer:mac": "electron-installer-dmg ./pack/Rename.App-darwin-x64/Rename.App.app Rename.App --out=./pack/installer-mac"
+        "installer:mac": "electron-installer-dmg ./pack/Rename.App-darwin-x64/Rename.App.app Rename.App --out=./pack/installer-mac --overwrite"
     },
     "author": "bbon (bbon@bbon.kr)",
     "license": "MIT",
