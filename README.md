@@ -145,3 +145,29 @@ $ npm run pack:mac
 ```bash
 $ yarn pack:mac
 ```
+
+### 설치파일 빌드
+
+#### 윈도우즈 설치파일
+
+```bash
+$ npm run installer:win
+```
+
+또는
+
+```bash
+$ yarn installer:win
+```
+
+#### 맥오에스 설치파일
+
+```bash
+$ npm run installer:mac
+```
+
+또는
+
+```bash
+$ yarn installer:mac
+```
