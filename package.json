@@ -36,6 +36,7 @@
         "electron-installer-dmg": "^2.0.0",
         "electron-packager": "^13.0.1",
         "electron-winstaller": "^2.7.0",
+        "electron-squirrel-startup": "^1.0.0",
         "node-sass": "^4.11.0",
         "postcss-loader": "^3.0.0",
         "sass-loader": "^7.1.0",
@@ -53,7 +54,6 @@
         "react-alert": "^4.0.4",
         "react-alert-template-basic": "^1.0.0",
         "react-dom": "^16.7.0",
-        "react-transition-group": "^2.5.3",
-        "electron-squirrel-startup": "^1.0.0"
+        "react-transition-group": "^2.5.3"
     }
 }
