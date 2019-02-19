@@ -46,8 +46,8 @@
     },
     "dependencies": {
         "autoprefixer": "^9.4.6",
-        "bootstrap": "^4.2.1",
         "jquery": "^3.3.1",
+        "material-components-web": "^0.44.0",
         "popper.js": "^1.14.6",
         "prop-types": "^15.6.2",
         "react": "^16.7.0",

@@ -1,7 +1,9 @@
 import { ipcRenderer } from 'electron';
 import React from 'react';
 import jquery from 'react';
-import bootstrap from 'bootstrap';
+import { checkbox } from 'material-components-web';
+import { MDCTextField } from '@material/textfield/index';
+// const checkbox = new checkbox.MDCCheckbox(document.querySelector('.mdc-checkbox'));
 import FileInput from './FileInput.jsx';
 import List from './List.jsx';
 import { withAlert } from 'react-alert';
@@ -41,6 +43,10 @@ class RenameApp extends React.Component {
         this.onRenameClick = this.onRenameClick.bind(this);
     }
     componentDidMount() {
+        const textField = new MDCTextField(
+            document.querySelector('.mdc-text-field')
+        );
+
         ipcRenderer.on('get-selected-file', (ev, files) => {
             this.setState({
                 files: files,
@@ -262,7 +268,7 @@ class RenameApp extends React.Component {
             enabledRenameButton
         } = this.state;
         return (
-            <div>
+            <div className=''>
                 <div className='row'>
                     <div className='col-12'>
                         <FileInput />
@@ -311,34 +317,40 @@ class RenameApp extends React.Component {
                         {type === '1' ? (
                             <div className='row'>
                                 <div className='col-6'>
-                                    <div className='form-group'>
-                                        <label className='control-label'>
-                                            찾는 문자열
-                                        </label>
-                                        <input
-                                            value={lookup}
-                                            onChange={this.onLookupChanged}
-                                            type='text'
-                                            className='form-control form-control-sm'
-                                            placeholder='찾는 문자열'
-                                        />
-                                    </div>
-                                </div>
-                                <div className='col-6'>
-                                    <div className='form-group'>
-                                        <label className='control-label'>
-                                            변경할 문자열
-                                        </label>
-                                        <input
-                                            value={replace}
-                                            onChange={this.onReplaceChanged}
-                                            type='text'
-                                            className='form-control form-control-sm'
-                                            placeholder='변경할 문자열'
-                                        />
-                                        <small className='form-text text-muted'>
-                                            첫번째 발견된 문자열만 변경됩니다.
-                                        </small>
+                                    <div className='text-field-container'>
+                                        <div className='mdc-text-field'>
+                                            <input
+                                                value={lookup}
+                                                onChange={this.onLookupChanged}
+                                                type='text'
+                                                className='mdc-text-field__input'
+                                                placeholder='찾는 문자열'
+                                            />
+                                            <label className='mdc-floating-label'>
+                                                찾는 문자열
+                                            </label>
+                                            <div className='mdc-line-ripple' />
+                                        </div>
+
+                                        <div className='mdc-text-field'>
+                                            <input
+                                                value={replace}
+                                                onChange={this.onReplaceChanged}
+                                                type='text'
+                                                className='mdc-text-field__input'
+                                                placeholder='변경할 문자열'
+                                            />
+                                            <label className='mdc-floating-label'>
+                                                변경할 문자열
+                                            </label>
+                                            <div className='mdc-line-ripple' />
+                                        </div>
+                                        <div className='mdc-text-field-helper-line'>
+                                            <p className='mdc-text-field-helper-text mdc-text-field-helper-text--persistent mdc-text-field-helper-text--validation-msg'>
+                                                첫번째 발견된 문자열만
+                                                변경됩니다.
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -347,7 +359,7 @@ class RenameApp extends React.Component {
                         {type === '4' ? (
                             <div className='row'>
                                 <div className='col-6'>
-                                    <div className='form-group'>
+                                    <div className='text-field-container'>
                                         <label className='control-label'>
                                             찾는 정규식
                                         </label>

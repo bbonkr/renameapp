@@ -13,8 +13,11 @@ class FileInput extends React.Component {
     }
     render() {
         return (
-            <button className='btn btn-primary btn-sm' onClick={this.onClick}>
-                Open files
+            <button
+                className='demo-button mdc-button mdc-button--raised mdc-ripple-upgraded'
+                onClick={this.onClick}
+            >
+                <span class='mdc-button__label'>Open files</span>
             </button>
         );
     }
