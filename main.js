@@ -5,7 +5,7 @@ const {
     ipcMain,
     dialog,
     shell,
-    Menu
+    Menu,
 } = require('electron');
 const path = require('path');
 const { format } = require('url');
@@ -15,6 +15,7 @@ const FileInfo = require('./FileInfo.js');
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 if (require('electron-squirrel-startup')) app.quit();
+// if (require('electron-squirrel-startup')) return;
 // if first time install on windows, do not run application, rather
 // let squirrel installer do its work
 const setupEvents = require('./setup-events.js');
@@ -30,10 +31,17 @@ var createMainWindow = () => {
         height: 600,
         minWidth: 800,
         minHeight: 480,
-        title: 'Rename App'
+        title: 'Rename App',
+        // renderer console error
+        // resolve: Uncaught ReferenceError: require is not defined
+        webPreferences: {
+            nodeIntegration: true,
+        },
     });
 
-    win.setMenu(null);
+    if (process.platform !== 'darwin') {
+        win.setMenu(null);
+    }
 
     // 개발자 도구를 엽니다.
     if (isDevelopment) {
@@ -45,8 +53,8 @@ var createMainWindow = () => {
         format({
             pathname: path.join(__dirname, 'index.html'),
             protocol: 'file',
-            slashes: true
-        })
+            slashes: true,
+        }),
     );
     // if (isDevelopment) {
     //     win.loadURL(
@@ -81,8 +89,10 @@ var createMainWindow = () => {
 // 어떤 API는 이 이벤트가 나타난 이후에만 사용할 수 있습니다.
 app.on('ready', () => {
     mainWindow = createMainWindow();
-    mainWindow.setMenu(null);
-    Menu.setApplicationMenu(null);
+    if (process.platform !== 'darwin') {
+        mainWindow.setMenu(null);
+        Menu.setApplicationMenu(null);
+    }
 });
 
 app.on('window-all-closed', () => {
@@ -96,7 +106,7 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
     // macOS에서는 dock 아이콘이 클릭되고 다른 윈도우가 열려있지 않았다면
     // 앱에서 새로운 창을 다시 여는 것이 일반적입니다.
-    if (mainWindow == null) {
+    if (!mainWindow) {
         mainWindow = createMainWindow();
     }
 });
@@ -107,15 +117,19 @@ ipcMain.on('openFileDialog', event => {
         { properties: ['openFile', 'multiSelections'] },
         (filePaths, bookmarks) => {
             if (filePaths) {
-                var fileInfos = filePaths.map((v, i) => {
-                    return getFileInfo(v);
-                });
+                var fileInfos = filePaths
+                    .sort((a, b) => {
+                        return a > b ? 1 : -1;
+                    })
+                    .map((v, i) => {
+                        return getFileInfo(v);
+                    });
 
                 event.sender.send('get-selected-file', fileInfos);
             } else {
                 // console.log('Canceled');
             }
-        }
+        },
     );
 });
 

@@ -1,60 +1,49 @@
 const path = require('path');
+const webpack = require('webpack');
+const isProduction = process.env.NODE_ENV === 'production';
 
 module.exports = {
-    mode: 'development', // production | development | none
+    name: 'react build',
+    mode: isProduction ? 'production' : 'development',
+    devtool: isProduction ? 'hidden-source-map' : 'eval',
     target: 'electron-renderer',
-    node: {
-        __dirname: false,
-        __filename: false
-    },
-    // resolve: {
-    //     extensions: ['.js']
+    // node: {
+    //     __dirname: false,
+    //     __filename: false,
     // },
+    resolve: {
+        extensions: ['.js', 'jsx'],
+    },
     entry: {
-        // 'main/index': './src/main/index.js',
-        'renderer/index': './src/renderer/index.jsx'
+        'renderer/index': './src/renderer/index.jsx',
     },
-    output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: '[name].js'
-    },
-    devtool: 'source-map',
-    // devtool: '#sourcemap',
     module: {
         rules: [
             {
                 test: /\.(js|jsx)?$/,
+                loader: 'babel-loader',
+                options: {
+                    presets: ['@babel/preset-env', '@babel/preset-react'],
+                },
                 exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader'
-                }
             },
+            // {
+            //     test: /\.css$/,
+            //     use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
+            // },
             {
-                test: /\.(scss)$/,
+                test: /.scss$/,
                 use: [
-                    {
-                        // Adds CSS to the DOM by injecting a `<style>` tag
-                        loader: 'style-loader'
-                    },
-                    {
-                        // Interprets `@import` and `url()` like `import/require()` and will resolve them
-                        loader: 'css-loader'
-                    },
-                    {
-                        // Loader for webpack to process CSS with PostCSS
-                        loader: 'postcss-loader',
-                        options: {
-                            plugins: function() {
-                                return [require('autoprefixer')];
-                            }
-                        }
-                    },
-                    {
-                        // Loads a SASS/SCSS file and compiles it to CSS
-                        loader: 'sass-loader'
-                    }
-                ]
-            }
-        ]
-    }
+                    { loader: 'style-loader' },
+                    { loader: 'css-loader' },
+                    { loader: 'sass-loader' },
+                ],
+            },
+        ],
+    },
+    plugins: [new webpack.LoaderOptionsPlugin({ dev: !isProduction })],
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: '[name].js',
+    },
 };
