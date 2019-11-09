@@ -1,4 +1,4 @@
-@import '~bootstrap/scss/bootstrap';
+// @import '~bootstrap/scss/bootstrap';
 // // Required
 // @import "~bootstrap/scss/functions";
 // @import "~bootstrap/scss/variables";
@@ -9,3 +9,7 @@
 // @import "~bootstrap/scss/images";
 // @import "~bootstrap/scss/code";
 // @import "~bootstrap/scss/grid";
+html {
+    padding: 0;
+    margin: 0;
+}

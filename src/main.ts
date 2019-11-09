@@ -1,32 +1,27 @@
-'use strict';
-const {
-    app,
-    BrowserWindow,
-    ipcMain,
-    dialog,
-    shell,
-    Menu,
-} = require('electron');
-const path = require('path');
-const { format } = require('url');
-const fs = require('fs');
-const FileInfo = require('./FileInfo.js');
+import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron';
+import fs from 'fs';
+import path from 'path';
+import { format } from 'url';
+import { FileInfo } from './FileInfo.js';
+import setupEvents from './setup-events.js';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-if (require('electron-squirrel-startup')) app.quit();
+if (require('electron-squirrel-startup')) {
+    app.quit();
+}
 // if (require('electron-squirrel-startup')) return;
 // if first time install on windows, do not run application, rather
 // let squirrel installer do its work
-const setupEvents = require('./setup-events.js');
+// const setupEvents = require('./setup-events.js');
 if (setupEvents.handleSquirrelEvent()) {
     process.exit();
 }
 
-let mainWindow;
+let mainWindow: BrowserWindow | null;
 
-var createMainWindow = () => {
-    const win = new BrowserWindow({
+const createMainWindow = () => {
+    mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
         minWidth: 800,
@@ -40,18 +35,18 @@ var createMainWindow = () => {
     });
 
     if (process.platform !== 'darwin') {
-        win.setMenu(null);
+        mainWindow.setMenu(null);
     }
 
     // 개발자 도구를 엽니다.
     if (isDevelopment) {
-        win.webContents.openDevTools();
+        mainWindow.webContents.openDevTools();
     }
 
     // 앱의 index.html 파일을 로드합니다.
-    win.loadURL(
+    mainWindow.loadURL(
         format({
-            pathname: path.join(__dirname, 'index.html'),
+            pathname: path.join(__dirname, '../index.html'),
             protocol: 'file',
             slashes: true,
         }),
@@ -70,26 +65,29 @@ var createMainWindow = () => {
     //     );
     // }
 
-    win.webContents.on('devtools-opened', () => {
-        win.focus();
-        setImmediate(() => {
-            win.focus();
-        });
+    mainWindow.webContents.on('devtools-opened', () => {
+        if (mainWindow) {
+            mainWindow.focus();
+            setImmediate(() => {
+                if (mainWindow) {
+                    mainWindow.focus();
+                }
+            });
+        }
     });
 
-    win.on('closed', () => {
+    mainWindow.on('closed', () => {
         mainWindow = null;
     });
-
-    return win;
 };
 
 // 이 메서드는 Electron이 초기화를 마치고
 // 브라우저 창을 생성할 준비가 되었을 때  호출될 것입니다.
 // 어떤 API는 이 이벤트가 나타난 이후에만 사용할 수 있습니다.
 app.on('ready', () => {
-    mainWindow = createMainWindow();
-    if (process.platform !== 'darwin') {
+    createMainWindow();
+
+    if (mainWindow && process.platform !== 'darwin') {
         mainWindow.setMenu(null);
         Menu.setApplicationMenu(null);
     }
@@ -107,55 +105,59 @@ app.on('activate', () => {
     // macOS에서는 dock 아이콘이 클릭되고 다른 윈도우가 열려있지 않았다면
     // 앱에서 새로운 창을 다시 여는 것이 일반적입니다.
     if (!mainWindow) {
-        mainWindow = createMainWindow();
+        createMainWindow();
     }
 });
 
-ipcMain.on('openFileDialog', event => {
-    dialog.showOpenDialog(
-        mainWindow,
-        { properties: ['openFile', 'multiSelections'] },
-        (filePaths, bookmarks) => {
-            if (filePaths) {
-                var fileInfos = filePaths
-                    .sort((a, b) => {
-                        return a > b ? 1 : -1;
-                    })
-                    .map((v, i) => {
-                        return getFileInfo(v);
-                    });
+ipcMain.on('openFileDialog', (event) => {
+    if (mainWindow) {
+        dialog
+            .showOpenDialog(mainWindow, {
+                properties: ['openFile', 'multiSelections'],
+            })
+            .then((result) => {
+                const { filePaths, bookmarks, canceled } = result;
+                if (filePaths) {
+                    const fileInfos = filePaths
+                        .sort((a: string, b: string): number => {
+                            return a > b ? 1 : -1;
+                        })
+                        .map(
+                            (v: string, i: number): FileInfo => {
+                                // return getFileInfo(v);
+                                return FileInfo.fromFilePath(v);
+                            },
+                        );
 
-                event.sender.send('get-selected-file', fileInfos);
-            } else {
-                // console.log('Canceled');
-            }
-        },
-    );
+                    event.sender.send('get-selected-file', fileInfos);
+                } else {
+                    // console.log('Canceled');
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+            });
+    }
 });
 
 ipcMain.on('rename-files', (event, args) => {
-    const renameFilePromise = (o, n) => {
+    const renameFilePromise = (o: string, n: string): Promise<void> => {
         return new Promise((resolve, reject) => {
-            fs.rename(o, n, err => {
-                if (err) {
-                    reject(o, err);
-                } else {
-                    resolve(n);
-                }
-            });
+            fs.renameSync(o, n);
         });
     };
 
-    let renameResults = args.map((v, i) => {
-        let oldPath = v.fullPath;
-        let dirname = path.dirname(v.fullPath);
-        let extension = path.extname(v.fullPath);
-        let newPath = path.join(dirname, `${v.name}${extension}`);
+    const renameResults = args.map((v: any, i: any) => {
+        const oldPath = v.fullPath;
+        const dirname = path.dirname(v.fullPath);
+        const extension = path.extname(v.fullPath);
+        const newPath = path.join(dirname, `${v.name}${extension}`);
 
         let error = '';
         let hasError = false;
+
         let renamed = false;
-        var resultName = oldPath;
+        let resultName = oldPath;
 
         if (oldPath !== newPath) {
             // console.log(`Rename: ${oldPath} ==> ${newPath}`);
@@ -191,16 +193,14 @@ ipcMain.on('rename-files', (event, args) => {
             } catch (err) {
                 resultName = oldPath;
                 error = err;
-                hasError = true;
                 renamed = false;
             }
         }
 
-        let resuleFileInfo = getFileInfo(resultName);
+        const resuleFileInfo = FileInfo.fromFilePath(resultName);
 
         resuleFileInfo.error = error;
         resuleFileInfo.renamed = renamed;
-        resuleFileInfo.hasError = hasError;
 
         return resuleFileInfo;
     });
@@ -211,22 +211,32 @@ ipcMain.on('rename-files', (event, args) => {
 });
 
 ipcMain.on('showItemInFolder', (event, args) => {
-    let dirname = args['path'];
-    let result = shell.showItemInFolder(dirname);
+    const dirname = args['path'];
+    const result = shell.showItemInFolder(dirname);
 
     event.sender.send('showItemInFolder-callback', result);
 });
 
-var getFileInfo = filePath => {
-    let obj = new FileInfo();
+// const getFileInfo = (filePath) => {
+//     const extension = path.extname(filePath);
+//     const name = path.basename(filePath, extension).normalize();
+//     const directoryName = path.dirname(filePath);
 
-    obj.extension = path.extname(filePath);
-    obj.name = path.basename(filePath, obj.extension).normalize();
-    obj.directoryName = path.dirname(filePath);
-    obj.fullPath = filePath;
-    obj.error = null;
-    obj.hasError = false;
-    obj.renamed = false;
+//     const obj = new FileInfo({
+//         name: name,
+//         extension: extension,
+//         directoryName: directoryName,
+//         fullPath: filePath,
+//         error: null,
+//         renamed: false,
+//     });
 
-    return obj;
-};
+//     // obj.extension = path.extname(filePath);
+//     // obj.name = path.basename(filePath, obj.extension).normalize();
+//     // obj.directoryName = path.dirname(filePath);
+//     // obj.fullPath = filePath;
+//     // obj.error = null;
+//     // obj.renamed = false;
+
+//     return obj;
+// };

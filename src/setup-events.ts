@@ -1,37 +1,39 @@
-const { app } = require('electron');
+import { app } from 'electron';
+import ChildProcess from 'child_process';
+import path from 'path';
 
 // check out https://github.com/electron/windows-installer#handling-squirrel-events
 // for more information on squirrel events for windows
 
-module.exports = {
-    handleSquirrelEvent: function() {
+export default {
+    handleSquirrelEvent: () => {
         if (process.argv.length === 1) {
             return false;
         }
 
-        const ChildProcess = require('child_process');
-        const path = require('path');
+        // const ChildProcess = require('child_process');
+        // const path = require('path');
 
         const appFolder = path.resolve(process.execPath, '..');
         const rootAtomFolder = path.resolve(appFolder, '..');
-        const updateDotExe = path.resolve(
-            path.join(rootAtomFolder, 'Update.exe')
-        );
+        const updateDotExe = path.resolve(path.join(rootAtomFolder, 'Update.exe'));
         const exeName = path.basename(process.execPath);
 
-        const spawn = function(command, args) {
-            let spawnedProcess, error;
+        const spawn = (command: string, args: string[]) => {
+            let spawnedProcess;
 
             try {
                 spawnedProcess = ChildProcess.spawn(command, args, {
-                    detached: true
+                    detached: true,
                 });
-            } catch (error) {}
+            } catch (error) {
+                console.error(error);
+            }
 
             return spawnedProcess;
         };
 
-        const spawnUpdate = function(args) {
+        const spawnUpdate = (args: string[]) => {
             return spawn(updateDotExe, args);
         };
 
@@ -68,5 +70,5 @@ module.exports = {
                 app.quit();
                 return true;
         }
-    }
+    },
 };
