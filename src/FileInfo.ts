@@ -56,15 +56,11 @@ export class FileInfo implements IFileInfo {
     constructor(value?: IFileInfo) {
         if (value) {
             this.name = value.name;
-            this.directoryName = value.name;
+            this.directoryName = value.directoryName;
             this.extension = value.extension;
             this.fullPath = value.fullPath;
             this.renamed = value.renamed || false;
             this.error = value.error;
         }
-    }
-
-    public hasError(): boolean {
-        return this.error;
     }
 }

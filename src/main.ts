@@ -5,7 +5,8 @@ import { format } from 'url';
 import { FileInfo } from './FileInfo.js';
 import setupEvents from './setup-events.js';
 
-const isDevelopment = process.env.NODE_ENV === 'development';
+const isProd = process.env.NODE_ENV === 'production';
+const isDev = process.env.NODE_ENV !== 'production';
 
 if (require('electron-squirrel-startup')) {
     app.quit();
@@ -34,23 +35,28 @@ const createMainWindow = () => {
         },
     });
 
-    if (process.platform !== 'darwin') {
-        mainWindow.setMenu(null);
-    }
+    // if (process.platform !== 'darwin') {
+    //     mainWindow.setMenu(null);
+    // }
 
     // 개발자 도구를 엽니다.
-    if (isDevelopment) {
-        mainWindow.webContents.openDevTools();
-    }
+    // if (isDev) {
+    //     mainWindow.webContents.openDevTools();
+    // }
 
     // 앱의 index.html 파일을 로드합니다.
-    mainWindow.loadURL(
-        format({
-            pathname: path.join(__dirname, '../index.html'),
-            protocol: 'file',
-            slashes: true,
-        }),
-    );
+    mainWindow
+        .loadURL(
+            format({
+                pathname: path.join(__dirname, '../index.html'),
+                protocol: 'file',
+                slashes: true,
+            })
+        )
+        .then(_ => {})
+        .catch(err => {
+            console.error(err);
+        });
     // if (isDevelopment) {
     //     win.loadURL(
     //         `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
@@ -109,13 +115,13 @@ app.on('activate', () => {
     }
 });
 
-ipcMain.on('openFileDialog', (event) => {
+ipcMain.on('openFileDialog', event => {
     if (mainWindow) {
         dialog
             .showOpenDialog(mainWindow, {
                 properties: ['openFile', 'multiSelections'],
             })
-            .then((result) => {
+            .then(result => {
                 const { filePaths, bookmarks, canceled } = result;
                 if (filePaths) {
                     const fileInfos = filePaths
@@ -126,7 +132,7 @@ ipcMain.on('openFileDialog', (event) => {
                             (v: string, i: number): FileInfo => {
                                 // return getFileInfo(v);
                                 return FileInfo.fromFilePath(v);
-                            },
+                            }
                         );
 
                     event.sender.send('get-selected-file', fileInfos);
@@ -134,7 +140,7 @@ ipcMain.on('openFileDialog', (event) => {
                     // console.log('Canceled');
                 }
             })
-            .catch((err) => {
+            .catch(err => {
                 console.error(err);
             });
     }
@@ -205,8 +211,6 @@ ipcMain.on('rename-files', (event, args) => {
         return resuleFileInfo;
     });
 
-    // console.log('rename-files', renameResults);
-
     event.sender.send('renameFiles-callback', renameResults);
 });
 
@@ -216,27 +220,3 @@ ipcMain.on('showItemInFolder', (event, args) => {
 
     event.sender.send('showItemInFolder-callback', result);
 });
-
-// const getFileInfo = (filePath) => {
-//     const extension = path.extname(filePath);
-//     const name = path.basename(filePath, extension).normalize();
-//     const directoryName = path.dirname(filePath);
-
-//     const obj = new FileInfo({
-//         name: name,
-//         extension: extension,
-//         directoryName: directoryName,
-//         fullPath: filePath,
-//         error: null,
-//         renamed: false,
-//     });
-
-//     // obj.extension = path.extname(filePath);
-//     // obj.name = path.basename(filePath, obj.extension).normalize();
-//     // obj.directoryName = path.dirname(filePath);
-//     // obj.fullPath = filePath;
-//     // obj.error = null;
-//     // obj.renamed = false;
-
-//     return obj;
-// };

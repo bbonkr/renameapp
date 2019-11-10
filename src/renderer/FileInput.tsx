@@ -1,9 +1,20 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
 import { ipcRenderer } from 'electron';
+import { Button } from '@material-ui/core';
 
 export const FileInput: FunctionComponent = () => {
-    const onClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
-        ipcRenderer.send('openFileDialog');
-    };
-    return <button onClick={onClick}>Open files</button>;
+    const onClick = useCallback(
+        (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
+            ipcRenderer.send('openFileDialog');
+        },
+        []
+    );
+
+    return (
+        <div>
+            <Button variant="contained" color="primary" onClick={onClick}>
+                Open files
+            </Button>
+        </div>
+    );
 };
