@@ -35,13 +35,15 @@
 4.  Preview 버튼을 클릭해서 미리보기를 확인합니다.
 5.  Rename 버튼을 클릭해서 파일이름을 변경합니다.
 
-![](./screenshot/rename-app-001.png)
+![](./screenshot/rename-app-material-ui-001.png)
 
-![](./screenshot/rename-app-002.png)
+![](./screenshot/rename-app-material-ui-002.png)
 
-![](./screenshot/rename-app-003.png)
+![](./screenshot/rename-app-material-ui-003.png)
 
-![](./screenshot/rename-app-004.png)
+![](./screenshot/rename-app-material-ui-004.png)
+
+![](./screenshot/rename-app-material-ui-005.png)
 
 > 정규식은 [자바스트립트의 정규식 가이드](https://developer.mozilla.org/ko/docs/Web/JavaScript/Guide/%EC%A0%95%EA%B7%9C%EC%8B%9D)를 참조하십시오.
 
@@ -120,21 +122,21 @@ $ npm run start
 $ yarn start
 ```
 
-### 실행파일 빌드
+### 설치파일 빌드
 
-#### 윈도우즈 실행파일
+#### 윈도우즈 설치파일
 
 ```bash
-$ npm run pack:win
+$ npm run pack:win-x64
 ```
 
 또는
 
 ```bash
-$ yarn pack:win
+$ yarn pack:win-x64
 ```
 
-#### 맥오에스 실행파일
+#### 맥오에스 설치파일
 
 ```bash
 $ npm run pack:mac
@@ -144,30 +146,4 @@ $ npm run pack:mac
 
 ```bash
 $ yarn pack:mac
-```
-
-### 설치파일 빌드
-
-#### 윈도우즈 설치파일
-
-```bash
-$ npm run installer:win
-```
-
-또는
-
-```bash
-$ yarn installer:win
-```
-
-#### 맥오에스 설치파일
-
-```bash
-$ npm run installer:mac
-```
-
-또는
-
-```bash
-$ yarn installer:mac
 ```

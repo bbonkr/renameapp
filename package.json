@@ -1,37 +1,29 @@
 {
     "name": "rename.app",
     "peoductName": "Rename App",
-    "version": "1.0.0",
+    "version": "1.2.0",
     "description": "Rename files.",
-    "main": "main.js",
+    "main": "dist/main.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "build": "tsc",
         "watch": "tsc --watch",
-        "build:dev": "webpack --config webpack.config.js",
-        "build:prod": "cross-env NODE_ENV=production webpack --config webpack.config.js",
+        "build:dev": "cross-env NODE_ENV=development npm run build",
+        "build:prod": "cross-env NODE_ENV=production npm run build",
         "start": "npm run build && electron ./dist/main.js",
         "electron": "electron .",
-        "pack": "electron-packager . Rename.App --out=pack --all=true --asar --overwrite",
-        "pack:win": "electron-packager . Rename.App --out=pack --platform=win32 --arch=x64 --asar --overwrite",
-        "pack:mac": "electron-packager . Rename.App --out=pack --platform=darwin --arch=x64 --asar --overwrite -m",
-        "installer:win": "node make-win-installer.js",
-        "installer:mac": "electron-installer-dmg ./pack/Rename.App-darwin-x64/Rename.App.app Rename.App --out=./pack/installer-mac --overwrite",
-        "lint": "tslint -c tslint.json -p tsconfig.json"
+        "lint": "tslint -c tslint.json -p tsconfig.json",
+        "pack:win-x64": "npm run build:prod && electron-builder build --win --x64",
+        "pack:win-x86": "npm run build:prod && electron-builder build --win --x84"
     },
     "author": "bbon (bbon@bbon.kr)",
     "license": "MIT",
-    "babel": {
-        "presets": [
-            "@babel/preset-env",
-            "@babel/preset-react"
-        ]
-    },
     "devDependencies": {
         "@types/react-dom": "^16.9.4",
         "asar": "^2.0.1",
         "cross-env": "^6.0.3",
         "electron": "^7.1.1",
+        "electron-builder": "^22.1.0",
         "electron-installer-dmg": "^3.0.0",
         "electron-packager": "^14.1.0",
         "electron-winstaller": "^4.0.0",
@@ -52,5 +44,52 @@
         "react": "^16.7.0",
         "react-dom": "^16.7.0",
         "react-transition-group": "^4.3.0"
+    },
+    "build": {
+        "productName": "Rename App",
+        "appId": "kr.bbon.renameapp",
+        "asar": true,
+        "protocols": {
+            "name": "RenameApp",
+            "schemes": [
+                "Renameapp"
+            ]
+        },
+        "mac": {
+            "target": [
+                "default"
+            ],
+            "icon": "./resources/installer/appicon.icns"
+        },
+        "dmg": {
+            "title": "Rename App",
+            "icon": "./resources/installer/appicon.icns"
+        },
+        "win": {
+            "target": [
+                "zip",
+                "nsis"
+            ],
+            "icon": "./resources/installer/appicon.ico"
+        },
+        "linux": {
+            "target": [
+                "AppImage",
+                "deb",
+                "rpm",
+                "zip",
+                "tar.gz"
+            ],
+            "icon": "./resources/installer/appicon.png"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true
+        },
+        "directories": {
+            "buildResources": "resources/installer/",
+            "output": "packages/",
+            "app": "."
+        }
     }
 }

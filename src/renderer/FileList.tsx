@@ -5,39 +5,65 @@ import {
     ListItem,
     ListItemText,
     Card,
+    CardHeader,
     CardContent,
+    CardActions,
     Typography,
+    Button,
+    Fab,
 } from '@material-ui/core';
-
+import DeleteIcon from '@material-ui/icons/Delete';
 export interface IListProps {
     files: FileInfo[];
+    showRemoveButton?: boolean;
+    handleRemoveFile?: (
+        file: FileInfo
+    ) => (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
-export const FileList: FunctionComponent<IListProps> = ({ files }) => {
+export const FileList: FunctionComponent<IListProps> = ({
+    files,
+    showRemoveButton,
+    handleRemoveFile,
+}) => {
     return (
         <List>
             {files.map((v, i) => {
-                // let liClasses =
-                //     'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
-
-                // if (v.error) {
-                //     liClasses += ' list-group-item-danger';
-                // } else if (v.renamed) {
-                //     liClasses += ' list-group-item-success';
-                // }
-
                 return (
                     <ListItem key={v.fullPath}>
-                        <Card>
+                        <Card style={{ width: '100%' }}>
+                            <CardHeader
+                                title={
+                                    <Typography
+                                        style={{ textOverflow: 'ellipsis' }}
+                                        noWrap={false}
+                                        display="inline"
+                                        title={`${v.name}${v.extension}`}
+                                        color="textPrimary"
+                                    >
+                                        {`${v.name}${v.extension}`}
+                                    </Typography>
+                                }
+                                action={
+                                    <Fab
+                                        disabled={!showRemoveButton}
+                                        size="small"
+                                        color="primary"
+                                        onClick={
+                                            handleRemoveFile &&
+                                            handleRemoveFile(v)
+                                        }
+                                    >
+                                        <DeleteIcon />
+                                    </Fab>
+                                }
+                            />
                             <CardContent>
-                                <Typography color="textPrimary">
-                                    {`${v.name}${v.extension}`}
-                                </Typography>
                                 <Typography color="textSecondary">
                                     {v.directoryName}
                                 </Typography>
                                 {v.error ? (
-                                    <Typography color="error">
+                                    <Typography color="error" component="pre">
                                         {v.error}
                                     </Typography>
                                 ) : null}
