@@ -1,19 +1,16 @@
-import React, { FunctionComponent, useCallback } from 'react';
-import { ipcRenderer } from 'electron';
+import React, { FunctionComponent } from 'react';
 import { Button } from '@material-ui/core';
-import { Channels } from '../typings/channels';
 
-export const FileInput: FunctionComponent = () => {
-    const onClick = useCallback(
-        (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
-            ipcRenderer.send(Channels.OPEN_FILE_DIALOG);
-        },
-        []
-    );
+export interface IFileInput {
+    handleClick: (
+        event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => void;
+}
 
+export const FileInput: FunctionComponent<IFileInput> = ({ handleClick }) => {
     return (
         <div>
-            <Button variant="contained" color="primary" onClick={onClick}>
+            <Button variant="contained" color="primary" onClick={handleClick}>
                 Open files
             </Button>
         </div>

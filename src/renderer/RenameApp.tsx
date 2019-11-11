@@ -4,6 +4,7 @@ import React, {
     useState,
     useEffect,
     useCallback,
+    useRef,
 } from 'react';
 import { FileInput } from './FileInput';
 import { FileList } from './FileList';
@@ -33,9 +34,13 @@ import {
     Divider,
     Fab,
     IconButton,
+    Popper,
+    Grow,
+    ClickAwayListener,
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import MenuIcon from '@material-ui/icons/Menu';
+import CloseIcon from '@material-ui/icons/Close';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
 import { Channels } from '../typings/channels';
 import { SnackbarOrigin } from '@material-ui/core/Snackbar';
@@ -110,6 +115,10 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
     const [replaceRegExp, setReplaceRegExp] = useState('');
     const [enablePreviewButton, setEnablePreviewButton] = useState(false);
     const [enabledRenameButton, setEnabledRenameButton] = useState(false);
+    const [openFabButtons, setOpenFabButtons] = useState(false);
+
+    const fabButtonAnchorRef = useRef<HTMLDivElement>(null);
+
     const notistackAnchorOptions: SnackbarOrigin = {
         vertical: 'top',
         horizontal: 'right',
@@ -130,6 +139,42 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
                     anchorOrigin: notistackAnchorOptions,
                 });
             }
+
+            // 앱 버튼 닫기
+            setOpenFabButtons(false);
+        };
+
+        const getSelectedFilesAndAppend = (
+            ev: IpcRendererEvent,
+            args: FileInfo[]
+        ) => {
+            setFiles(prevFiles => {
+                args.forEach(x => {
+                    const found = prevFiles.find(
+                        f => x.fullPath === f.fullPath
+                    );
+                    if (!found) {
+                        prevFiles.push(x);
+                    }
+                });
+
+                return prevFiles.sort((a: FileInfo, b: FileInfo): number => {
+                    return a.fullPath > b.fullPath ? 1 : -1;
+                });
+            });
+
+            setRenamedFiles([]);
+
+            if (args && args.length > 0) {
+                enqueueSnackbar('Files opened.', {
+                    key: getNewKey(),
+                    variant: 'info',
+                    anchorOrigin: notistackAnchorOptions,
+                });
+            }
+
+            // 앱 버튼 닫기
+            setOpenFabButtons(false);
         };
 
         const renameFilesCallback = (
@@ -155,13 +200,22 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
 
         ipcRenderer.on(Channels.REANME_FILES_CALLBACK, renameFilesCallback);
 
-        ipcRenderer.on(Channels.GET_SELECTED_FIELS, getSelectedFiles);
+        ipcRenderer.on(Channels.GET_SELECTED_FILES, getSelectedFiles);
+
+        ipcRenderer.on(
+            Channels.GET_SELECTED_FILES_APPEND,
+            getSelectedFilesAndAppend
+        );
 
         return () => {
-            ipcRenderer.off(Channels.GET_SELECTED_FIELS, getSelectedFiles);
+            ipcRenderer.off(Channels.GET_SELECTED_FILES, getSelectedFiles);
             ipcRenderer.off(
                 Channels.REANME_FILES_CALLBACK,
                 renameFilesCallback
+            );
+            ipcRenderer.off(
+                Channels.GET_SELECTED_FILES_APPEND,
+                getSelectedFilesAndAppend
             );
         };
     }, []);
@@ -208,6 +262,30 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
             setEnabledRenameButton(false);
         }
     }, [enablePreviewButton]);
+
+    useEffect(() => {
+        if (!renamedFiles || renamedFiles.length === 0) {
+            setEnabledRenameButton(false);
+        }
+    }, [renamedFiles]);
+
+    const onOpenFileClick = useCallback(
+        (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
+            ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
+                Channels.GET_SELECTED_FILES,
+            ]);
+        },
+        []
+    );
+
+    const onOpenFileAndAppendClick = useCallback(
+        (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
+            ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
+                Channels.GET_SELECTED_FILES_APPEND,
+            ]);
+        },
+        []
+    );
 
     const onTypeChanged = useCallback(
         event => {
@@ -301,43 +379,33 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
         setRenamedFiles(candidateFiles);
     }, [files, type, lookup, replace, append, lookupRegExp, replaceRegExp]);
 
-    // const validateCanPreview = useCallback(() => {
-    //     const enabled = updatePreviewButtonStatus();
+    const handleOpen = useCallback(() => {
+        setOpenFabButtons(prevOpen => !prevOpen);
+    }, []);
 
-    //     setEnablePreviewButton(enabled);
-    // }, [files, type, lookup, append, lookupRegExp]);
+    const handleClose = useCallback(event => {
+        if (
+            fabButtonAnchorRef.current &&
+            fabButtonAnchorRef.current.contains(event.target as HTMLElement)
+        ) {
+            return;
+        }
 
-    // const updatePreviewButtonStatus = useCallback(() => {
-    //     if (!files || files.length < 1) {
-    //         return false;
-    //     }
+        setOpenFabButtons(false);
+    }, []);
 
-    //     if (type === '1') {
-    //         if (lookup && lookup.length > 0) {
-    //             return true;
-    //         }
-    //     }
+    const handleRemoveFile = useCallback(
+        (file: FileInfo) => (
+            event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+        ): void => {
+            setFiles(prevFiles => {
+                return prevFiles.filter(f => f.fullPath !== file.fullPath);
+            });
 
-    //     if (type === '2') {
-    //         if (append && append.length > 0) {
-    //             return true;
-    //         }
-    //     }
-
-    //     if (type === '3') {
-    //         if (append && append.length > 0) {
-    //             return true;
-    //         }
-    //     }
-
-    //     if (type === '4') {
-    //         if (lookupRegExp && lookupRegExp.length > 0) {
-    //             return true;
-    //         }
-    //     }
-
-    //     return false;
-    // }, [files, type, lookup, append, lookupRegExp]);
+            setRenamedFiles([]);
+        },
+        [files]
+    );
 
     return (
         <>
@@ -360,7 +428,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
                 </AppBar>
                 <Box className={classes.contentWrapper}>
                     <Paper className={classes.fileInput}>
-                        <FileInput />
+                        <FileInput handleClick={onOpenFileClick} />
                     </Paper>
 
                     <Paper className={classes.contentContainer}>
@@ -502,35 +570,99 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
                         </ButtonGroup>
                     </Paper>
 
-                    <Paper className={classes.contentContainer}>
-                        <Grid
-                            container={true}
-                            spacing={2}
-                            className={classes.fileListContainer}
-                        >
+                    <Box className={classes.contentContainer}>
+                        <Grid container={true} spacing={2}>
                             <Grid item={true} xs={6}>
-                                <Typography variant="h6" component="h3">
-                                    Before
-                                </Typography>
-                                <FileList files={files} />
+                                <Paper className={classes.contentWrapper}>
+                                    <Typography variant="h6" component="h3">
+                                        Before
+                                    </Typography>
+                                </Paper>
+                                <FileList
+                                    files={files}
+                                    showRemoveButton={true}
+                                    handleRemoveFile={handleRemoveFile}
+                                />
                             </Grid>
                             <Grid item={true} xs={6}>
-                                <Typography variant="h6" component="h3">
-                                    After
-                                </Typography>
+                                <Paper className={classes.contentWrapper}>
+                                    <Typography variant="h6" component="h3">
+                                        After
+                                    </Typography>
+                                </Paper>
                                 <FileList files={renamedFiles} />
                             </Grid>
                         </Grid>
-                    </Paper>
+                    </Box>
                 </Box>
-                <Fab
+                <div
+                    ref={fabButtonAnchorRef}
                     className={classes.appButtonOpenFiles}
-                    color="secondary"
-                    size="medium"
-                    aria-label="add file"
                 >
-                    <AddIcon />
-                </Fab>
+                    <Fab
+                        color={openFabButtons ? 'default' : 'secondary'}
+                        size="medium"
+                        aria-label="add file"
+                        onClick={handleOpen}
+                    >
+                        {openFabButtons ? <CloseIcon /> : <AddIcon />}
+                    </Fab>
+                </div>
+                <Popper
+                    open={openFabButtons}
+                    unselectable="on"
+                    anchorEl={fabButtonAnchorRef.current}
+                    transition={true}
+                    disablePortal={true}
+                    placement="bottom-end"
+                >
+                    {({ TransitionProps, placement }) => (
+                        <Grow
+                            {...TransitionProps}
+                            style={{
+                                transformOrigin:
+                                    placement === 'bottom'
+                                        ? 'center top'
+                                        : 'center bottom',
+                            }}
+                        >
+                            <ClickAwayListener onClickAway={handleClose}>
+                                <div>
+                                    <div>
+                                        <Typography component="span">
+                                            파일 열기
+                                        </Typography>
+                                        <Fab
+                                            color="primary"
+                                            size="medium"
+                                            aria-label="add file"
+                                            title="파일 목록을 초기화하고 파일을 추가합니다."
+                                            onClick={onOpenFileClick}
+                                        >
+                                            <AddIcon />
+                                        </Fab>
+                                    </div>
+
+                                    <div>
+                                        <Typography component="span">
+                                            파일 추가
+                                        </Typography>
+
+                                        <Fab
+                                            color="secondary"
+                                            size="medium"
+                                            aria-label="append file"
+                                            title="파일을 현재 목록에 추가합니다."
+                                            onClick={onOpenFileAndAppendClick}
+                                        >
+                                            <AddIcon />
+                                        </Fab>
+                                    </div>
+                                </div>
+                            </ClickAwayListener>
+                        </Grow>
+                    )}
+                </Popper>
             </Container>
         </>
     );

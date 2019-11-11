@@ -41,9 +41,9 @@ const createMainWindow = () => {
     // }
 
     // 개발자 도구를 엽니다.
-    if (isDev) {
-        mainWindow.webContents.openDevTools();
-    }
+    // if (isDev) {
+    //     mainWindow.webContents.openDevTools();
+    // }
 
     // 앱의 index.html 파일을 로드합니다.
     mainWindow
@@ -116,36 +116,46 @@ app.on('activate', () => {
     }
 });
 
-ipcMain.on(Channels.OPEN_FILE_DIALOG, event => {
-    if (mainWindow) {
-        dialog
-            .showOpenDialog(mainWindow, {
-                properties: ['openFile', 'multiSelections'],
-            })
-            .then(result => {
-                const { filePaths, bookmarks, canceled } = result;
-                if (filePaths) {
-                    const fileInfos = filePaths
-                        .sort((a: string, b: string): number => {
-                            return a > b ? 1 : -1;
-                        })
-                        .map(
-                            (v: string, i: number): FileInfo => {
-                                // return getFileInfo(v);
-                                return FileInfo.fromFilePath(v);
-                            }
-                        );
+ipcMain.on(
+    Channels.OPEN_FILE_DIALOG,
+    (event: Electron.IpcMainEvent, args: any[]): void => {
+        const callbackChannel: Channels =
+            args && args.length > 0 ? args[0] : Channels.GET_SELECTED_FILES;
 
-                    event.sender.send(Channels.GET_SELECTED_FIELS, fileInfos);
-                } else {
-                    // console.log('Canceled');
-                }
-            })
-            .catch(err => {
-                console.error(err);
-            });
+        if (mainWindow) {
+            dialog
+                .showOpenDialog(mainWindow, {
+                    properties: ['openFile', 'multiSelections'],
+                })
+                .then(result => {
+                    const { filePaths, bookmarks, canceled } = result;
+                    if (filePaths) {
+                        const fileInfos = filePaths
+                            .sort((a: string, b: string): number => {
+                                return a > b ? 1 : -1;
+                            })
+                            .map(
+                                (v: string, i: number): FileInfo => {
+                                    // return getFileInfo(v);
+                                    return FileInfo.fromFilePath(v);
+                                }
+                            );
+
+                        event.sender.send(
+                            // Channels.GET_SELECTED_FIELS,
+                            callbackChannel,
+                            fileInfos
+                        );
+                    } else {
+                        // console.log('Canceled');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+        }
     }
-});
+);
 
 ipcMain.on(Channels.RENAME_FILES, (event, args) => {
     const renameFilePromise = (o: string, n: string): Promise<void> => {

@@ -337,3 +337,6 @@ pack/
 
 # macos
 .[Dd][Ss]_[Ss]tore
+
+# installers
+packages/
