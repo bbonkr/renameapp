@@ -4,6 +4,7 @@ import path from 'path';
 import { format } from 'url';
 import { FileInfo } from './FileInfo.js';
 import setupEvents from './setup-events.js';
+import { Channels } from './typings/channels.js';
 
 const isProd = process.env.NODE_ENV === 'production';
 const isDev = process.env.NODE_ENV !== 'production';
@@ -40,9 +41,9 @@ const createMainWindow = () => {
     // }
 
     // 개발자 도구를 엽니다.
-    // if (isDev) {
-    //     mainWindow.webContents.openDevTools();
-    // }
+    if (isDev) {
+        mainWindow.webContents.openDevTools();
+    }
 
     // 앱의 index.html 파일을 로드합니다.
     mainWindow
@@ -115,7 +116,7 @@ app.on('activate', () => {
     }
 });
 
-ipcMain.on('openFileDialog', event => {
+ipcMain.on(Channels.OPEN_FILE_DIALOG, event => {
     if (mainWindow) {
         dialog
             .showOpenDialog(mainWindow, {
@@ -135,7 +136,7 @@ ipcMain.on('openFileDialog', event => {
                             }
                         );
 
-                    event.sender.send('get-selected-file', fileInfos);
+                    event.sender.send(Channels.GET_SELECTED_FIELS, fileInfos);
                 } else {
                     // console.log('Canceled');
                 }
@@ -146,7 +147,7 @@ ipcMain.on('openFileDialog', event => {
     }
 });
 
-ipcMain.on('rename-files', (event, args) => {
+ipcMain.on(Channels.RENAME_FILES, (event, args) => {
     const renameFilePromise = (o: string, n: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             fs.renameSync(o, n);
@@ -211,7 +212,7 @@ ipcMain.on('rename-files', (event, args) => {
         return resuleFileInfo;
     });
 
-    event.sender.send('renameFiles-callback', renameResults);
+    event.sender.send(Channels.REANME_FILES_CALLBACK, renameResults);
 });
 
 ipcMain.on('showItemInFolder', (event, args) => {

@@ -6,7 +6,7 @@ import { SnackbarProvider } from 'notistack';
 // import '../scss/app.scss';
 
 ReactDOM.render(
-    <SnackbarProvider>
+    <SnackbarProvider maxSnack={4}>
         <RenameApp />
     </SnackbarProvider>,
     document.getElementById('app')
