@@ -1,6 +1,6 @@
 {
-    "name": "rename.app",
-    "peoductName": "Rename App",
+    "name": "rename",
+    "peoductName": "Rename",
     "version": "1.3.0",
     "description": "Rename files.",
     "main": "dist/main.js",
@@ -14,7 +14,8 @@
         "electron": "electron .",
         "lint": "tslint -c tslint.json -p tsconfig.json",
         "pack:win-x64": "npm run build:prod && electron-builder build --win --x64",
-        "pack:win-x86": "npm run build:prod && electron-builder build --win --x84",
+        "pack:win-x86": "npm run build:prod && electron-builder build --win",
+        "pack:win": "npm run build:prod && electron-builder build --win --x64 && electron-builder build --win",
         "pack:mac": "npm run build:prod && electron-builder build --mac"
     },
     "author": "bbon (bbon@bbon.kr)",
@@ -47,13 +48,13 @@
         "react-transition-group": "^4.3.0"
     },
     "build": {
-        "productName": "Rename App",
-        "appId": "kr.bbon.renameapp",
+        "productName": "Rename",
+        "appId": "kr.bbon.rename",
         "asar": true,
         "protocols": {
-            "name": "RenameApp",
+            "name": "Rename",
             "schemes": [
-                "Renameapp"
+                "kr.bbon.Rename"
             ]
         },
         "files": [
@@ -72,10 +73,16 @@
         },
         "win": {
             "target": [
-                "zip",
-                "nsis"
+                "nsis",
+                "zip"
             ],
-            "icon": "./resources/installer/appicon.ico"
+            "icon": "./resources/installer/appicon.ico",
+            "artifactName": "${productName}-${os}-${arch}-${version}.${ext}"
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true,
+            "artifactName": "${productName} Setup ${os}-${arch}-${version}.${ext}"
         },
         "linux": {
             "target": [
@@ -86,10 +93,6 @@
                 "tar.gz"
             ],
             "icon": "./resources/installer/appicon.png"
-        },
-        "nsis": {
-            "oneClick": false,
-            "allowToChangeInstallationDirectory": true
         },
         "directories": {
             "buildResources": "resources/installer/",
