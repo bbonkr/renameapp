@@ -1,6 +1,6 @@
 import path from 'path';
 
-export interface IFileInfo {
+export interface FileInfoModel {
     /** 파일이름 */
     name: string;
 
@@ -20,7 +20,7 @@ export interface IFileInfo {
     renamed: boolean;
 }
 
-export class FileInfo implements IFileInfo {
+export class FileInfo implements FileInfoModel {
     public static fromFilePath(filePath: string): FileInfo {
         const extension = path.extname(filePath);
         const name = path.basename(filePath, extension).normalize();
@@ -53,7 +53,7 @@ export class FileInfo implements IFileInfo {
     /**  이름변경 여부 */
     public renamed!: boolean;
 
-    constructor(value?: IFileInfo) {
+    constructor(value?: FileInfoModel) {
         if (value) {
             this.name = value.name;
             this.directoryName = value.directoryName;

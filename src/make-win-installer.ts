@@ -9,9 +9,9 @@ createWindowsInstaller({
     exe: 'Rename.App.exe',
     setupExe: 'Rename.App.exe',
 })
-    .then((_) => {
+    .then(_ => {
         console.info('Doen.');
     })
-    .catch((err) => {
+    .catch(err => {
         console.error('Error: ', err);
     });

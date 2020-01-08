@@ -16,7 +16,9 @@ export default {
 
         const appFolder = path.resolve(process.execPath, '..');
         const rootAtomFolder = path.resolve(appFolder, '..');
-        const updateDotExe = path.resolve(path.join(rootAtomFolder, 'Update.exe'));
+        const updateDotExe = path.resolve(
+            path.join(rootAtomFolder, 'Update.exe'),
+        );
         const exeName = path.basename(process.execPath);
 
         const spawn = (command: string, args: string[]) => {

@@ -95,10 +95,10 @@ const useStyles = makeStyles((theme: Theme) =>
             padding: '1rem 0.8rem',
             margin: '0.3rem',
         },
-    })
+    }),
 );
 
-export interface IRenameAppProps extends WithSnackbarProps {}
+export type IRenameAppProps = WithSnackbarProps;
 
 const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
     enqueueSnackbar,
@@ -146,12 +146,12 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
 
         const getSelectedFilesAndAppend = (
             ev: IpcRendererEvent,
-            args: FileInfo[]
+            args: FileInfo[],
         ) => {
             setFiles(prevFiles => {
                 args.forEach(x => {
                     const found = prevFiles.find(
-                        f => x.fullPath === f.fullPath
+                        f => x.fullPath === f.fullPath,
                     );
                     if (!found) {
                         prevFiles.push(x);
@@ -179,7 +179,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
 
         const renameFilesCallback = (
             ev: IpcRendererEvent,
-            args: FileInfo[]
+            args: FileInfo[],
         ) => {
             setFiles(args);
             setRenamedFiles([]);
@@ -204,18 +204,18 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
 
         ipcRenderer.on(
             Channels.GET_SELECTED_FILES_APPEND,
-            getSelectedFilesAndAppend
+            getSelectedFilesAndAppend,
         );
 
         return () => {
             ipcRenderer.off(Channels.GET_SELECTED_FILES, getSelectedFiles);
             ipcRenderer.off(
                 Channels.REANME_FILES_CALLBACK,
-                renameFilesCallback
+                renameFilesCallback,
             );
             ipcRenderer.off(
                 Channels.GET_SELECTED_FILES_APPEND,
-                getSelectedFilesAndAppend
+                getSelectedFilesAndAppend,
             );
         };
     }, []);
@@ -275,7 +275,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
                 Channels.GET_SELECTED_FILES,
             ]);
         },
-        []
+        [],
     );
 
     const onOpenFileAndAppendClick = useCallback(
@@ -284,7 +284,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
                 Channels.GET_SELECTED_FILES_APPEND,
             ]);
         },
-        []
+        [],
     );
 
     const onTypeChanged = useCallback(
@@ -301,7 +301,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
                 setEnabledRenameButton(false);
             }
         },
-        [files, type, lookup, append, lookupRegExp]
+        [files, type, lookup, append, lookupRegExp],
     );
 
     const onAppendChanged = useCallback(event => {
@@ -329,15 +329,6 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
         setReplaceRegExp(changedValue);
     }, []);
 
-    const onPreviewClick = useCallback(
-        event => {
-            applyRename();
-
-            setEnabledRenameButton(true);
-        },
-        [files, type, lookup, replace, append, lookupRegExp, replaceRegExp]
-    );
-
     const onRenameClick = useCallback(
         event => {
             if (renamedFiles) {
@@ -345,7 +336,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
                 setEnabledRenameButton(false);
             }
         },
-        [renamedFiles]
+        [renamedFiles],
     );
 
     const applyRename = useCallback(() => {
@@ -379,6 +370,15 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
         setRenamedFiles(candidateFiles);
     }, [files, type, lookup, replace, append, lookupRegExp, replaceRegExp]);
 
+    const onPreviewClick = useCallback(
+        event => {
+            applyRename();
+
+            setEnabledRenameButton(true);
+        },
+        [files, type, lookup, replace, append, lookupRegExp, replaceRegExp],
+    );
+
     const handleOpen = useCallback(() => {
         setOpenFabButtons(prevOpen => !prevOpen);
     }, []);
@@ -396,7 +396,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
 
     const handleRemoveFile = useCallback(
         (file: FileInfo) => (
-            event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+            event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
         ): void => {
             setFiles(prevFiles => {
                 return prevFiles.filter(f => f.fullPath !== file.fullPath);
@@ -404,7 +404,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
 
             setRenamedFiles([]);
         },
-        [files]
+        [files],
     );
 
     return (

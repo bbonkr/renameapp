@@ -12,7 +12,7 @@
         "build:prod": "cross-env NODE_ENV=production npm run build",
         "start": "npm run build && electron ./dist/main.js",
         "electron": "electron .",
-        "lint": "tslint -c tslint.json -p tsconfig.json",
+        "lint": "eslint 'src/**/*.{ts,tsx}' --quiet --fix",
         "pack:win-x64": "npm run build:prod && electron-builder build --win --x64",
         "pack:win-x86": "npm run build:prod && electron-builder build --win --x84",
         "pack:mac": "npm run build:prod && electron-builder build --mac"
@@ -20,7 +20,10 @@
     "author": "bbon (bbon@bbon.kr)",
     "license": "MIT",
     "devDependencies": {
+        "@types/node": "^13.1.4",
         "@types/react-dom": "^16.9.4",
+        "@typescript-eslint/eslint-plugin": "^2.15.0",
+        "@typescript-eslint/parser": "^2.15.0",
         "asar": "^2.0.3",
         "cross-env": "^6.0.3",
         "electron": "^7.1.7",
@@ -28,11 +31,13 @@
         "electron-installer-dmg": "^3.0.0",
         "electron-packager": "^14.1.1",
         "electron-winstaller": "^4.0.0",
+        "eslint": "^6.8.0",
+        "eslint-config-prettier": "^6.9.0",
+        "eslint-plugin-import": "^2.19.1",
+        "eslint-plugin-prettier": "^3.1.2",
+        "eslint-plugin-react": "^7.17.0",
+        "eslint-plugin-react-hooks": "^2.3.0",
         "prettier": "^1.19.1",
-        "tslint": "^5.20.1",
-        "tslint-config-prettier": "^1.18.0",
-        "tslint-config-standard": "^9.0.0",
-        "tslint-react": "^4.1.0",
         "typescript": "^3.7.4"
     },
     "dependencies": {

@@ -1,13 +1,15 @@
 import React, { FunctionComponent } from 'react';
 import { Button } from '@material-ui/core';
 
-export interface IFileInput {
+export interface FileInputProps {
     handleClick: (
-        event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+        event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     ) => void;
 }
 
-export const FileInput: FunctionComponent<IFileInput> = ({ handleClick }) => {
+export const FileInput: FunctionComponent<FileInputProps> = ({
+    handleClick,
+}) => {
     return (
         <div>
             <Button variant="contained" color="primary" onClick={handleClick}>

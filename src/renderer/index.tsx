@@ -9,5 +9,5 @@ ReactDOM.render(
     <SnackbarProvider maxSnack={4}>
         <RenameApp />
     </SnackbarProvider>,
-    document.getElementById('app')
+    document.getElementById('app'),
 );

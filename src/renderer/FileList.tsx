@@ -13,15 +13,15 @@ import {
     Fab,
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
-export interface IListProps {
+export interface FileListProps {
     files: FileInfo[];
     showRemoveButton?: boolean;
     handleRemoveFile?: (
-        file: FileInfo
+        file: FileInfo,
     ) => (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
-export const FileList: FunctionComponent<IListProps> = ({
+export const FileList: FunctionComponent<FileListProps> = ({
     files,
     showRemoveButton,
     handleRemoveFile,

@@ -52,9 +52,11 @@ const createMainWindow = () => {
                 pathname: path.join(__dirname, '../index.html'),
                 protocol: 'file',
                 slashes: true,
-            })
+            }),
         )
-        .then(_ => {})
+        .then(_ => {
+            console.info('[MAIN] Window Loaded.');
+        })
         .catch(err => {
             console.error(err);
         });
@@ -138,13 +140,13 @@ ipcMain.on(
                                 (v: string, i: number): FileInfo => {
                                     // return getFileInfo(v);
                                     return FileInfo.fromFilePath(v);
-                                }
+                                },
                             );
 
                         event.sender.send(
                             // Channels.GET_SELECTED_FIELS,
                             callbackChannel,
-                            fileInfos
+                            fileInfos,
                         );
                     } else {
                         // console.log('Canceled');
@@ -154,7 +156,7 @@ ipcMain.on(
                     console.error(err);
                 });
         }
-    }
+    },
 );
 
 ipcMain.on(Channels.RENAME_FILES, (event, args) => {
@@ -171,7 +173,7 @@ ipcMain.on(Channels.RENAME_FILES, (event, args) => {
         const newPath = path.join(dirname, `${v.name}${extension}`);
 
         let error = '';
-        let hasError = false;
+        const hasError = false;
 
         let renamed = false;
         let resultName = oldPath;
