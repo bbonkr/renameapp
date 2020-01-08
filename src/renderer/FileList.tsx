@@ -3,16 +3,14 @@ import { FileInfo } from '../FileInfo';
 import {
     List,
     ListItem,
-    ListItemText,
     Card,
     CardHeader,
     CardContent,
-    CardActions,
     Typography,
-    Button,
     Fab,
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
+
 export interface FileListProps {
     files: FileInfo[];
     showRemoveButton?: boolean;
@@ -28,9 +26,9 @@ export const FileList: FunctionComponent<FileListProps> = ({
 }) => {
     return (
         <List>
-            {files.map((v, i) => {
+            {files.map(file => {
                 return (
-                    <ListItem key={v.fullPath}>
+                    <ListItem key={file.fullPath}>
                         <Card style={{ width: '100%' }}>
                             <CardHeader
                                 title={
@@ -38,10 +36,10 @@ export const FileList: FunctionComponent<FileListProps> = ({
                                         style={{ textOverflow: 'ellipsis' }}
                                         noWrap={false}
                                         display="inline"
-                                        title={`${v.name}${v.extension}`}
+                                        title={`${file.name}${file.extension}`}
                                         color="textPrimary"
                                     >
-                                        {`${v.name}${v.extension}`}
+                                        {`${file.name}${file.extension}`}
                                     </Typography>
                                 }
                                 action={
@@ -51,7 +49,7 @@ export const FileList: FunctionComponent<FileListProps> = ({
                                         color="primary"
                                         onClick={
                                             handleRemoveFile &&
-                                            handleRemoveFile(v)
+                                            handleRemoveFile(file)
                                         }
                                     >
                                         <DeleteIcon />
@@ -60,11 +58,11 @@ export const FileList: FunctionComponent<FileListProps> = ({
                             />
                             <CardContent>
                                 <Typography color="textSecondary">
-                                    {v.directoryName}
+                                    {file.directoryName}
                                 </Typography>
-                                {v.error ? (
+                                {file.error ? (
                                     <Typography color="error" component="pre">
-                                        {v.error}
+                                        {file.error}
                                     </Typography>
                                 ) : null}
                             </CardContent>

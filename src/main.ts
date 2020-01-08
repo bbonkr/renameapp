@@ -6,8 +6,8 @@ import { FileInfo } from './FileInfo.js';
 import setupEvents from './setup-events.js';
 import { Channels } from './typings/channels.js';
 
-const isProd = process.env.NODE_ENV === 'production';
-const isDev = process.env.NODE_ENV !== 'production';
+// const isProd = process.env.NODE_ENV === 'production';
+// const isDev = process.env.NODE_ENV !== 'production';
 
 if (require('electron-squirrel-startup')) {
     app.quit();
@@ -54,7 +54,7 @@ const createMainWindow = () => {
                 slashes: true,
             }),
         )
-        .then(_ => {
+        .then(() => {
             console.info('[MAIN] Window Loaded.');
         })
         .catch(err => {
@@ -130,14 +130,14 @@ ipcMain.on(
                     properties: ['openFile', 'multiSelections'],
                 })
                 .then(result => {
-                    const { filePaths, bookmarks, canceled } = result;
+                    const { filePaths } = result;
                     if (filePaths) {
                         const fileInfos = filePaths
                             .sort((a: string, b: string): number => {
                                 return a > b ? 1 : -1;
                             })
                             .map(
-                                (v: string, i: number): FileInfo => {
+                                (v: string): FileInfo => {
                                     // return getFileInfo(v);
                                     return FileInfo.fromFilePath(v);
                                 },

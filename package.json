@@ -12,7 +12,8 @@
         "build:prod": "cross-env NODE_ENV=production npm run build",
         "start": "npm run build && electron ./dist/main.js",
         "electron": "electron .",
-        "lint": "eslint 'src/**/*.{ts,tsx}' --quiet --fix",
+        "lint": "eslint 'src/**/*.{ts,tsx}'",
+        "lint:fix": "eslint 'src/**/*.{ts,tsx}' --quiet --fix",
         "pack:win-x64": "npm run build:prod && electron-builder build --win --x64",
         "pack:win-x86": "npm run build:prod && electron-builder build --win --x84",
         "pack:mac": "npm run build:prod && electron-builder build --mac"
