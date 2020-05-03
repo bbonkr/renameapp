@@ -41,9 +41,9 @@ const createMainWindow = () => {
     // }
 
     // 개발자 도구를 엽니다.
-    if (isDev) {
-        mainWindow.webContents.openDevTools();
-    }
+    // if (isDev) {
+    //     mainWindow.webContents.openDevTools();
+    // }
 
     // if (isDev) {
     //     mainWindow
