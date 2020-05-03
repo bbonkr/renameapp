@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { FileInfo } from '../FileInfo';
+import { FileInfoModel } from '../../../interfaces';
 import {
     List,
     ListItem,
@@ -11,19 +11,19 @@ import {
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-export interface FileListProps {
-    files: FileInfo[];
+interface FileListProps {
+    files: FileInfoModel[];
     showRemoveButton?: boolean;
     handleRemoveFile?: (
-        file: FileInfo,
+        file: FileInfoModel,
     ) => (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
 
-export const FileList: FunctionComponent<FileListProps> = ({
+export const FileList = ({
     files,
     showRemoveButton,
     handleRemoveFile,
-}) => {
+}: FileListProps) => {
     return (
         <List>
             {files.map(file => {

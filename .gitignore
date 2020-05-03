@@ -334,6 +334,8 @@ ASALocalRun/
 # dist
 dist/
 pack/
+.build/
+.cache/
 
 # macos
 .[Dd][Ss]_[Ss]tore

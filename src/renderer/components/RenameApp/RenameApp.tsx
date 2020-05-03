@@ -6,18 +6,15 @@ import React, {
     useCallback,
     useRef,
 } from 'react';
-import { FileInput } from './FileInput';
-import { FileList } from './FileList';
-import { FileInfo } from '../FileInfo';
-import { types } from '../typings/replaceType';
+import { FileInput } from '../FileInput';
+import { FileList } from '../FileList';
+import { FileInfo } from '../../../FileInfo';
+import { types } from '../../../typings/replaceType';
 import {
     Box,
     Grid,
     AppBar,
     Toolbar,
-    makeStyles,
-    Theme,
-    createStyles,
     Paper,
     Button,
     ButtonGroup,
@@ -35,66 +32,16 @@ import {
     Popper,
     Grow,
     ClickAwayListener,
+    TextField,
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import MenuIcon from '@material-ui/icons/Menu';
 import CloseIcon from '@material-ui/icons/Close';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
-import { Channels } from '../typings/channels';
+import { Channels } from '../../../typings/channels';
 import { SnackbarOrigin } from '@material-ui/core/Snackbar';
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        root: {
-            flexGrow: 1,
-            padding: 0,
-            margin: 0,
-        },
-        contentWrapper: {
-            padding: '0.8rem',
-        },
-        contentContainer: {
-            margin: '0 0.3rem',
-        },
-        menuButton: {
-            marginRight: theme.spacing(2),
-        },
-        title: {
-            flexGrow: 1,
-        },
-        formControl: {
-            margin: theme.spacing(1),
-            minWidth: 120,
-        },
-        selectEmpty: {
-            marginTop: theme.spacing(2),
-        },
-        formContainer: {
-            display: 'flex',
-            flexWrap: 'wrap',
-        },
-        textField: {
-            marginLeft: theme.spacing(1),
-            marginRight: theme.spacing(1),
-            width: 200,
-        },
-        fileInput: {
-            padding: '1rem 0.8rem',
-            margin: '0.3rem',
-        },
-        appButtonOpenFiles: {
-            position: 'fixed',
-            bottom: '2rem',
-            right: '2rem',
-            zIndex: 1000,
-        },
-        fileListContainer: {
-            minHeight: '100%',
-            padding: '1rem 0.8rem',
-            margin: '0.3rem',
-        },
-    }),
-);
+import { useStyles } from './style';
+import { FileInfoModel } from '../../../interfaces';
 
 export type IRenameAppProps = WithSnackbarProps;
 
@@ -103,8 +50,8 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
 }) => {
     const classes = useStyles();
 
-    const [files, setFiles] = useState<FileInfo[]>([]);
-    const [renamedFiles, setRenamedFiles] = useState<FileInfo[]>([]);
+    const [files, setFiles] = useState<FileInfoModel[]>([]);
+    const [renamedFiles, setRenamedFiles] = useState<FileInfoModel[]>([]);
     const [type, setType] = useState('1');
     const [append, setAppend] = useState('');
     const [lookup, setLookup] = useState('');
@@ -127,7 +74,10 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
     };
 
     useEffect(() => {
-        const getSelectedFiles = (ev: IpcRendererEvent, args: FileInfo[]) => {
+        const getSelectedFiles = (
+            ev: IpcRendererEvent,
+            args: FileInfoModel[],
+        ) => {
             setFiles(args);
             setRenamedFiles([]);
             if (args && args.length > 0) {
@@ -144,7 +94,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
 
         const getSelectedFilesAndAppend = (
             ev: IpcRendererEvent,
-            args: FileInfo[],
+            args: FileInfoModel[],
         ) => {
             setFiles(prevFiles => {
                 args.forEach(x => {
@@ -156,9 +106,11 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
                     }
                 });
 
-                return prevFiles.sort((a: FileInfo, b: FileInfo): number => {
-                    return a.fullPath > b.fullPath ? 1 : -1;
-                });
+                return prevFiles.sort(
+                    (a: FileInfoModel, b: FileInfoModel): number => {
+                        return a.fullPath > b.fullPath ? 1 : -1;
+                    },
+                );
             });
 
             setRenamedFiles([]);
@@ -177,7 +129,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
 
         const renameFilesCallback = (
             ev: IpcRendererEvent,
-            args: FileInfo[],
+            args: FileInfoModel[],
         ) => {
             setFiles(args);
             setRenamedFiles([]);
@@ -338,7 +290,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
     );
 
     const applyRename = useCallback(() => {
-        const candidateFiles = files.map((v, i) => {
+        const candidateFiles: FileInfoModel[] = files.map((v, i) => {
             let name = '';
 
             if (type === '1') {
@@ -357,12 +309,12 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
             }
 
             // return obj;
-            return new FileInfo({
+            return {
                 ...v,
                 name: name,
                 error: null,
                 renamed: false,
-            });
+            };
         });
 
         setRenamedFiles(candidateFiles);
@@ -393,7 +345,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
     }, []);
 
     const handleRemoveFile = useCallback(
-        (file: FileInfo) => (
+        (file: FileInfoModel) => (
             event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
         ): void => {
             setFiles(prevFiles => {
@@ -424,6 +376,7 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
                         </Typography>
                     </Toolbar>
                 </AppBar>
+
                 <Box className={classes.contentWrapper}>
                     <Paper className={classes.fileInput}>
                         <FileInput handleClick={onOpenFileClick} />
@@ -456,98 +409,186 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
                                 </Select>
                             </FormControl>
 
-                            {type === '2' || type === '3' ? (
-                                <FormControl className={classes.formControl}>
-                                    <InputLabel htmlFor="append-text-input">
-                                        추가할 문자열
-                                    </InputLabel>
-                                    <Input
-                                        id="append-text-input"
-                                        value={append}
-                                        onChange={onAppendChanged}
-                                        className={classes.textField}
-                                        margin="none"
-                                    />
-                                </FormControl>
-                            ) : null}
+                            <Box
+                                display="flex"
+                                flexDirection="row"
+                                alignItems="baseline"
+                                justifyContent="stretch"
+                                style={{ flex: 1 }}
+                            >
+                                {type === '2' || type === '3' ? (
+                                    <FormControl
+                                        className={classes.formControl}
+                                        style={{ flex: 1 }}
+                                    >
+                                        {/* <InputLabel htmlFor="append-text-input">
+                                            추가할 문자열
+                                        </InputLabel>
+                                        <Input
+                                            id="append-text-input"
+                                            value={append}
+                                            onChange={onAppendChanged}
+                                            className={classes.textField}
+                                            margin="none"
+                                        /> */}
+                                        <TextField
+                                            label="추가할 문자열"
+                                            id="append-text-input"
+                                            value={append}
+                                            onChange={onAppendChanged}
+                                            className={classes.textField}
+                                            margin="none"
+                                            fullWidth
+                                            helperText={`입력된 문자열이 ${
+                                                type === '2' ? '앞' : '뒷'
+                                            }에 추가됩니다.`}
+                                        />
+                                    </FormControl>
+                                ) : null}
 
-                            {type === '1' ? (
-                                <>
-                                    <FormControl
-                                        className={classes.formControl}
-                                    >
-                                        <InputLabel htmlFor="lookup-text-input">
-                                            찾는 문자열
-                                        </InputLabel>
-                                        <Input
-                                            id="lookup-text-input"
-                                            value={lookup}
-                                            onChange={onLookupChanged}
-                                            className={classes.textField}
-                                            placeholder="찾는 문자열"
-                                            margin="none"
-                                        />
-                                    </FormControl>
-                                    <FormControl
-                                        className={classes.formControl}
-                                    >
-                                        <InputLabel htmlFor="replace-text-input">
-                                            변경할 문자열
-                                        </InputLabel>
-                                        <Input
-                                            id="replace-text-input"
-                                            value={replace}
-                                            onChange={onReplaceChanged}
-                                            className={classes.textField}
-                                            placeholder="변경할 문자열"
-                                            aria-describedby="replace-text-input-helper"
-                                            margin="none"
-                                        />
-                                        <FormHelperText id="replace-text-input-helper">
-                                            첫번째 발견된 문자열만 변경됩니다.
-                                        </FormHelperText>
-                                    </FormControl>
-                                </>
-                            ) : null}
-                            {type === '4' ? (
-                                <>
-                                    <FormControl
-                                        className={classes.formControl}
-                                    >
-                                        <InputLabel htmlFor="lookup-regexp-input-text">
-                                            찾는 정규식
-                                        </InputLabel>
-                                        <Input
-                                            id="lookup-regexp-input-text"
-                                            value={lookupRegExp}
-                                            onChange={onLookupRegExpChanged}
-                                            className={classes.textField}
-                                            margin="none"
-                                            placeholder="정규식"
-                                            aria-describedby="lookup-regexp-input-help-text"
-                                            startAdornment={<span>/</span>}
-                                            endAdornment={<span>/gi</span>}
-                                        />
-                                        <FormHelperText id="lookup-regexp-input-help-text">
-                                            발견된 모든 문자열이 변경됩니다.
-                                        </FormHelperText>
-                                    </FormControl>
-                                    <FormControl
-                                        className={classes.formControl}
-                                    >
-                                        <InputLabel htmlFor="replace-reg-exp-text-input">
-                                            변경할 문자열
-                                        </InputLabel>
-                                        <Input
-                                            id="replace-reg-exp-text-input"
-                                            value={replaceRegExp}
-                                            onChange={onReplaceRegExpChanged}
-                                            margin="none"
-                                            className={classes.textField}
-                                        />
-                                    </FormControl>
-                                </>
-                            ) : null}
+                                {type === '1' ? (
+                                    <>
+                                        <FormControl
+                                            className={classes.formControl}
+                                            style={{ flex: 1 }}
+                                        >
+                                            {/* <InputLabel htmlFor="lookup-text-input">
+                                                찾는 문자열
+                                            </InputLabel>
+                                            <Input
+                                                id="lookup-text-input"
+                                                value={lookup}
+                                                onChange={onLookupChanged}
+                                                className={classes.textField}
+                                                placeholder="찾는 문자열"
+                                                margin="none"
+                                            /> */}
+                                            <TextField
+                                                label="찾는 문자열"
+                                                id="lookup-text-input"
+                                                value={lookup}
+                                                onChange={onLookupChanged}
+                                                className={classes.textField}
+                                                placeholder="찾는 문자열"
+                                                margin="none"
+                                                fullWidth
+                                                helperText="변경하기 위해 찾을 문자열"
+                                            />
+                                        </FormControl>
+                                        <FormControl
+                                            className={classes.formControl}
+                                            style={{ flex: 1 }}
+                                        >
+                                            {/* <InputLabel htmlFor="replace-text-input">
+                                                변경할 문자열
+                                            </InputLabel>
+                                            <Input
+                                                id="replace-text-input"
+                                                value={replace}
+                                                onChange={onReplaceChanged}
+                                                className={classes.textField}
+                                                placeholder="변경할 문자열"
+                                                aria-describedby="replace-text-input-helper"
+                                                margin="none"
+                                            />
+
+                                            <FormHelperText id="replace-text-input-helper">
+                                                첫번째 발견된 문자열만
+                                                변경됩니다.
+                                            </FormHelperText> */}
+
+                                            <TextField
+                                                label="변경할 문자열"
+                                                id="replace-text-input"
+                                                value={replace}
+                                                onChange={onReplaceChanged}
+                                                className={classes.textField}
+                                                placeholder="변경할 문자열"
+                                                aria-describedby="replace-text-input-helper"
+                                                margin="none"
+                                                helperText="첫번째 발견된 문자열만 변경됩니다."
+                                                fullWidth
+                                            />
+                                        </FormControl>
+                                    </>
+                                ) : null}
+                                {type === '4' ? (
+                                    <>
+                                        <FormControl
+                                            className={classes.formControl}
+                                            style={{ flex: 1 }}
+                                        >
+                                            {/* <InputLabel htmlFor="lookup-regexp-input-text">
+                                                찾는 정규식
+                                            </InputLabel>
+                                            <Input
+                                                id="lookup-regexp-input-text"
+                                                value={lookupRegExp}
+                                                onChange={onLookupRegExpChanged}
+                                                className={classes.textField}
+                                                margin="none"
+                                                placeholder="정규식"
+                                                aria-describedby="lookup-regexp-input-help-text"
+                                                startAdornment={<span>/</span>}
+                                                endAdornment={<span>/gi</span>}
+                                            />
+                                            <FormHelperText id="lookup-regexp-input-help-text">
+                                                발견된 모든 문자열이 변경됩니다.
+                                            </FormHelperText> */}
+
+                                            <TextField
+                                                label="찾는 정규식"
+                                                id="lookup-regexp-input-text"
+                                                value={lookupRegExp}
+                                                onChange={onLookupRegExpChanged}
+                                                className={classes.textField}
+                                                margin="none"
+                                                placeholder="정규식"
+                                                aria-describedby="lookup-regexp-input-help-text"
+                                                InputProps={{
+                                                    startAdornment: (
+                                                        <span>/</span>
+                                                    ),
+                                                    endAdornment: (
+                                                        <span>/gi</span>
+                                                    ),
+                                                }}
+                                                helperText="발견된 모든 문자열이 변경됩니다."
+                                                fullWidth
+                                            />
+                                        </FormControl>
+                                        <FormControl
+                                            className={classes.formControl}
+                                            style={{ flex: 1 }}
+                                        >
+                                            {/* <InputLabel htmlFor="replace-reg-exp-text-input">
+                                                변경할 문자열
+                                            </InputLabel>
+                                            <Input
+                                                id="replace-reg-exp-text-input"
+                                                value={replaceRegExp}
+                                                onChange={
+                                                    onReplaceRegExpChanged
+                                                }
+                                                margin="none"
+                                                className={classes.textField}
+                                            /> */}
+                                            <TextField
+                                                label="변경할 문자열"
+                                                id="replace-reg-exp-text-input"
+                                                value={replaceRegExp}
+                                                onChange={
+                                                    onReplaceRegExpChanged
+                                                }
+                                                margin="none"
+                                                className={classes.textField}
+                                                fullWidth
+                                                helperText=""
+                                            />
+                                        </FormControl>
+                                    </>
+                                ) : null}
+                            </Box>
                         </form>
                     </Paper>
                     <Paper className={classes.fileInput}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { RenameApp } from './RenameApp';
+import { RenameApp } from './components/RenameApp';
 import { SnackbarProvider } from 'notistack';
 
 // import '../scss/app.scss';

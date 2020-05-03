@@ -17,7 +17,10 @@
         "pack:win-x64": "npm run build:prod && electron-builder build --win --x64",
         "pack:win-x86": "npm run build:prod && electron-builder build --win",
         "pack:win": "npm run build:prod && electron-builder build --win --x64 && electron-builder build --win",
-        "pack:mac": "npm run build:prod && electron-builder build --mac"
+        "pack:mac": "npm run build:prod && electron-builder build --mac",
+        "dev": "concurrently \"npm run dev:renderer\" \"wait-on http://localhost:3000 && electron ./dist/main.js\"",
+        "dev:renderer": "parcel index.html --port 3000 --no-cache --out-dir .build --target electron",
+        "build:renderer": "parcel build index.html --no-cache --no-source-maps --out-dir .build --public-url ./ --target electron"
     },
     "author": "bbon (bbon@bbon.kr)",
     "license": "MIT",
@@ -27,6 +30,7 @@
         "@typescript-eslint/eslint-plugin": "^2.30.0",
         "@typescript-eslint/parser": "^2.30.0",
         "asar": "^3.0.3",
+        "concurrently": "^5.2.0",
         "cross-env": "^7.0.2",
         "electron": "^8.2.5",
         "electron-builder": "^22.6.0",
@@ -39,8 +43,10 @@
         "eslint-plugin-prettier": "^3.1.3",
         "eslint-plugin-react": "^7.19.0",
         "eslint-plugin-react-hooks": "^4.0.0",
+        "parcel": "^1.12.4",
         "prettier": "^2.0.5",
-        "typescript": "^3.8.3"
+        "typescript": "^3.8.3",
+        "wait-on": "^4.0.2"
     },
     "dependencies": {
         "@material-ui/core": "^4.9.12",
