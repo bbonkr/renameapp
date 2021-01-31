@@ -18,10 +18,7 @@
         "pack:win-x86": "npm run build:prod && cross-env NODE_ENV=production electron-builder build --win",
         "pack:win": "npm run build:prod && electron-builder build --win --x64 && electron-builder build --win",
         "pack:mac": "npm run build:prod && cross-env NODE_ENV=production electron-builder build --mac",
-        "dev": "concurrently \"npm run dev:renderer\" \"wait-on http://localhost:3000 && electron ./dist/main.js\"",
-        "!!!dev:renderer": "does not work! parcel index.html --port 3000 --no-cache --out-dir .build --target electron",
-        "!!!build:renderer": "does not work! parcel build index.html --no-cache --no-source-maps --out-dir .build --public-url ./ --target electron",
-        "webpack": "webpack"
+        "dev": "concurrently \"npm run dev:renderer\" \"wait-on http://localhost:3000 && electron ./dist/main.js\""
     },
     "author": "bbon (bbon@bbon.kr)",
     "license": "MIT",
