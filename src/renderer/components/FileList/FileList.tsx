@@ -1,5 +1,5 @@
 import React, { FunctionComponent } from 'react';
-import { FileInfoModel } from '../../../interfaces';
+import { FileInfoModel } from '../../../models';
 import {
     List,
     ListItem,

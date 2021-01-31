@@ -1,5 +1,5 @@
 import path from 'path';
-import { FileInfoModel } from './interfaces';
+import { FileInfoModel } from '../models';
 
 export class FileInfo implements FileInfoModel {
     public static fromFilePath(filePath: string): FileInfo {

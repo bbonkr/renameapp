@@ -1,10 +1,10 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron';
 import fs from 'fs';
 import path from 'path';
-import { format } from 'url';
-import { FileInfo } from './FileInfo.js';
-import setupEvents from './setup-events.js';
-import { Channels } from './typings/channels.js';
+import { format, URL } from 'url';
+import { FileInfo } from '../lib/FileInfo';
+import setupEvents from './setup-events';
+import { Channels } from '../models/channels';
 
 // const isProd = process.env.NODE_ENV === 'production';
 const isDev = process.env.NODE_ENV !== 'production';
@@ -55,15 +55,13 @@ const createMainWindow = () => {
     //             console.error(err);
     //         });
     //     mainWindow.webContents.openDevTools();
-    // } else {}
+    // }
+    // else {
+    // }
     // 앱의 index.html 파일을 로드합니다.
     mainWindow
         .loadURL(
-            format({
-                pathname: path.join(__dirname, '../index.html'),
-                protocol: 'file',
-                slashes: true,
-            }),
+            format(new URL(`file:///${path.join(__dirname, './index.html')}`)),
         )
         .then(() => {
             console.info('[MAIN] Window Loaded.');
@@ -240,7 +238,7 @@ ipcMain.on(Channels.RENAME_FILES, (event, args) => {
 });
 
 ipcMain.on('showItemInFolder', (event, args) => {
-    const dirname = args['path'];
+    const dirname = args.path;
     const result = shell.showItemInFolder(dirname);
 
     event.sender.send('showItemInFolder-callback', result);
