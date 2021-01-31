@@ -1,15 +1,9 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
-import React, {
-    FunctionComponent,
-    useState,
-    useEffect,
-    useCallback,
-    useRef,
-} from 'react';
 import { FileInput } from '../FileInput';
 import { FileList } from '../FileList';
-import { FileInfo } from '../../../FileInfo';
-import { types } from '../../../typings/replaceType';
+// import { FileInfo } from '../../../lib/FileInfo'
+import { types } from '../../../models/replaceType';
 import {
     Box,
     Grid,
@@ -25,8 +19,6 @@ import {
     Typography,
     Container,
     CssBaseline,
-    Input,
-    FormHelperText,
     Fab,
     IconButton,
     Popper,
@@ -38,16 +30,14 @@ import AddIcon from '@material-ui/icons/Add';
 import MenuIcon from '@material-ui/icons/Menu';
 import CloseIcon from '@material-ui/icons/Close';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
-import { Channels } from '../../../typings/channels';
+import { Channels } from '../../../models/channels';
 import { SnackbarOrigin } from '@material-ui/core/Snackbar';
 import { useStyles } from './style';
-import { FileInfoModel } from '../../../interfaces';
+import { FileInfoModel } from '../../../models';
 
-export type IRenameAppProps = WithSnackbarProps;
+type RenameAppProps = WithSnackbarProps;
 
-const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
-    enqueueSnackbar,
-}) => {
+const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
     const classes = useStyles();
 
     const [files, setFiles] = useState<FileInfoModel[]>([]);
@@ -610,8 +600,8 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
                     </Paper>
 
                     <Box className={classes.contentContainer}>
-                        <Grid container={true} spacing={2}>
-                            <Grid item={true} xs={6}>
+                        <Grid container spacing={2} component="div">
+                            <Grid item xs={6} component="div">
                                 <Paper className={classes.contentWrapper}>
                                     <Typography variant="h6" component="h3">
                                         Before
@@ -623,13 +613,16 @@ const RenameAppInternal: FunctionComponent<IRenameAppProps> = ({
                                     handleRemoveFile={handleRemoveFile}
                                 />
                             </Grid>
-                            <Grid item={true} xs={6}>
-                                <Paper className={classes.contentWrapper}>
-                                    <Typography variant="h6" component="h3">
-                                        After
-                                    </Typography>
-                                </Paper>
-                                <FileList files={renamedFiles} />
+                            <Grid item={true} xs={6} component="div">
+                                <React.Fragment>
+                                    <Paper className={classes.contentWrapper}>
+                                        <Typography variant="h6" component="h3">
+                                            After
+                                        </Typography>
+                                    </Paper>
+
+                                    <FileList files={renamedFiles} />
+                                </React.Fragment>
                             </Grid>
                         </Grid>
                     </Box>
