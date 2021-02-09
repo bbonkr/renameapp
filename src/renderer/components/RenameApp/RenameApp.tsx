@@ -1,39 +1,26 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { FileInput } from '../FileInput';
 import { FileList } from '../FileList';
-// import { FileInfo } from '../../../lib/FileInfo'
-import { types } from '../../../models/replaceType';
 import {
     Box,
     Grid,
-    AppBar,
-    Toolbar,
     Paper,
     Button,
     ButtonGroup,
-    Select,
-    MenuItem,
-    InputLabel,
-    FormControl,
     Typography,
     Container,
     CssBaseline,
-    Fab,
-    IconButton,
-    Popper,
-    Grow,
-    ClickAwayListener,
-    TextField,
 } from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
-import MenuIcon from '@material-ui/icons/Menu';
-import CloseIcon from '@material-ui/icons/Close';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
 import { Channels } from '../../../models/channels';
 import { SnackbarOrigin } from '@material-ui/core/Snackbar';
 import { useStyles } from './style';
 import { FileInfoModel } from '../../../models';
+import { AddFileTool } from '../AddFileTool';
+import { Header } from '../Header';
+import { RenameTool, FormData } from '../RenameTool';
+import { GoToTop } from '../GoToTop';
 
 type RenameAppProps = WithSnackbarProps;
 
@@ -43,16 +30,11 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
     const [files, setFiles] = useState<FileInfoModel[]>([]);
     const [renamedFiles, setRenamedFiles] = useState<FileInfoModel[]>([]);
     const [type, setType] = useState('1');
-    const [append, setAppend] = useState('');
-    const [lookup, setLookup] = useState('');
-    const [replace, setReplace] = useState('');
-    const [lookupRegExp, setLookupRegExp] = useState('');
-    const [replaceRegExp, setReplaceRegExp] = useState('');
+    const [replaceLookup, setReplaceLookup] = useState('');
+    const [replaceValue, setReplaceValue] = useState('');
     const [enablePreviewButton, setEnablePreviewButton] = useState(false);
     const [enabledRenameButton, setEnabledRenameButton] = useState(false);
-    const [openFabButtons, setOpenFabButtons] = useState(false);
-
-    const fabButtonAnchorRef = useRef<HTMLDivElement>(null);
+    const [openAddFileTool, setOpenAddFileTool] = useState(false);
 
     const notistackAnchorOptions: SnackbarOrigin = {
         vertical: 'top',
@@ -63,9 +45,17 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         return date.getUTCMilliseconds().toString();
     };
 
+    const handleChangeFormData = (data: FormData) => {
+        setType(_ => data.type);
+        setReplaceLookup(_ => data.lookup);
+
+        setReplaceValue(_ => data.value);
+        setEnabledRenameButton(_ => false);
+    };
+
     useEffect(() => {
         const getSelectedFiles = (
-            ev: IpcRendererEvent,
+            _ev: IpcRendererEvent,
             args: FileInfoModel[],
         ) => {
             setFiles(args);
@@ -79,11 +69,11 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             }
 
             // 앱 버튼 닫기
-            setOpenFabButtons(false);
+            setOpenAddFileTool(_ => false);
         };
 
         const getSelectedFilesAndAppend = (
-            ev: IpcRendererEvent,
+            _ev: IpcRendererEvent,
             args: FileInfoModel[],
         ) => {
             setFiles(prevFiles => {
@@ -114,20 +104,24 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             }
 
             // 앱 버튼 닫기
-            setOpenFabButtons(false);
+            setOpenAddFileTool(_ => false);
         };
 
         const renameFilesCallback = (
-            ev: IpcRendererEvent,
+            _ev: IpcRendererEvent,
             args: FileInfoModel[],
         ) => {
             setFiles(args);
             setRenamedFiles([]);
-            setAppend('');
-            setLookup('');
-            setReplace('');
-            setLookupRegExp('');
-            setReplaceRegExp('');
+            // setAppend('');
+            // setLookup('');
+            // setReplace('');
+            // setLookupRegExp('');
+            // setReplaceRegExp('');
+
+            setReplaceLookup('');
+            setReplaceValue('');
+
             setEnablePreviewButton(false);
             setEnabledRenameButton(false);
 
@@ -167,35 +161,32 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             }
 
             if (type === '1') {
-                if (lookup && lookup.length > 0) {
-                    return true;
+                if (!replaceLookup || replaceLookup.length === 0) {
+                    return false;
                 }
             }
 
-            if (type === '2') {
-                if (append && append.length > 0) {
-                    return true;
-                }
-            }
-
-            if (type === '3') {
-                if (append && append.length > 0) {
+            if (type === '2' || type === '3') {
+                if (replaceValue || replaceValue.length === 0) {
                     return true;
                 }
             }
 
             if (type === '4') {
-                if (lookupRegExp && lookupRegExp.length > 0) {
-                    return true;
+                if (!replaceLookup || replaceLookup.length === 0) {
+                    return false;
+                }
+                if (!replaceLookup || replaceLookup.length === 0) {
+                    return false;
                 }
             }
 
-            return false;
+            return true;
         };
         const previewButtonEanbeld = getPreviewButtonEnabled();
 
         setEnablePreviewButton(previewButtonEanbeld);
-    }, [files, type, lookup, append, lookupRegExp]);
+    }, [files, type, replaceLookup, replaceValue]);
 
     useEffect(() => {
         if (!enablePreviewButton) {
@@ -209,93 +200,49 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         }
     }, [renamedFiles]);
 
-    const onOpenFileClick = useCallback(
-        (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
-            ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
-                Channels.GET_SELECTED_FILES,
-            ]);
-        },
-        [],
-    );
+    const onOpenFileClick = () => {
+        ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
+            Channels.GET_SELECTED_FILES,
+        ]);
+    };
 
-    const onOpenFileAndAppendClick = useCallback(
-        (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
-            ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
-                Channels.GET_SELECTED_FILES_APPEND,
-            ]);
-        },
-        [],
-    );
+    const onOpenFileAndAppendClick = () => {
+        ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
+            Channels.GET_SELECTED_FILES_APPEND,
+        ]);
+    };
 
-    const onTypeChanged = useCallback(
-        event => {
-            const selectedValue = event.target.value;
-            if (type !== selectedValue) {
-                setType(selectedValue);
-                setAppend('');
-                setLookup('');
-                setReplace('');
-                setLookupRegExp('');
-                setReplaceRegExp('');
-                setEnablePreviewButton(false);
-                setEnabledRenameButton(false);
-            }
-        },
-        [files, type, lookup, append, lookupRegExp],
-    );
+    const handleOpenAddFileTool = () => {
+        setOpenAddFileTool(_ => true);
+    };
+    const handleCloseAddFileTool = () => {
+        setOpenAddFileTool(_ => false);
+    };
 
-    const onAppendChanged = useCallback(event => {
-        const changedValue = event.target.value;
-        setAppend(changedValue);
-    }, []);
+    const handleClickRename = () => {
+        if (renamedFiles && renamedFiles.length > 0) {
+            ipcRenderer.send(Channels.RENAME_FILES, renamedFiles);
+            setEnabledRenameButton(false);
+        }
+    };
 
-    const onLookupChanged = useCallback(event => {
-        const changedValue = event.target.value;
-        setLookup(changedValue);
-    }, []);
-
-    const onReplaceChanged = useCallback(event => {
-        const changedValue = event.target.value;
-        setReplace(changedValue);
-    }, []);
-
-    const onLookupRegExpChanged = useCallback(event => {
-        const changedValue = event.target.value;
-        setLookupRegExp(changedValue);
-    }, []);
-
-    const onReplaceRegExpChanged = useCallback(event => {
-        const changedValue = event.target.value;
-        setReplaceRegExp(changedValue);
-    }, []);
-
-    const onRenameClick = useCallback(
-        event => {
-            if (renamedFiles) {
-                ipcRenderer.send(Channels.RENAME_FILES, renamedFiles);
-                setEnabledRenameButton(false);
-            }
-        },
-        [renamedFiles],
-    );
-
-    const applyRename = useCallback(() => {
-        const candidateFiles: FileInfoModel[] = files.map((v, i) => {
+    const applyRename = () => {
+        const candidateFiles: FileInfoModel[] = files.map(v => {
             let name = '';
 
             if (type === '1') {
-                name = v.name.replace(lookup, replace);
+                name = v.name.replace(replaceLookup, replaceValue);
             }
             if (type === '2') {
-                name = `${append}${v.name}`;
+                name = `${replaceValue}${v.name}`;
             }
             if (type === '3') {
-                name = `${v.name}${append}`;
+                name = `${v.name}${replaceValue}`;
             }
             if (type === '4') {
                 // 정규식
-                const regExp = new RegExp(lookupRegExp, 'gi');
-                name = v.name.replace(regExp, replaceRegExp);
+                const regExp = new RegExp(replaceLookup, 'gi');
+                name = v.name.replace(regExp, replaceValue);
             }
 
             // return obj;
@@ -308,291 +255,46 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         });
 
         setRenamedFiles(candidateFiles);
-    }, [files, type, lookup, replace, append, lookupRegExp, replaceRegExp]);
+    };
 
-    const onPreviewClick = useCallback(
-        event => {
-            applyRename();
+    const handleClickPreview = () => {
+        applyRename();
 
-            setEnabledRenameButton(true);
-        },
-        [files, type, lookup, replace, append, lookupRegExp, replaceRegExp],
-    );
+        setEnabledRenameButton(true);
+    };
 
-    const handleOpen = useCallback(() => {
-        setOpenFabButtons(prevOpen => !prevOpen);
-    }, []);
+    const handleClickRemoveFile = (file: FileInfoModel) => (): void => {
+        setFiles(prevFiles => {
+            return prevFiles.filter(f => f.fullPath !== file.fullPath);
+        });
 
-    const handleClose = useCallback(event => {
-        if (
-            fabButtonAnchorRef.current &&
-            fabButtonAnchorRef.current.contains(event.target as HTMLElement)
-        ) {
-            return;
-        }
-
-        setOpenFabButtons(false);
-    }, []);
-
-    const handleRemoveFile = useCallback(
-        (file: FileInfoModel) => (
-            event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-        ): void => {
-            setFiles(prevFiles => {
-                return prevFiles.filter(f => f.fullPath !== file.fullPath);
-            });
-
-            setRenamedFiles([]);
-        },
-        [files],
-    );
+        setRenamedFiles([]);
+    };
 
     return (
         <>
             <CssBaseline />
             <Container maxWidth={false} className={classes.root}>
-                <AppBar position="sticky">
-                    <Toolbar>
-                        <IconButton
-                            edge="start"
-                            className={classes.menuButton}
-                            color="inherit"
-                            arai-label="menu"
-                        >
-                            <MenuIcon />
-                        </IconButton>
-                        <Typography variant="h6" className={classes.title}>
-                            Rename App
-                        </Typography>
-                    </Toolbar>
-                </AppBar>
+                <Header title="Rename App" />
 
                 <Box className={classes.contentWrapper}>
                     <Paper className={classes.fileInput}>
                         <FileInput handleClick={onOpenFileClick} />
                     </Paper>
+                    <RenameTool onChange={handleChangeFormData} />
 
-                    <Paper className={classes.contentContainer}>
-                        <form
-                            className={classes.formContainer}
-                            noValidate={true}
-                            autoComplete="off"
-                        >
-                            <FormControl className={classes.formControl}>
-                                <InputLabel id="selectOperationType">
-                                    Type
-                                </InputLabel>
-                                <Select
-                                    labelId="selectOperationType"
-                                    id="demo-simple-select"
-                                    value={type}
-                                    onChange={onTypeChanged}
-                                    margin="none"
-                                >
-                                    {types.map((v, i) => {
-                                        return (
-                                            <MenuItem key={v.key} value={v.key}>
-                                                {v.value}
-                                            </MenuItem>
-                                        );
-                                    })}
-                                </Select>
-                            </FormControl>
-
-                            <Box
-                                display="flex"
-                                flexDirection="row"
-                                alignItems="baseline"
-                                justifyContent="stretch"
-                                style={{ flex: 1 }}
-                            >
-                                {type === '2' || type === '3' ? (
-                                    <FormControl
-                                        className={classes.formControl}
-                                        style={{ flex: 1 }}
-                                    >
-                                        {/* <InputLabel htmlFor="append-text-input">
-                                            추가할 문자열
-                                        </InputLabel>
-                                        <Input
-                                            id="append-text-input"
-                                            value={append}
-                                            onChange={onAppendChanged}
-                                            className={classes.textField}
-                                            margin="none"
-                                        /> */}
-                                        <TextField
-                                            label="추가할 문자열"
-                                            id="append-text-input"
-                                            value={append}
-                                            onChange={onAppendChanged}
-                                            className={classes.textField}
-                                            margin="none"
-                                            fullWidth
-                                            helperText={`입력된 문자열이 ${
-                                                type === '2' ? '앞' : '뒷'
-                                            }에 추가됩니다.`}
-                                        />
-                                    </FormControl>
-                                ) : null}
-
-                                {type === '1' ? (
-                                    <>
-                                        <FormControl
-                                            className={classes.formControl}
-                                            style={{ flex: 1 }}
-                                        >
-                                            {/* <InputLabel htmlFor="lookup-text-input">
-                                                찾는 문자열
-                                            </InputLabel>
-                                            <Input
-                                                id="lookup-text-input"
-                                                value={lookup}
-                                                onChange={onLookupChanged}
-                                                className={classes.textField}
-                                                placeholder="찾는 문자열"
-                                                margin="none"
-                                            /> */}
-                                            <TextField
-                                                label="찾는 문자열"
-                                                id="lookup-text-input"
-                                                value={lookup}
-                                                onChange={onLookupChanged}
-                                                className={classes.textField}
-                                                placeholder="찾는 문자열"
-                                                margin="none"
-                                                fullWidth
-                                                helperText="변경하기 위해 찾을 문자열"
-                                            />
-                                        </FormControl>
-                                        <FormControl
-                                            className={classes.formControl}
-                                            style={{ flex: 1 }}
-                                        >
-                                            {/* <InputLabel htmlFor="replace-text-input">
-                                                변경할 문자열
-                                            </InputLabel>
-                                            <Input
-                                                id="replace-text-input"
-                                                value={replace}
-                                                onChange={onReplaceChanged}
-                                                className={classes.textField}
-                                                placeholder="변경할 문자열"
-                                                aria-describedby="replace-text-input-helper"
-                                                margin="none"
-                                            />
-
-                                            <FormHelperText id="replace-text-input-helper">
-                                                첫번째 발견된 문자열만
-                                                변경됩니다.
-                                            </FormHelperText> */}
-
-                                            <TextField
-                                                label="변경할 문자열"
-                                                id="replace-text-input"
-                                                value={replace}
-                                                onChange={onReplaceChanged}
-                                                className={classes.textField}
-                                                placeholder="변경할 문자열"
-                                                aria-describedby="replace-text-input-helper"
-                                                margin="none"
-                                                helperText="첫번째 발견된 문자열만 변경됩니다."
-                                                fullWidth
-                                            />
-                                        </FormControl>
-                                    </>
-                                ) : null}
-                                {type === '4' ? (
-                                    <>
-                                        <FormControl
-                                            className={classes.formControl}
-                                            style={{ flex: 1 }}
-                                        >
-                                            {/* <InputLabel htmlFor="lookup-regexp-input-text">
-                                                찾는 정규식
-                                            </InputLabel>
-                                            <Input
-                                                id="lookup-regexp-input-text"
-                                                value={lookupRegExp}
-                                                onChange={onLookupRegExpChanged}
-                                                className={classes.textField}
-                                                margin="none"
-                                                placeholder="정규식"
-                                                aria-describedby="lookup-regexp-input-help-text"
-                                                startAdornment={<span>/</span>}
-                                                endAdornment={<span>/gi</span>}
-                                            />
-                                            <FormHelperText id="lookup-regexp-input-help-text">
-                                                발견된 모든 문자열이 변경됩니다.
-                                            </FormHelperText> */}
-
-                                            <TextField
-                                                label="찾는 정규식"
-                                                id="lookup-regexp-input-text"
-                                                value={lookupRegExp}
-                                                onChange={onLookupRegExpChanged}
-                                                className={classes.textField}
-                                                margin="none"
-                                                placeholder="정규식"
-                                                aria-describedby="lookup-regexp-input-help-text"
-                                                InputProps={{
-                                                    startAdornment: (
-                                                        <span>/</span>
-                                                    ),
-                                                    endAdornment: (
-                                                        <span>/gi</span>
-                                                    ),
-                                                }}
-                                                helperText="발견된 모든 문자열이 변경됩니다."
-                                                fullWidth
-                                            />
-                                        </FormControl>
-                                        <FormControl
-                                            className={classes.formControl}
-                                            style={{ flex: 1 }}
-                                        >
-                                            {/* <InputLabel htmlFor="replace-reg-exp-text-input">
-                                                변경할 문자열
-                                            </InputLabel>
-                                            <Input
-                                                id="replace-reg-exp-text-input"
-                                                value={replaceRegExp}
-                                                onChange={
-                                                    onReplaceRegExpChanged
-                                                }
-                                                margin="none"
-                                                className={classes.textField}
-                                            /> */}
-                                            <TextField
-                                                label="변경할 문자열"
-                                                id="replace-reg-exp-text-input"
-                                                value={replaceRegExp}
-                                                onChange={
-                                                    onReplaceRegExpChanged
-                                                }
-                                                margin="none"
-                                                className={classes.textField}
-                                                fullWidth
-                                                helperText=""
-                                            />
-                                        </FormControl>
-                                    </>
-                                ) : null}
-                            </Box>
-                        </form>
-                    </Paper>
                     <Paper className={classes.fileInput}>
                         <ButtonGroup color="primary" variant="contained">
                             <Button
                                 disabled={!enablePreviewButton}
-                                onClick={onPreviewClick}
+                                onClick={handleClickPreview}
                             >
                                 Preview
                             </Button>
 
                             <Button
                                 disabled={!enabledRenameButton}
-                                onClick={onRenameClick}
+                                onClick={handleClickRename}
                             >
                                 Rename
                             </Button>
@@ -610,7 +312,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                                 <FileList
                                     files={files}
                                     showRemoveButton={true}
-                                    handleRemoveFile={handleRemoveFile}
+                                    handleRemoveFile={handleClickRemoveFile}
                                 />
                             </Grid>
                             <Grid item={true} xs={6} component="div">
@@ -627,74 +329,14 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                         </Grid>
                     </Box>
                 </Box>
-                <div
-                    ref={fabButtonAnchorRef}
-                    className={classes.appButtonOpenFiles}
-                >
-                    <Fab
-                        color={openFabButtons ? 'default' : 'secondary'}
-                        size="medium"
-                        aria-label="add file"
-                        onClick={handleOpen}
-                    >
-                        {openFabButtons ? <CloseIcon /> : <AddIcon />}
-                    </Fab>
-                </div>
-                <Popper
-                    open={openFabButtons}
-                    unselectable="on"
-                    anchorEl={fabButtonAnchorRef.current}
-                    transition={true}
-                    disablePortal={true}
-                    placement="bottom-end"
-                >
-                    {({ TransitionProps, placement }) => (
-                        <Grow
-                            {...TransitionProps}
-                            style={{
-                                transformOrigin:
-                                    placement === 'bottom'
-                                        ? 'center top'
-                                        : 'center bottom',
-                            }}
-                        >
-                            <ClickAwayListener onClickAway={handleClose}>
-                                <div>
-                                    <div>
-                                        <Typography component="span">
-                                            파일 열기
-                                        </Typography>
-                                        <Fab
-                                            color="primary"
-                                            size="medium"
-                                            aria-label="add file"
-                                            title="파일 목록을 초기화하고 파일을 추가합니다."
-                                            onClick={onOpenFileClick}
-                                        >
-                                            <AddIcon />
-                                        </Fab>
-                                    </div>
-
-                                    <div>
-                                        <Typography component="span">
-                                            파일 추가
-                                        </Typography>
-
-                                        <Fab
-                                            color="secondary"
-                                            size="medium"
-                                            aria-label="append file"
-                                            title="파일을 현재 목록에 추가합니다."
-                                            onClick={onOpenFileAndAppendClick}
-                                        >
-                                            <AddIcon />
-                                        </Fab>
-                                    </div>
-                                </div>
-                            </ClickAwayListener>
-                        </Grow>
-                    )}
-                </Popper>
+                <GoToTop />
+                <AddFileTool
+                    isOpened={openAddFileTool}
+                    onOpenFileAndAppendClick={onOpenFileAndAppendClick}
+                    onOpenFileClick={onOpenFileClick}
+                    onOpen={handleOpenAddFileTool}
+                    onClose={handleCloseAddFileTool}
+                />
             </Container>
         </>
     );

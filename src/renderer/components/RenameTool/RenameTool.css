@@ -1,0 +1,21 @@
+.content-container {
+    margin: 0 0.3rem;
+    padding: 0.6rem;
+}
+
+.form-container {
+    display: flex;
+    flex-wrap: wrap;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+}
+
+.form-control {
+    margin: 1.0rem;
+    min-width: 120px;
+}
+
+.text-field {
+    margin-left: 0.8rem;
+    margin-right: 0.8rem;
+}

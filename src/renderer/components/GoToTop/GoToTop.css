@@ -1,0 +1,6 @@
+.app-button-go-to-top {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 1000;
+}

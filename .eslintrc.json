@@ -60,9 +60,16 @@
                         "ignoreParameters": true
                     }
                 ],
-                "@typescript-eslint/no-unused-vars": "warn",
+                "@typescript-eslint/explicit-module-boundary-types":"off",
+                "@typescript-eslint/no-unused-vars": "off",
                 "eslint-disable-next-line": "off",
-                "no-use-before-define": "off"
+                "no-use-before-define": "off",
+                "no-unused-vars": [
+                    "error",
+                    {
+                        "argsIgnorePattern": "^_"
+                    }
+                ]
             }
         }
     ]

@@ -8,6 +8,11 @@ import { Channels } from '../models/channels';
 
 // const isProd = process.env.NODE_ENV === 'production';
 const isDev = process.env.NODE_ENV !== 'production';
+if (isDev) {
+    import('electron-reload').then(m => {
+        m.default(__dirname);
+    });
+}
 
 if (require('electron-squirrel-startup')) {
     app.quit();
@@ -45,30 +50,31 @@ const createMainWindow = () => {
     //     mainWindow.webContents.openDevTools();
     // }
 
-    // if (isDev) {
-    //     mainWindow
-    //         .loadURL('http://localhost:3000')
-    //         .then(() => {
-    //             console.info('[MAIN] Window Loaded.');
-    //         })
-    //         .catch(err => {
-    //             console.error(err);
-    //         });
-    //     mainWindow.webContents.openDevTools();
-    // }
-    // else {
-    // }
-    // 앱의 index.html 파일을 로드합니다.
-    mainWindow
-        .loadURL(
-            format(new URL(`file:///${path.join(__dirname, './index.html')}`)),
-        )
-        .then(() => {
-            console.info('[MAIN] Window Loaded.');
-        })
-        .catch(err => {
-            console.error(err);
-        });
+    if (isDev) {
+        mainWindow
+            .loadURL('http://localhost:3000')
+            .then(() => {
+                console.info('[MAIN:DEV] Window Loaded.');
+            })
+            .catch(err => {
+                console.error(err);
+            });
+        mainWindow.webContents.openDevTools();
+    } else {
+        // 앱의 index.html 파일을 로드합니다.
+        mainWindow
+            .loadURL(
+                format(
+                    new URL(`file:///${path.join(__dirname, './index.html')}`),
+                ),
+            )
+            .then(() => {
+                console.info('[MAIN] Window Loaded.');
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    }
 
     // if (isDevelopment) {
     //     win.loadURL(

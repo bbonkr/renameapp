@@ -1,0 +1,14 @@
+.app-button-open-files {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+
+.tool-item>div {
+    margin-bottom: 0.6rem;
+}
+
+.tool-item>div > span {
+    margin-right: 0.6rem;
+}
