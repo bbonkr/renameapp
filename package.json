@@ -103,7 +103,8 @@
             "target": [
                 "default"
             ],
-            "icon": "./resources/installer/appicon.icns"
+            "icon": "./resources/installer/appicon.icns",
+            "artifactName": "${productName}-${os}-${arch}-${version}.${ext}"
         },
         "dmg": {
             "title": "Rename App",
@@ -111,7 +112,6 @@
         },
         "win": {
             "target": [
-                "nsis",
                 {
                     "target": "nsis",
                     "arch": [
@@ -123,15 +123,15 @@
             "icon": "./resources/installer/appicon.ico",
             "artifactName": "${productName}-installer-${os}-${arch}-${version}.${ext}"
         },
+        "nsis": {
+            "oneClick": true
+        },
         "linux": {
             "target": [
-                "AppImage",
-                "deb",
-                "rpm",
-                "zip",
-                "tar.gz"
+                "AppImage"
             ],
-            "icon": "./resources/installer/appicon.png"
+            "icon": "./resources/installer/appicon.png",
+            "artifactName": "${productName}-${os}-${arch}-${version}.${ext}"
         },
         "directories": {
             "buildResources": "resources/installer/",
