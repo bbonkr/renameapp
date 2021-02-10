@@ -8,7 +8,6 @@ import {
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import CloseIcon from '@material-ui/icons/Close';
-
 import './AddFileTool.css';
 
 interface AddFileToolProps {
@@ -32,9 +31,7 @@ export const AddFileTool = ({
     const fabButtonAnchorRef = useRef<HTMLDivElement>(null);
     // const [openFabButtons, setOpenFabButtons] = useState(false);
 
-    const handleOpen = (
-        event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    ) => {
+    const handleOpen = (_: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         // setOpenFabButtons(prevOpen => !prevOpen);
         if (onOpen) {
             onOpen();
@@ -55,7 +52,7 @@ export const AddFileTool = ({
     };
 
     const handleClickOpenFile = (
-        event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+        _: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     ) => {
         if (onOpenFileClick) {
             onOpenFileClick();
@@ -63,7 +60,7 @@ export const AddFileTool = ({
     };
 
     const handleOpenFileAndAppend = (
-        event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+        _: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     ) => {
         if (onOpenFileAndAppendClick) {
             onOpenFileAndAppendClick();

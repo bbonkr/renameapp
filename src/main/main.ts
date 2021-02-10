@@ -1,34 +1,36 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, shell } from 'electron';
+import electron, { app, dialog, ipcMain, Menu, shell } from 'electron';
 import fs from 'fs';
 import path from 'path';
 import { format, URL } from 'url';
 import { FileInfo } from '../lib/FileInfo';
-import setupEvents from './setup-events';
+// import setupEvents from './setup-events';
 import { Channels } from '../models/channels';
 
 // const isProd = process.env.NODE_ENV === 'production';
 const isDev = process.env.NODE_ENV !== 'production';
+const isMac = process.platform === 'darwin';
+
 // if (isDev) {
 //     import('electron-reload').then(m => {
 //         m.default(__dirname);
 //     });
 // }
 
-if (require('electron-squirrel-startup')) {
-    app.quit();
-}
+// if (require('electron-squirrel-startup')) {
+//     app.quit();
+// }
 // if (require('electron-squirrel-startup')) return;
 // if first time install on windows, do not run application, rather
 // let squirrel installer do its work
 // const setupEvents = require('./setup-events.js');
-if (setupEvents.handleSquirrelEvent()) {
-    process.exit();
-}
+// if (setupEvents.handleSquirrelEvent()) {
+//     process.exit();
+// }
 
-let mainWindow: BrowserWindow | null;
+let mainWindow: electron.BrowserWindow | null;
 
 const createMainWindow = () => {
-    mainWindow = new BrowserWindow({
+    mainWindow = new electron.BrowserWindow({
         width: 800,
         height: 600,
         minWidth: 800,
@@ -113,6 +115,7 @@ app.on('ready', () => {
     createMainWindow();
 
     if (mainWindow && process.platform !== 'darwin') {
+        // 메뉴 사용안함
         mainWindow.setMenu(null);
         Menu.setApplicationMenu(null);
     }
@@ -176,11 +179,11 @@ ipcMain.on(
 );
 
 ipcMain.on(Channels.RENAME_FILES, (event, args) => {
-    const renameFilePromise = (o: string, n: string): Promise<void> => {
-        return new Promise((resolve, reject) => {
-            fs.renameSync(o, n);
-        });
-    };
+    // const renameFilePromise = (o: string, n: string): Promise<void> => {
+    //     return new Promise((resolve, reject) => {
+    //         fs.renameSync(o, n);
+    //     });
+    // };
 
     const renameResults = args.map((v: any, i: any) => {
         const oldPath = v.fullPath;
