@@ -8,11 +8,11 @@ import { Channels } from '../models/channels';
 
 // const isProd = process.env.NODE_ENV === 'production';
 const isDev = process.env.NODE_ENV !== 'production';
-if (isDev) {
-    import('electron-reload').then(m => {
-        m.default(__dirname);
-    });
-}
+// if (isDev) {
+//     import('electron-reload').then(m => {
+//         m.default(__dirname);
+//     });
+// }
 
 if (require('electron-squirrel-startup')) {
     app.quit();
