@@ -28,7 +28,7 @@ module.exports = {
                 test: /\.(js|ts)x?$/,
                 exclude: /node_modules/,
                 use: [
-                    isEnvDevelopment && {
+                    {
                         loader: 'babel-loader',
                         options: {
                             presets: [
