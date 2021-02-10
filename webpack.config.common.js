@@ -19,16 +19,16 @@ module.exports = {
                 },
             },
             {
-                test: /\.(ts|tsx)$/,
+                test: /\.tsx?$/,
                 exclude: /node_modules/,
-                // use: {
-                //     loader: 'ts-loader',
-                // },
                 use: [
                     isEnvDevelopment && {
-                        loader: 'babel-loader',
+                        loader: require.resolve('babel-loader'),
                         options: {
-                            plugins: ['react-refresh/babel'],
+                            plugins: [
+                                isEnvDevelopment &&
+                                    require.resolve('react-refresh/babel'),
+                            ].filter(Boolean),
                         },
                     },
                     'ts-loader',
