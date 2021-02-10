@@ -29,7 +29,7 @@
         "dev:renderer": "webpack-dev-server --config webpack.config.renderer.dev.js --mode=development",
         "lint": "tsc --noEmit && eslint --ext .ts,.tsx ./src",
         "lint:fix": "eslint 'src/**/*.{ts,tsx}' --quiet --fix",
-        "pack": "cross-env NODE_ENV=production electron-builder build",
+        "pack": "cross-env NODE_ENV=production electron-builder build --publish never",
         "clean": "npm run clean:dist && npm run clean:build && npm run clean:cache && npm run clean:packages",
         "clean:dist": "shx --silent rm -r ./dist",
         "clean:build": "shx rm -r ./.build",
@@ -103,7 +103,8 @@
             "target": [
                 "default"
             ],
-            "icon": "./resources/installer/appicon.icns"
+            "icon": "./resources/installer/appicon.icns",
+            "artifactName": "${productName}-${os}-${arch}-${version}.${ext}"
         },
         "dmg": {
             "title": "Rename App",
@@ -111,7 +112,6 @@
         },
         "win": {
             "target": [
-                "nsis",
                 {
                     "target": "nsis",
                     "arch": [
@@ -123,15 +123,15 @@
             "icon": "./resources/installer/appicon.ico",
             "artifactName": "${productName}-installer-${os}-${arch}-${version}.${ext}"
         },
+        "nsis": {
+            "oneClick": true
+        },
         "linux": {
             "target": [
-                "AppImage",
-                "deb",
-                "rpm",
-                "zip",
-                "tar.gz"
+                "AppImage"
             ],
-            "icon": "./resources/installer/appicon.png"
+            "icon": "./resources/installer/appicon.png",
+            "artifactName": "${productName}-${os}-${arch}-${version}.${ext}"
         },
         "directories": {
             "buildResources": "resources/installer/",
