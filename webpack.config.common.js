@@ -21,9 +21,18 @@ module.exports = {
             {
                 test: /\.(ts|tsx)$/,
                 exclude: /node_modules/,
-                use: {
-                    loader: 'ts-loader',
-                },
+                // use: {
+                //     loader: 'ts-loader',
+                // },
+                use: [
+                    isEnvDevelopment && {
+                        loader: 'babel-loader',
+                        options: {
+                            plugins: ['react-refresh/babel'],
+                        },
+                    },
+                    'ts-loader',
+                ].filter(Boolean),
             },
             {
                 test: /\.(scss|css)$/,

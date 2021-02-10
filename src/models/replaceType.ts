@@ -1,5 +1,6 @@
+export type ReplaceTypeKey = '1' | '2' | '3' | '4';
 export interface ReplaceType {
-    key: string;
+    key: ReplaceTypeKey;
     value: string;
 }
 

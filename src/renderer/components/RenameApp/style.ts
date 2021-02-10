@@ -13,12 +13,7 @@ export const useStyles = makeStyles((theme: Theme) =>
         contentContainer: {
             margin: '0 0.3rem',
         },
-        menuButton: {
-            marginRight: theme.spacing(2),
-        },
-        title: {
-            flexGrow: 1,
-        },
+
         formControl: {
             margin: theme.spacing(1),
             minWidth: 120,
@@ -38,17 +33,6 @@ export const useStyles = makeStyles((theme: Theme) =>
             // width: 200,
         },
         fileInput: {
-            padding: '1rem 0.8rem',
-            margin: '0.3rem',
-        },
-        appButtonOpenFiles: {
-            position: 'fixed',
-            bottom: '2rem',
-            right: '2rem',
-            zIndex: 1000,
-        },
-        fileListContainer: {
-            minHeight: '100%',
             padding: '1rem 0.8rem',
             margin: '0.3rem',
         },
