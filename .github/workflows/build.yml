@@ -23,9 +23,9 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build:prod
-      - name: Tag
-        uses: anothrNick/github-tag-action@1.26.0
-        env: 
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          WITH_V: true
-          RELEASE_BRANCHES: main
+#       - name: Tag
+#         uses: anothrNick/github-tag-action@1.26.0
+#         env: 
+#           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+#           WITH_V: true
+#           RELEASE_BRANCHES: main
