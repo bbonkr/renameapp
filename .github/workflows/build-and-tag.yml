@@ -1,4 +1,4 @@
-name: "Build and tag"
+name: "Build"
 
 on:
   push:
@@ -21,8 +21,3 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build:prod
-      - name: Tag
-        uses: christophebedard/tag-version-commit@v1
-        with:
-          token: ${{ secrets.GH_TOKEN }}
-          version_tag_prefix: 'v'
