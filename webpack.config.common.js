@@ -12,34 +12,46 @@ module.exports = {
     },
     module: {
         rules: [
+            // webpack@5
+            // {
+            //     test: /\.m?js/,
+            //     resolve: {
+            //         fullySpecified: false,
+            //     },
+            // },
+            // {
+            //     test: /\.tsx?$/,
+            //     exclude: /node_modules/,
+            //     use: ['ts-loader'],
+            // },
             {
-                test: /\.m?js/,
-                resolve: {
-                    fullySpecified: false,
-                },
-            },
-            {
-                test: /\.tsx?$/,
+                test: /\.(js|ts)x?$/,
                 exclude: /node_modules/,
                 use: [
                     isEnvDevelopment && {
-                        loader: require.resolve('babel-loader'),
+                        loader: 'babel-loader',
                         options: {
+                            presets: [
+                                '@babel/preset-env',
+                                '@babel/preset-typescript',
+                                '@babel/preset-react',
+                            ],
                             plugins: [
-                                isEnvDevelopment &&
-                                    require.resolve('react-refresh/babel'),
+                                '@babel/plugin-syntax-dynamic-import',
+                                isEnvDevelopment && 'react-refresh/babel',
                             ].filter(Boolean),
                         },
                     },
                     'ts-loader',
                 ].filter(Boolean),
             },
+
             {
                 test: /\.(scss|css)$/,
                 use: ['style-loader', 'css-loader'],
             },
             {
-                test: /\.(jpg|png|svg|ico|icns|eot|woff|ttf)$/,
+                test: /\.(jpg|png|svg|ico|icns|eot|woff|woff2|ttf)$/,
                 loader: 'file-loader',
                 options: {
                     name: '[name].[ext]',
