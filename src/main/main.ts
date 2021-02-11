@@ -36,6 +36,8 @@ const createMainWindow = () => {
         minWidth: 800,
         minHeight: 480,
         title: 'Rename App',
+        frame: isMac,
+        titleBarStyle: isMac ? 'hiddenInset' : 'hidden',
         // renderer console error
         // resolve: Uncaught ReferenceError: require is not defined
         webPreferences: {
@@ -105,6 +107,9 @@ const createMainWindow = () => {
 
     mainWindow.on('closed', () => {
         mainWindow = null;
+        if (!isMac) {
+            app.quit();
+        }
     });
 };
 
@@ -124,7 +129,7 @@ app.on('ready', () => {
 app.on('window-all-closed', () => {
     // macOS에서는 사용자가 명확하게 Cmd + Q를 누르기 전까지는
     // 애플리케이션이나 메뉴 바가 활성화된 상태로 머물러 있는 것이 일반적입니다.
-    if (process.platform !== 'darwin') {
+    if (!isMac) {
         app.quit();
     }
 });
@@ -251,4 +256,36 @@ ipcMain.on('showItemInFolder', (event, args) => {
     const result = shell.showItemInFolder(dirname);
 
     event.sender.send('showItemInFolder-callback', result);
+});
+
+ipcMain.on(Channels.WINDOW_CLOSE, (e, args) => {
+    console.info(`[IPC-MAIN] ${Channels.WINDOW_CLOSE}`);
+
+    if (mainWindow?.webContents.isDevToolsOpened()) {
+        mainWindow?.webContents.closeDevTools();
+    }
+    mainWindow?.close();
+});
+
+ipcMain.on(Channels.WINDOW_MINIMIZE, (e, args) => {
+    console.info(`[IPC-MAIN] ${Channels.WINDOW_MINIMIZE}`);
+
+    mainWindow?.minimize();
+});
+
+ipcMain.on(Channels.WINDOW_MAXIMIZE, (e, args) => {
+    console.info(`[IPC-MAIN] ${Channels.WINDOW_MAXIMIZE}`);
+
+    const isMaximized = mainWindow?.isMaximized();
+    const isMaximizable = mainWindow?.isMaximizable();
+    if (
+        typeof isMaximized === 'boolean' &&
+        typeof isMaximizable === 'boolean'
+    ) {
+        if (!isMaximized && isMaximizable) {
+            mainWindow?.maximize();
+        } else {
+            mainWindow?.unmaximize();
+        }
+    }
 });

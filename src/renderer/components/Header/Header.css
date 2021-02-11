@@ -1,0 +1,16 @@
+.app-header {
+    -webkit-app-region: drag;
+    height: 24px;
+    padding: 2px 0.6rem;
+    flex-direction: row !important;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.app-header button {
+    -webkit-app-region: no-drag;
+    height: 24px;
+    min-width: 36px;
+    width: 36px;
+    margin-left:3px;
+}
