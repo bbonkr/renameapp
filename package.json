@@ -1,7 +1,7 @@
 {
     "name": "rename",
     "peoductName": "Rename",
-    "version": "1.5.1",
+    "version": "1.5.2",
     "description": "Rename files.",
     "author": {
         "name": "Pon Cheol Ku",
@@ -30,6 +30,7 @@
         "lint": "tsc --noEmit && eslint --ext .ts,.tsx ./src",
         "lint:fix": "eslint 'src/**/*.{ts,tsx}' --quiet --fix",
         "pack": "cross-env NODE_ENV=production electron-builder build --publish never",
+        "publish": "cross-env NODE_ENV=production electron-builder build --publish onTag",
         "clean": "npm run clean:dist && npm run clean:build && npm run clean:cache && npm run clean:packages",
         "clean:dist": "shx --silent rm -r ./dist",
         "clean:build": "shx rm -r ./.build",
@@ -121,7 +122,11 @@
                 }
             ],
             "icon": "./resources/installer/appicon.ico",
-            "artifactName": "${productName}-installer-${os}-${arch}-${version}.${ext}"
+            "artifactName": "${productName}-installer-${os}-${arch}-${version}.${ext}",
+            "publish": [
+                "github",
+                "bintray"
+            ]
         },
         "nsis": {
             "oneClick": true
