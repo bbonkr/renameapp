@@ -24,12 +24,6 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build:prod
-#       - name: Tag
-#         uses: anothrNick/github-tag-action@1.26.0
-#         env: 
-#           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-#           WITH_V: true
-#           RELEASE_BRANCHES: main
       - name: package-version
         run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
       - name: package-version-to-git-tag
@@ -40,3 +34,9 @@ jobs:
           version: ${{ env.PACKAGE_VERSION }}
           git_commit_sha: ${{ github.sha }}
           git_tag_prefix: "v"
+      - name: release-drafter
+        uses: release-drafter/release-drafter@v5
+        with:
+          config-name: release-drafter.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
