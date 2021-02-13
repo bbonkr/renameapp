@@ -1,9 +1,14 @@
-const path = require('path');
-const webpack = require('webpack');
-const rendererConfig = require('./webpack.config.renderer');
-const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+// const path = require('path');
+// const webpack = require('webpack');
+// const rendererConfig = require('./webpack.config.renderer');
+// const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
-module.exports = {
+import path from 'path';
+import webpack from 'webpack';
+import rendererConfig from './webpack.config.renderer';
+import ReactRefreshPlugin from '@pmmmwh/react-refresh-webpack-plugin';
+
+export default {
     ...rendererConfig,
     mode: 'development',
     devtool: 'eval',

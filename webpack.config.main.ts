@@ -1,6 +1,7 @@
-const common = require('./webpack.config.common');
+// const common = require('./webpack.config.common');
+import common from './webpack.config.common';
 
-module.exports = {
+export default {
     ...common,
     entry: {
         main: './src/main/main.ts',

@@ -34,9 +34,17 @@ jobs:
           version: ${{ env.PACKAGE_VERSION }}
           git_commit_sha: ${{ github.sha }}
           git_tag_prefix: "v"
-      - name: release-drafter
+      - name: Release Drafter
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yml
+          version: ${{ env.PACKAGE_VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          repository: bbonkr/renameapp
+          event-type: upload-assets
+          client-payload: '{ "url": "${{ steps.release_drafter.outputs.upload_url }}" }'

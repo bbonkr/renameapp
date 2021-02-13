@@ -1,17 +1,12 @@
 name: "Release"
 
 # on:
-#   workflow_run:
-#     workflows: ["Build"]
-#     types:
-#       - completed
-
+#   push:
+#     tags:
+#       - v*
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - v*
+  repository_dispatch:
+    types: [upload-assets]
 
 jobs:
   build:
@@ -34,17 +29,18 @@ jobs:
           node-version: '12'
       - name: Install dependencies
         run: npm install
-      - name: Build
-        run: npm run build:prod
       - name: Pack
-        run: npm run pack
-      - name: Cleanup artifacts
-        run: |
-          npx rimraf "packages/!(*.exe|*.deb|*.AppImage|*.dmg)"        
-      - name: Publish
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        run: npm run pack     
+      # - name: Publish
+      #   uses: softprops/action-gh-release@v1
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   with:
+      #     files: "packages/**"
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Upload Assets to Release with a wildcard
+        uses: csexton/release-asset-action@v2
         with:
-          files: "packages/**"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          pattern: "packages/*"
+          github-token: ${{ secrets.GH_TOKEN }}
+          release-url: ${{ github.event.client_payload.url }}      
