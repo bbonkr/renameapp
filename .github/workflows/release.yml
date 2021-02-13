@@ -9,7 +9,7 @@ on:
     types: [upload-assets]
 
 jobs:
-  build:
+  Release:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
