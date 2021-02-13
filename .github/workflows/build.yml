@@ -41,6 +41,8 @@ jobs:
           version: ${{ env.PACKAGE_VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Check Upload Url
+        run: echo ${{ steps.release_drafter.outputs.upload_url }}
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v1
         with:

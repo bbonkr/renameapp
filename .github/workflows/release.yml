@@ -18,7 +18,9 @@ jobs:
       - name: Context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"    
+        run: echo "$GITHUB_CONTEXT"
+      - name: Verify Upload Url
+        run: echo ${{ github.event.client_payload }}
       - name: Checkout
         uses: actions/checkout@v2
         with:
