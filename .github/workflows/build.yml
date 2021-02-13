@@ -35,6 +35,7 @@ jobs:
           git_commit_sha: ${{ github.sha }}
           git_tag_prefix: "v"
       - name: Release Drafter
+        id: release_drafter
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yml
