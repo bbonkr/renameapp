@@ -1,4 +1,6 @@
 export enum Channels {
+    WINDOW_LOADED = 'window-loaded',
+    WINDOW_LOADED_CALLBACK = 'window-loaded-callback',
     OPEN_FILE_DIALOG = 'openFileDialog',
     GET_SELECTED_FILES = 'get-selected-file',
     GET_SELECTED_FILES_APPEND = 'get-selected-file-append',

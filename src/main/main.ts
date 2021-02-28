@@ -1,4 +1,11 @@
-import electron, { app, dialog, ipcMain, Menu, shell } from 'electron';
+import electron, {
+    app,
+    dialog,
+    ipcMain,
+    Menu,
+    nativeTheme,
+    shell,
+} from 'electron';
 import fs from 'fs';
 import path from 'path';
 import { format, URL } from 'url';
@@ -37,7 +44,7 @@ const createMainWindow = () => {
         minHeight: 480,
         title: 'Rename App',
         frame: isMac,
-        titleBarStyle: isMac ? 'hiddenInset' : 'hidden',
+        titleBarStyle: isMac ? 'default' : 'hidden',
         // renderer console error
         // resolve: Uncaught ReferenceError: require is not defined
         webPreferences: {
@@ -288,4 +295,11 @@ ipcMain.on(Channels.WINDOW_MAXIMIZE, (e, args) => {
             mainWindow?.unmaximize();
         }
     }
+});
+
+ipcMain.on(Channels.WINDOW_LOADED, (event, _args) => {
+    event.sender.send(Channels.WINDOW_LOADED_CALLBACK, {
+        isMac: process.platform === 'darwin',
+        isDark: nativeTheme.shouldUseDarkColors,
+    });
 });
