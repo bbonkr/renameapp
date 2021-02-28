@@ -33,7 +33,7 @@
         "pack": "cross-env NODE_ENV=production electron-builder build --publish never",
         "postpack": "ts-node scripts/post-pack.ts",
         "publish": "cross-env NODE_ENV=production electron-builder build --publish onTag",
-        "clean": "npm run clean:dist && npm run clean:build && npm run clean:cache && npm run clean:packages",
+        "clean": "npm run clean:dist && npm run clean:packages",
         "clean:dist": "ts-node scripts/pre-pack.ts",
         "clean:artifacts": "ts-node scripts/post-pack.ts"
     },
