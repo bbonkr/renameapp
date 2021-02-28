@@ -13,10 +13,9 @@ import {
     CssBaseline,
 } from '@material-ui/core';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
-import { Channels } from '../../../models/channels';
 import { SnackbarOrigin } from '@material-ui/core/Snackbar';
 import { useStyles } from './style';
-import { FileInfoModel } from '../../../models';
+import { FileInfoModel, WindowSetting, Channels } from '../../../models';
 import { AddFileTool } from '../AddFileTool';
 import { Header } from '../Header';
 import { RenameTool, FormData } from '../RenameTool';
@@ -35,7 +34,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
     const [enablePreviewButton, setEnablePreviewButton] = useState(false);
     const [enabledRenameButton, setEnabledRenameButton] = useState(false);
     const [openAddFileTool, setOpenAddFileTool] = useState(false);
-
+    const [windowSetting, setWindowSetting] = useState<WindowSetting>();
     const notistackAnchorOptions: SnackbarOrigin = {
         vertical: 'top',
         horizontal: 'right',
@@ -132,6 +131,15 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             });
         };
 
+        const handleWindowLoaded = (
+            _ev: IpcRendererEvent,
+            args: WindowSetting,
+        ) => {
+            if (args) {
+                setWindowSetting(_ => args);
+            }
+        };
+
         ipcRenderer.on(Channels.REANME_FILES_CALLBACK, renameFilesCallback);
 
         ipcRenderer.on(Channels.GET_SELECTED_FILES, getSelectedFiles);
@@ -140,6 +148,10 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             Channels.GET_SELECTED_FILES_APPEND,
             getSelectedFilesAndAppend,
         );
+
+        ipcRenderer.on(Channels.WINDOW_LOADED_CALLBACK, handleWindowLoaded);
+
+        ipcRenderer.send(Channels.WINDOW_LOADED, []);
 
         return () => {
             ipcRenderer.off(Channels.GET_SELECTED_FILES, getSelectedFiles);
@@ -150,6 +162,10 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             ipcRenderer.off(
                 Channels.GET_SELECTED_FILES_APPEND,
                 getSelectedFilesAndAppend,
+            );
+            ipcRenderer.off(
+                Channels.WINDOW_LOADED_CALLBACK,
+                handleWindowLoaded,
             );
         };
     }, []);
@@ -199,6 +215,10 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             setEnabledRenameButton(false);
         }
     }, [renamedFiles]);
+
+    useEffect(() => {
+        console.info('window setting', windowSetting);
+    }, [windowSetting]);
 
     const onOpenFileClick = () => {
         ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
@@ -275,7 +295,9 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         <>
             <CssBaseline />
             <Container maxWidth={false} className={classes.root}>
-                <Header title="Rename App" />
+                {windowSetting && !windowSetting.isMac && (
+                    <Header title="Rename App" />
+                )}
 
                 <Box className={classes.contentWrapper}>
                     <Paper className={classes.fileInput}>
