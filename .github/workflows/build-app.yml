@@ -32,12 +32,12 @@ jobs:
         uses: mukunku/tag-exists-action@v1.0.0
         id: checkGitTag
         with:
-          tag: 'v{{ env.PACKAGE_VERSION }}'
+          tag: "v{{ env.PACKAGE_VERSION }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Does not run because tag is exists
         run: |
-          echo "TAG ${{ env.PACKAGE_VERSION }} is exists."
+          echo "TAG v${{ env.PACKAGE_VERSION }} is exists. (steps.checkGitTag.outputs.exists=${{ steps.checkGitTag.outputs.exists }})" 
         if: ${{ steps.checkGitTag.outputs.exists }}
       - name: package-version-to-git-tag
         uses: pkgdeps/git-tag-action@v2
