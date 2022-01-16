@@ -35,19 +35,19 @@ jobs:
           tag: "v${{ env.PACKAGE_VERSION }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      - name: check git tag
-        uses: bbonkr/git-tag-check-action@v1
-        id: gitTagCheck 
-        with:
-          TAG: "v${{ env.PACKAGE_VERSION }}"
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      # - name: check git tag
+      #   uses: bbonkr/git-tag-check-action@v1
+      #   id: gitTagCheck 
+      #   with:
+      #     TAG: "v${{ env.PACKAGE_VERSION }}"
+      #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Does not run because tag is exists
         run: |
-          echo "TAG v${{ env.PACKAGE_VERSION }} is exists. (steps.gitTagCheck.outputs.exists=${{ steps.gitTagCheck.outputs.hasTag }})" 
+          echo "TAG v${{ env.PACKAGE_VERSION }} is exists. (steps.checkGitTag.outputs.exists=${{ steps.checkGitTag.outputs.exists }})" 
         if: ${{ steps.checkGitTag.outputs.exists }}
       - name: package-version-to-git-tag
         uses: pkgdeps/git-tag-action@v2
-        if: ${{ steps.checkGitTag.outputs.exists == false }}
+        if: ${{ steps.checkGitTag.outputs.exists == "false" }}
         with:
           github_token: ${{ secrets.GH_TOKEN }}
           github_repo: ${{ github.repository }}
@@ -57,7 +57,7 @@ jobs:
       - name: Release Drafter
         id: release_drafter
         # if: ${{ success() }}
-        if: ${{ steps.checkGitTag.outputs.exists == false }}
+        if: ${{ steps.checkGitTag.outputs.exists == "false" }}
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yml
@@ -68,12 +68,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Check Upload Url
         # if: ${{ success() }}
-        if: ${{ steps.checkGitTag.outputs.exists == false }}
+        if: ${{ steps.checkGitTag.outputs.exists == "false" }}
         run: echo ${{ steps.release_drafter.outputs.upload_url }}
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v1
         # if: ${{ success() }}
-        if: ${{ steps.checkGitTag.outputs.exists == false }}
+        if: ${{ steps.checkGitTag.outputs.exists == "false" }}
         with:
           token: ${{ secrets.GH_TOKEN }}
           repository: bbonkr/renameapp
