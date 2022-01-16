@@ -56,6 +56,8 @@ jobs:
         with:
           config-name: release-drafter.yml
           version: ${{ env.PACKAGE_VERSION }}
+          publish: true
+          # prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Check Upload Url
