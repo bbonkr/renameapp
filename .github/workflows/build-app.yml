@@ -32,14 +32,14 @@ jobs:
         uses: mukunku/tag-exists-action@v1.0.0
         id: checkGitTag
         with:
-          tag: v{{ env.PACKAGE_VERSION }}
+          tag: "v${{ env.PACKAGE_VERSION }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: check git tag
         uses: bbonkr/git-tag-check-action@v1
         id: gitTagCheck 
         with:
-          TAG: v{{ env.PACKAGE_VERSION }}
+          TAG: "v${{ env.PACKAGE_VERSION }}"
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Does not run because tag is exists
         run: |
