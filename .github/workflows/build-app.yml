@@ -1,9 +1,11 @@
-name: "Build"
+name: "Build and tag"
 
 on:
   push:
     branches: 
       - "main"
+    tags:
+      - "!*"
 
 jobs:
   build:
@@ -19,15 +21,23 @@ jobs:
       - name: Install Node.js, Npm
         uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: '16'
       - name: Install dependencies
         run: npm install
       - name: Build
         run: npm run build:prod
       - name: package-version
         run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
+      - name: check git tag exists
+        uses: mukunku/tag-exists-action@v1.0.0
+        id: checkGitTag
+        with:
+          tag: 'v{{ env.PACKAGE_VERSION }}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: package-version-to-git-tag
         uses: pkgdeps/git-tag-action@v2
+        if: ${{ steps.checkGitTag.outputs.exists == false }}
         with:
           github_token: ${{ secrets.GH_TOKEN }}
           github_repo: ${{ github.repository }}
