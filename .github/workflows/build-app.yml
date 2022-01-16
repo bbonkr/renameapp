@@ -35,6 +35,10 @@ jobs:
           tag: 'v{{ env.PACKAGE_VERSION }}'
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Does not run because tag is exists
+        run: |
+          echo "TAG ${{ env.PACKAGE_VERSION }} is exists."
+        if: ${{ steps.checkGitTag.outputs.exists }}
       - name: package-version-to-git-tag
         uses: pkgdeps/git-tag-action@v2
         if: ${{ steps.checkGitTag.outputs.exists == false }}
