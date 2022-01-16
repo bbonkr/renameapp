@@ -46,7 +46,8 @@ jobs:
           git_tag_prefix: "v"
       - name: Release Drafter
         id: release_drafter
-        if: ${{ success() }}
+        # if: ${{ success() }}
+        if: ${{ steps.checkGitTag.outputs.exists == false }}
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yml
@@ -54,11 +55,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: Check Upload Url
-        if: ${{ success() }}
+        # if: ${{ success() }}
+        if: ${{ steps.checkGitTag.outputs.exists == false }}
         run: echo ${{ steps.release_drafter.outputs.upload_url }}
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v1
-        if: ${{ success() }}
+        # if: ${{ success() }}
+        if: ${{ steps.checkGitTag.outputs.exists == false }}
         with:
           token: ${{ secrets.GH_TOKEN }}
           repository: bbonkr/renameapp
