@@ -1,0 +1,35 @@
+name: "Test and confirm build"
+
+on:
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+  push:
+    branches: 
+      - main
+      - dev
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-10.15, windows-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+      - name: Install Node.js, Npm
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build:prod
+        env:
+         NODE_ENV: production
