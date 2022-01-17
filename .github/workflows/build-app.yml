@@ -44,7 +44,7 @@ jobs:
 
       - name: check git tag result 
         run: |
-          echo "${{ steps.gitTagCheck.outputs.tag }}"
+          echo "found tag: ${{ steps.gitTagCheck.outputs.tag }}"
         
       - name: Does not run because tag is exists
         run: |
