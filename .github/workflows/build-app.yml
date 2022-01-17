@@ -36,7 +36,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
       - name: check git tag
-        uses: bbonkr/git-tag-check-action@v1.0.0
+        uses: bbonkr/git-tag-check-action@v1.0.1
         id: gitTagCheck 
         with:
           tag: "v${{ env.PACKAGE_VERSION }}"
