@@ -35,12 +35,17 @@ jobs:
           tag: "v${{ env.PACKAGE_VERSION }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      # - name: check git tag
-      #   uses: bbonkr/git-tag-check-action@v1
-      #   id: gitTagCheck 
-      #   with:
-      #     TAG: "v${{ env.PACKAGE_VERSION }}"
-      #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: check git tag
+        uses: bbonkr/git-tag-check-action@v1.0.0
+        id: gitTagCheck 
+        with:
+          tag: "v${{ env.PACKAGE_VERSION }}"
+          github_token: ${{ secrets.GH_TOKEN }}
+
+      - name: check git tag result 
+        run: |
+          echo "${{ steps.gitTagCheck.outputs.tag }}"
+        
       - name: Does not run because tag is exists
         run: |
           echo "TAG v${{ env.PACKAGE_VERSION }} is exists. (steps.checkGitTag.outputs.exists=${{ steps.checkGitTag.outputs.exists }})" 
