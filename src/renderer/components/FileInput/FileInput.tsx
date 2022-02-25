@@ -2,15 +2,24 @@ import React from 'react';
 import { Button } from '@material-ui/core';
 
 interface FileInputProps {
-    handleClick: (
-        event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    ) => void;
+    onClick: () => void;
 }
 
-export const FileInput = ({ handleClick }: FileInputProps) => {
+export const FileInput = ({ onClick }: FileInputProps) => {
+    const handleClick = () => {
+        if (onClick) {
+            onClick();
+        }
+    };
+
     return (
         <div>
-            <Button variant="contained" color="primary" onClick={handleClick}>
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={handleClick}
+                disabled={!onClick}
+            >
                 Open files
             </Button>
         </div>

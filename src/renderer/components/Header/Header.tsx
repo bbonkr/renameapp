@@ -2,9 +2,9 @@ import React from 'react';
 import { ipcRenderer } from 'electron';
 import {
     AppBar,
-    Toolbar,
+    // Toolbar,
     Typography,
-    IconButton,
+    // IconButton,
     Button,
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';

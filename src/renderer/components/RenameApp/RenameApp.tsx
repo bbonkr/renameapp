@@ -220,7 +220,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         console.info('window setting', windowSetting);
     }, [windowSetting]);
 
-    const onOpenFileClick = () => {
+    const handleOpenFileClick = () => {
         ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
             Channels.GET_SELECTED_FILES,
         ]);
@@ -301,7 +301,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
 
                 <Box className={classes.contentWrapper}>
                     <Paper className={classes.fileInput}>
-                        <FileInput handleClick={onOpenFileClick} />
+                        <FileInput onClick={handleOpenFileClick} />
                     </Paper>
                     <RenameTool onChange={handleChangeFormData} />
 
@@ -355,7 +355,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                 <AddFileTool
                     isOpened={openAddFileTool}
                     onOpenFileAndAppendClick={onOpenFileAndAppendClick}
-                    onOpenFileClick={onOpenFileClick}
+                    onOpenFileClick={handleOpenFileClick}
                     onOpen={handleOpenAddFileTool}
                     onClose={handleCloseAddFileTool}
                 />
