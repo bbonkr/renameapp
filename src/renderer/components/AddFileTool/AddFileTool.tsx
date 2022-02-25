@@ -1,13 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {
-    Typography,
-    Fab,
-    Popper,
-    Grow,
-    ClickAwayListener,
-    Fade,
-    Box,
-} from '@mui/material';
+import { Typography, Fab, Popper, ClickAwayListener, Box } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import './AddFileTool.css';
