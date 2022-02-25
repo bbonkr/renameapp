@@ -1,7 +1,9 @@
+/* eslint-disable no-unused-vars */
 export enum Channels {
     WINDOW_LOADED = 'window-loaded',
     WINDOW_LOADED_CALLBACK = 'window-loaded-callback',
     OPEN_FILE_DIALOG = 'openFileDialog',
+    DROP_FILES = 'drop-files',
     GET_SELECTED_FILES = 'get-selected-file',
     GET_SELECTED_FILES_APPEND = 'get-selected-file-append',
     RENAME_FILES = 'rename-files',

@@ -1,4 +1,4 @@
-.app-header {
+#header.app-header {
     -webkit-app-region: drag;
     height: 24px;
     padding: 2px 0.6rem;
@@ -7,10 +7,10 @@
     align-items: center;
 }
 
-.app-header button {
+#header.app-header button {
     -webkit-app-region: no-drag;
     height: 24px;
     min-width: 36px;
     width: 36px;
-    margin-left:3px;
+    margin-left: 3px;
 }

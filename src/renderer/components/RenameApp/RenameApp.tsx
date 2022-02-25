@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
-import { FileInput } from '../FileInput';
-import { FileList } from '../FileList';
+import { FileList, FileListTable } from '../FileList';
 import {
     Box,
     Grid,
@@ -10,21 +9,22 @@ import {
     ButtonGroup,
     Typography,
     Container,
-    CssBaseline,
-} from '@material-ui/core';
+} from '@mui/material';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
-import { SnackbarOrigin } from '@material-ui/core/Snackbar';
-import { useStyles } from './style';
+import { SnackbarOrigin } from '@mui/material/Snackbar';
 import { FileInfoModel, WindowSetting, Channels } from '../../../models';
 import { AddFileTool } from '../AddFileTool';
 import { Header } from '../Header';
 import { RenameTool, FormData } from '../RenameTool';
 import { GoToTop } from '../GoToTop';
 
+import './RenameApp.css';
+
 type RenameAppProps = WithSnackbarProps;
 
 const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
-    const classes = useStyles();
+    /** drag & drop container */
+    const containerElement = useRef<HTMLDivElement>(null);
 
     const [files, setFiles] = useState<FileInfoModel[]>([]);
     const [renamedFiles, setRenamedFiles] = useState<FileInfoModel[]>([]);
@@ -39,6 +39,8 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         vertical: 'top',
         horizontal: 'right',
     };
+    const [isDragEnter, setIsDragEnter] = useState(false);
+
     const getNewKey = () => {
         const date = new Date();
         return date.getUTCMilliseconds().toString();
@@ -50,6 +52,49 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
 
         setReplaceValue(_ => data.value);
         setEnabledRenameButton(_ => false);
+    };
+
+    const handleDrop = (event: DragEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        console.info('[RENDERER][FileInput][Drop]', event.dataTransfer?.files);
+        const files = event.dataTransfer?.files;
+        if (files) {
+            const filePaths: string[] = [];
+
+            for (let i = 0; i < files.length; i++) {
+                const fileItem = files.item(i);
+                if (fileItem) {
+                    filePaths.push(fileItem.path);
+                }
+            }
+
+            ipcRenderer.send(Channels.DROP_FILES, [
+                Channels.GET_SELECTED_FILES,
+                filePaths,
+            ]);
+        }
+        setIsDragEnter(_ => false);
+    };
+
+    const handleDragOver = (event: DragEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        console.info('[RENDERER][FileInput][DragOver]');
+        // setIsDragEnter(_ => true);
+    };
+
+    const handleDragEnter = (event: DragEvent) => {
+        event.stopPropagation();
+        console.info('[RENDERER][FileInput][DragEnter]');
+        setIsDragEnter(_ => true);
+    };
+
+    const handleDragLeave = (_event: DragEvent) => {
+        // event.stopPropagation();
+        console.info('[RENDERER][FileInput][DragLeave]');
+        setIsDragEnter(_ => false);
     };
 
     useEffect(() => {
@@ -153,6 +198,14 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
 
         ipcRenderer.send(Channels.WINDOW_LOADED, []);
 
+        const container = containerElement.current;
+        if (container) {
+            container.addEventListener('drop', handleDrop);
+            container.addEventListener('dragover', handleDragOver);
+            container.addEventListener('dragenter', handleDragEnter);
+            container.addEventListener('dragleave', handleDragLeave);
+        }
+
         return () => {
             ipcRenderer.off(Channels.GET_SELECTED_FILES, getSelectedFiles);
             ipcRenderer.off(
@@ -167,6 +220,13 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                 Channels.WINDOW_LOADED_CALLBACK,
                 handleWindowLoaded,
             );
+
+            if (container) {
+                container.removeEventListener('dragleave', handleDragLeave);
+                container.removeEventListener('dragenter', handleDragEnter);
+                container.removeEventListener('dragover', handleDragOver);
+                container.removeEventListener('drop', handleDrop);
+            }
         };
     }, []);
 
@@ -293,19 +353,23 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
 
     return (
         <>
-            <CssBaseline />
-            <Container maxWidth={false} className={classes.root}>
-                {windowSetting && !windowSetting.isMac && (
-                    <Header title="Rename App" />
-                )}
-
-                <Box className={classes.contentWrapper}>
-                    <Paper className={classes.fileInput}>
-                        <FileInput onClick={handleOpenFileClick} />
+            {windowSetting && !windowSetting.isMac && (
+                <Header title="Rename App" />
+            )}
+            <Container maxWidth={false} className={'container-root'}>
+                <Box className={`content-wrapper`}>
+                    <Paper
+                        className={`file-input ${
+                            isDragEnter ? 'drag-enter' : ''
+                        }`}
+                        ref={containerElement}
+                        onClick={handleOpenFileClick}
+                    >
+                        Click to open file dialog or Drag and drop files Here.
                     </Paper>
                     <RenameTool onChange={handleChangeFormData} />
 
-                    <Paper className={classes.fileInput}>
+                    <Paper className={`rename-tools`}>
                         <ButtonGroup color="primary" variant="contained">
                             <Button
                                 disabled={!enablePreviewButton}
@@ -323,10 +387,14 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                         </ButtonGroup>
                     </Paper>
 
-                    <Box className={classes.contentContainer}>
+                    <Box className={`content-container`}>
+                        <FileListTable
+                            files={files}
+                            renameFiles={renamedFiles}
+                        />
                         <Grid container spacing={2} component="div">
                             <Grid item xs={6} component="div">
-                                <Paper className={classes.contentWrapper}>
+                                <Paper className={`content-wrapper`}>
                                     <Typography variant="h6" component="h3">
                                         Before
                                     </Typography>
@@ -339,7 +407,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                             </Grid>
                             <Grid item={true} xs={6} component="div">
                                 <React.Fragment>
-                                    <Paper className={classes.contentWrapper}>
+                                    <Paper className={`content-wrapper`}>
                                         <Typography variant="h6" component="h3">
                                             After
                                         </Typography>

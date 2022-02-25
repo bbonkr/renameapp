@@ -1,4 +1,5 @@
-import path from 'path';
+import path, { normalize } from 'path';
+import fs from 'fs';
 import { FileInfoModel } from '../models';
 
 export class FileInfo implements FileInfoModel {
@@ -17,6 +18,64 @@ export class FileInfo implements FileInfoModel {
         });
 
         return obj;
+    }
+
+    public static fromPath(fileOrDirectoryPaths: string[]): FileInfo[] {
+        const files: FileInfo[] = [];
+
+        fileOrDirectoryPaths.forEach(fileOrDirectoryPath => {
+            const stats = fs.lstatSync(fileOrDirectoryPath);
+
+            if (stats.isDirectory()) {
+                // directory
+                const subPaths = fs.readdirSync(fileOrDirectoryPath);
+
+                subPaths.forEach(p => {
+                    const subPath = path.join(fileOrDirectoryPath, p);
+                    console.info('subPaths', subPath);
+
+                    const subStats = fs.lstatSync(subPath);
+
+                    if (subStats.isDirectory()) {
+                        const subItems = FileInfo.fromPath([subPath]);
+                        files.splice(0, 0, ...subItems);
+                    } else {
+                        // file
+                        try {
+                            fs.accessSync(
+                                subPath,
+                                fs.constants.R_OK | fs.constants.W_OK,
+                            );
+
+                            files.splice(0, 0, FileInfo.fromFilePath(subPath));
+                        } catch (err) {
+                            console.warn(
+                                `Cannot access file or directory. ${normalize(
+                                    subPath,
+                                )}`,
+                            );
+                        }
+                    }
+                });
+            } else {
+                // file
+                try {
+                    files.splice(
+                        0,
+                        0,
+                        FileInfo.fromFilePath(fileOrDirectoryPath),
+                    );
+                } catch (err) {
+                    console.warn(
+                        `Cannot access file or directory. ${normalize(
+                            fileOrDirectoryPath,
+                        )}`,
+                    );
+                }
+            }
+        });
+
+        return files;
     }
 
     /** 파일이름 */

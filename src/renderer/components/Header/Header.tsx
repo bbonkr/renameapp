@@ -6,11 +6,11 @@ import {
     Typography,
     // IconButton,
     Button,
-} from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
-import CloseIcon from '@material-ui/icons/Close';
-import SquareIcon from '@material-ui/icons/CropSquare';
-import BarIcon from '@material-ui/icons/Remove';
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
+import SquareIcon from '@mui/icons-material/CropSquare';
+import BarIcon from '@mui/icons-material/Remove';
 
 import './Header.css';
 import { Channels } from '../../../models/channels';
@@ -33,20 +33,20 @@ export const Header = ({ title }: HeaderProps) => {
     };
 
     return (
-        <AppBar className="app-header" position="sticky">
+        <AppBar id="header" className="app-header" position="sticky">
             <MenuIcon />
             <Typography variant="body2">{title}</Typography>
             <div>
                 <Button
                     size="small"
-                    color="default"
+                    color="secondary"
                     onClick={handleClickMinimize}
                 >
                     <BarIcon fontSize="small" />
                 </Button>
                 <Button
                     size="small"
-                    color="default"
+                    color="secondary"
                     onClick={handleClickMaximize}
                 >
                     <SquareIcon fontSize="small" />

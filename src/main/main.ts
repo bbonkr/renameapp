@@ -64,7 +64,7 @@ const createMainWindow = () => {
 
     if (isDev) {
         mainWindow
-            .loadURL('http://localhost:3000')
+            .loadURL('http://localhost:26498')
             .then(() => {
                 console.info('[MAIN:DEV] Window Loaded.');
             })
@@ -160,6 +160,24 @@ app.on('activate', () => {
     }
 });
 
+const createFileInfos = (files: string[]): FileInfo[] => {
+    // const fileInfos = files
+    //     .sort((a: string, b: string): number => {
+    //         return a > b ? 1 : -1;
+    //     })
+    //     .map(
+    //         (v: string): FileInfo => {
+    //             return FileInfo.fromFilePath(v);
+    //         },
+    //     );
+
+    const fileInfos = FileInfo.fromPath(files);
+
+    return fileInfos.sort((a, b): number => {
+        return a.fullPath > b.fullPath ? 1 : -1;
+    });
+};
+
 ipcMain.on(
     Channels.OPEN_FILE_DIALOG,
     (event: Electron.IpcMainEvent, args: any[]): void => {
@@ -174,24 +192,9 @@ ipcMain.on(
                 .then(result => {
                     const { filePaths } = result;
                     if (filePaths) {
-                        const fileInfos = filePaths
-                            .sort((a: string, b: string): number => {
-                                return a > b ? 1 : -1;
-                            })
-                            .map(
-                                (v: string): FileInfo => {
-                                    // return getFileInfo(v);
-                                    return FileInfo.fromFilePath(v);
-                                },
-                            );
+                        const fileInfos = createFileInfos(filePaths);
 
-                        event.sender.send(
-                            // Channels.GET_SELECTED_FIELS,
-                            callbackChannel,
-                            fileInfos,
-                        );
-                    } else {
-                        // console.log('Canceled');
+                        event.sender.send(callbackChannel, fileInfos);
                     }
                 })
                 .catch(err => {
@@ -200,6 +203,17 @@ ipcMain.on(
         }
     },
 );
+
+ipcMain.on(Channels.DROP_FILES, (event: Electron.IpcMainEvent, args: any[]) => {
+    const callbackChannel: Channels =
+        args && args.length > 0 ? args[0] : Channels.GET_SELECTED_FILES;
+    const files = args && args.length > 1 ? args[1] : [];
+    if (files) {
+        const fileInfos = createFileInfos(files);
+
+        event.sender.send(callbackChannel, fileInfos);
+    }
+});
 
 ipcMain.on(Channels.RENAME_FILES, (event, args) => {
     // const renameFilePromise = (o: string, n: string): Promise<void> => {

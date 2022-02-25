@@ -1,4 +1,4 @@
-import { makeStyles, createStyles, Theme } from '@material-ui/core';
+import { makeStyles, createStyles, Theme } from '@mui/material/styles';
 
 export const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -33,8 +33,17 @@ export const useStyles = makeStyles((theme: Theme) =>
             // width: 200,
         },
         fileInput: {
-            padding: '1rem 0.8rem',
+            padding: '1.8rem 1.0rem',
             margin: '0.3rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            cursor: 'pointer',
+        },
+        dragEnter: {
+            borderStyle: 'dashed',
+            borderColor: '#F83204',
         },
     }),
 );

@@ -5,9 +5,9 @@ import {
     Popper,
     Grow,
     ClickAwayListener,
-} from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
-import CloseIcon from '@material-ui/icons/Close';
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
 import './AddFileTool.css';
 
 interface AddFileToolProps {
@@ -38,7 +38,7 @@ export const AddFileTool = ({
         }
     };
 
-    const handleClose = (event: React.MouseEvent<Document, MouseEvent>) => {
+    const handleClose = (event: MouseEvent | TouchEvent) => {
         if (
             fabButtonAnchorRef.current &&
             fabButtonAnchorRef.current.contains(event.target as HTMLElement)
@@ -98,7 +98,11 @@ export const AddFileTool = ({
                                     : 'center bottom',
                         }}
                     >
-                        <ClickAwayListener onClickAway={handleClose}>
+                        <ClickAwayListener
+                            onClickAway={handleClose}
+                            mouseEvent="onClick"
+                            touchEvent="onTouchEnd"
+                        >
                             <div className="tool-item">
                                 <div>
                                     <Typography component="span">
