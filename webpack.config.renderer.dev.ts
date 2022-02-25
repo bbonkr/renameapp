@@ -18,7 +18,7 @@ export default {
         new ReactRefreshPlugin(),
     ],
     devServer: {
-        port: 3000,
+        port: 26498,
         host: '0.0.0.0',
         contentBase: path.resolve('dist'),
         historyApiFallback: true,
