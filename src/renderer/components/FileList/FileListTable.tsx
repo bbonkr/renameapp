@@ -1,5 +1,17 @@
 import React, { useMemo } from 'react';
 import { FileInfoModel } from '../../../models/FileInfoModel';
+import {
+    Table,
+    TableHead,
+    TableBody,
+    TableContainer,
+    TableRow,
+    TableCell,
+    Fab,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+import './FileListTable.css';
 
 interface FileListItemModel {
     original: FileInfoModel;
@@ -9,9 +21,14 @@ interface FileListItemModel {
 interface FileListTableProps {
     files: FileInfoModel[];
     renameFiles: FileInfoModel[];
+    onRemoveFile?: (_file: FileInfoModel) => void;
 }
 
-export const FileListTable = ({ files, renameFiles }: FileListTableProps) => {
+export const FileListTable = ({
+    files,
+    renameFiles,
+    onRemoveFile,
+}: FileListTableProps) => {
     const record = useMemo(() => {
         return files.map(file => {
             const renameFile = renameFiles.find(
@@ -27,34 +44,80 @@ export const FileListTable = ({ files, renameFiles }: FileListTableProps) => {
         });
     }, [files, renameFiles]);
 
+    const handleRemoveFileItem = (item: FileInfoModel) => () => {
+        if (onRemoveFile) {
+            onRemoveFile(item);
+        }
+    };
+
     return (
-        <table>
-            <thead>
-                <tr>
-                    <td>File name</td>
-                    <td>Rename</td>
-                    <td>Directory</td>
-                    <td>Remove</td>
-                </tr>
-            </thead>
-            <tbody>
-                {record.map(item => {
-                    return (
-                        <tr key={item.original.fullPath}>
-                            <td title={item.original.name}>
-                                {item.original.name}
-                            </td>
-                            <td title={item.rename?.name}>
-                                {item.rename?.name}
-                            </td>
-                            <td title={item.original.directoryName}>
-                                {item.original.directoryName}
-                            </td>
-                            <td></td>
-                        </tr>
-                    );
-                })}
-            </tbody>
-        </table>
+        <>
+            <TableContainer className="file-list-table-container">
+                <Table stickyHeader size="medium" padding="normal">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell
+                                component="th"
+                                scope="col"
+                                variant="head"
+                            >
+                                Remove
+                            </TableCell>
+                            <TableCell
+                                component="th"
+                                scope="col"
+                                variant="head"
+                            >
+                                File name
+                            </TableCell>
+                            <TableCell
+                                component="th"
+                                scope="col"
+                                variant="head"
+                            >
+                                Rename
+                            </TableCell>
+                            <TableCell
+                                component="th"
+                                scope="col"
+                                variant="head"
+                            >
+                                Directory
+                            </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {record.map(item => {
+                            return (
+                                <TableRow key={item.original.fullPath}>
+                                    <TableCell>
+                                        <Fab
+                                            size="small"
+                                            color="error"
+                                            onClick={handleRemoveFileItem(
+                                                item.original,
+                                            )}
+                                        >
+                                            <DeleteIcon />
+                                        </Fab>
+                                    </TableCell>
+                                    <TableCell title={item.original.name}>
+                                        {item.original.name}
+                                    </TableCell>
+                                    <TableCell title={item.rename?.name}>
+                                        {item.rename?.name}
+                                    </TableCell>
+                                    <TableCell
+                                        title={item.original.directoryName}
+                                    >
+                                        {item.original.directoryName}
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </>
     );
 };

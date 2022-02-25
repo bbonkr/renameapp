@@ -1,15 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ipcRenderer, IpcRendererEvent } from 'electron';
-import { FileList, FileListTable } from '../FileList';
-import {
-    Box,
-    Grid,
-    Paper,
-    Button,
-    ButtonGroup,
-    Typography,
-    Container,
-} from '@mui/material';
+import { FileListTable } from '../FileList';
+import { Box, Paper, Button, ButtonGroup, Container } from '@mui/material';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
 import { SnackbarOrigin } from '@mui/material/Snackbar';
 import { FileInfoModel, WindowSetting, Channels } from '../../../models';
@@ -343,7 +335,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         setEnabledRenameButton(true);
     };
 
-    const handleClickRemoveFile = (file: FileInfoModel) => (): void => {
+    const handleClickRemoveFile = (file: FileInfoModel) => {
         setFiles(prevFiles => {
             return prevFiles.filter(f => f.fullPath !== file.fullPath);
         });
@@ -359,6 +351,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             <Container maxWidth={false} className={'container-root'}>
                 <Box className={`content-wrapper`}>
                     <Paper
+                        component={'div'}
                         className={`file-input ${
                             isDragEnter ? 'drag-enter' : ''
                         }`}
@@ -386,12 +379,15 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                             </Button>
                         </ButtonGroup>
                     </Paper>
-
-                    <Box className={`content-container`}>
+                    <Paper>
                         <FileListTable
                             files={files}
                             renameFiles={renamedFiles}
+                            onRemoveFile={handleClickRemoveFile}
                         />
+                    </Paper>
+
+                    {/* <Box className={`content-container`}>
                         <Grid container spacing={2} component="div">
                             <Grid item xs={6} component="div">
                                 <Paper className={`content-wrapper`}>
@@ -402,7 +398,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                                 <FileList
                                     files={files}
                                     showRemoveButton={true}
-                                    handleRemoveFile={handleClickRemoveFile}
+                                    onRemoveFile={handleClickRemoveFile}
                                 />
                             </Grid>
                             <Grid item={true} xs={6} component="div">
@@ -417,7 +413,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                                 </React.Fragment>
                             </Grid>
                         </Grid>
-                    </Box>
+                    </Box> */}
                 </Box>
                 <GoToTop />
                 <AddFileTool

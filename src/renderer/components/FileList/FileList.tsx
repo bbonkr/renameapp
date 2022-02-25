@@ -14,16 +14,20 @@ import DeleteIcon from '@mui/icons-material/Delete';
 interface FileListProps {
     files: FileInfoModel[];
     showRemoveButton?: boolean;
-    handleRemoveFile?: (
-        _file: FileInfoModel,
-    ) => (_event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+    onRemoveFile?: (_file: FileInfoModel) => void;
 }
 
 export const FileList = ({
     files,
     showRemoveButton,
-    handleRemoveFile,
+    onRemoveFile,
 }: FileListProps) => {
+    const handleRemove = (item: FileInfoModel) => () => {
+        if (onRemoveFile) {
+            onRemoveFile(item);
+        }
+    };
+
     return (
         <List>
             {files.map(file => {
@@ -47,10 +51,7 @@ export const FileList = ({
                                         disabled={!showRemoveButton}
                                         size="small"
                                         color="primary"
-                                        onClick={
-                                            handleRemoveFile &&
-                                            handleRemoveFile(file)
-                                        }
+                                        onClick={handleRemove(file)}
                                     >
                                         <DeleteIcon />
                                     </Fab>
