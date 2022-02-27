@@ -40,9 +40,9 @@ let mainWindow: electron.BrowserWindow | null;
 const createMainWindow = () => {
     mainWindow = new electron.BrowserWindow({
         width: 800,
-        height: 600,
+        height: 640,
         minWidth: 800,
-        minHeight: 480,
+        minHeight: 640,
         title: 'Rename App',
         frame: isMac,
         titleBarStyle: isMac ? 'default' : 'hidden',
@@ -52,10 +52,6 @@ const createMainWindow = () => {
             nodeIntegration: true,
         },
     });
-
-    // if (process.platform !== 'darwin') {
-    //     mainWindow.setMenu(null);
-    // }
 
     // 개발자 도구를 엽니다.
     // if (isDev) {
@@ -88,20 +84,6 @@ const createMainWindow = () => {
             });
     }
 
-    // if (isDevelopment) {
-    //     win.loadURL(
-    //         `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
-    //     );
-    // } else {
-    //     win.loadURL(
-    //         formatUrl({
-    //             pathname: path.join(__dirname, 'index.html'),
-    //             protocol: 'file',
-    //             slashes: true
-    //         })
-    //     );
-    // }
-
     mainWindow.webContents.on('devtools-opened', () => {
         if (mainWindow) {
             mainWindow.focus();
@@ -121,8 +103,7 @@ const createMainWindow = () => {
     });
 };
 
-// 이 메서드는 Electron이 초기화를 마치고
-// 브라우저 창을 생성할 준비가 되었을 때  호출될 것입니다.
+// 이 메서드는 Electron이 초기화를 마치고 브라우저 창을 생성할 준비가 되었을 때 호출될 것입니다.
 // 어떤 API는 이 이벤트가 나타난 이후에만 사용할 수 있습니다.
 app.whenReady().then(() => {
     createMainWindow();
@@ -134,42 +115,24 @@ app.whenReady().then(() => {
     }
 });
 
-// app.on('ready', () => {
-//     createMainWindow();
-
-//     if (mainWindow && process.platform !== 'darwin') {
-//         // 메뉴 사용안함
-//         mainWindow.setMenu(null);
-//         Menu.setApplicationMenu(null);
-//     }
-// });
-
 app.on('window-all-closed', () => {
-    // macOS에서는 사용자가 명확하게 Cmd + Q를 누르기 전까지는
-    // 애플리케이션이나 메뉴 바가 활성화된 상태로 머물러 있는 것이 일반적입니다.
+    // macOS에서는 사용자가 명확하게 Cmd + Q를 누르기 전까지는 애플리케이션이나 메뉴 바가 활성화된 상태로 머물러 있는 것이 일반적입니다.
     if (!isMac) {
         app.quit();
     }
 });
 
 app.on('activate', () => {
-    // macOS에서는 dock 아이콘이 클릭되고 다른 윈도우가 열려있지 않았다면
-    // 앱에서 새로운 창을 다시 여는 것이 일반적입니다.
+    // macOS에서는 dock 아이콘이 클릭되고 다른 윈도우가 열려있지 않았다면 앱에서 새로운 창을 다시 여는 것이 일반적입니다.
     if (!mainWindow) {
         createMainWindow();
     }
 });
 
-const createFileInfos = (files: string[]): FileInfo[] => {
-    // const fileInfos = files
-    //     .sort((a: string, b: string): number => {
-    //         return a > b ? 1 : -1;
-    //     })
-    //     .map(
-    //         (v: string): FileInfo => {
-    //             return FileInfo.fromFilePath(v);
-    //         },
-    //     );
+const createFileInfos = (files: string[]): FileInfo[] | undefined => {
+    if (files.length === 0) {
+        return undefined;
+    }
 
     const fileInfos = FileInfo.fromPath(files);
 
@@ -190,11 +153,17 @@ ipcMain.on(
                     properties: ['openFile', 'multiSelections'],
                 })
                 .then(result => {
-                    const { filePaths } = result;
-                    if (filePaths) {
-                        const fileInfos = createFileInfos(filePaths);
+                    const { canceled, filePaths } = result;
 
-                        event.sender.send(callbackChannel, fileInfos);
+                    if (!canceled) {
+                        if (filePaths) {
+                            const fileInfos = createFileInfos(filePaths);
+                            if (fileInfos) {
+                                event.sender.send(callbackChannel, fileInfos);
+                            }
+                        }
+                    } else {
+                        console.info('[MAIN][OPEN_FILE_DIALOG] Cancled');
                     }
                 })
                 .catch(err => {

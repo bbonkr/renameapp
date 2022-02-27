@@ -89,11 +89,13 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         setIsDragEnter(_ => false);
     };
 
-    useEffect(() => {
-        const getSelectedFiles = (
-            _ev: IpcRendererEvent,
-            args: FileInfoModel[],
-        ) => {
+    const getSelectedFiles = (
+        _ev: IpcRendererEvent,
+        args?: FileInfoModel[],
+    ) => {
+        console.info('[RENDERER][getSelectedFiles] args: ', args);
+
+        if (args) {
             setFiles(args);
             setRenamedFiles([]);
             if (args && args.length > 0) {
@@ -103,15 +105,17 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                     anchorOrigin: notistackAnchorOptions,
                 });
             }
+        }
 
-            // 앱 버튼 닫기
-            setOpenAddFileTool(_ => false);
-        };
+        // 앱 버튼 닫기
+        setOpenAddFileTool(_ => false);
+    };
 
-        const getSelectedFilesAndAppend = (
-            _ev: IpcRendererEvent,
-            args: FileInfoModel[],
-        ) => {
+    const getSelectedFilesAndAppend = (
+        _ev: IpcRendererEvent,
+        args: FileInfoModel[],
+    ) => {
+        if (args) {
             setFiles(prevFiles => {
                 args.forEach(x => {
                     const found = prevFiles.find(
@@ -138,15 +142,17 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                     anchorOrigin: notistackAnchorOptions,
                 });
             }
+        }
 
-            // 앱 버튼 닫기
-            setOpenAddFileTool(_ => false);
-        };
+        // 앱 버튼 닫기
+        setOpenAddFileTool(_ => false);
+    };
 
-        const renameFilesCallback = (
-            _ev: IpcRendererEvent,
-            args: FileInfoModel[],
-        ) => {
+    const renameFilesCallback = (
+        _ev: IpcRendererEvent,
+        args: FileInfoModel[],
+    ) => {
+        if (args) {
             setFiles(args);
             setRenamedFiles([]);
             // setAppend('');
@@ -166,17 +172,16 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                 variant: 'success',
                 anchorOrigin: notistackAnchorOptions,
             });
-        };
+        }
+    };
 
-        const handleWindowLoaded = (
-            _ev: IpcRendererEvent,
-            args: WindowSetting,
-        ) => {
-            if (args) {
-                setWindowSetting(_ => args);
-            }
-        };
+    const handleWindowLoaded = (_ev: IpcRendererEvent, args: WindowSetting) => {
+        if (args) {
+            setWindowSetting(_ => args);
+        }
+    };
 
+    useEffect(() => {
         ipcRenderer.on(Channels.REANME_FILES_CALLBACK, renameFilesCallback);
 
         ipcRenderer.on(Channels.GET_SELECTED_FILES, getSelectedFiles);
@@ -352,7 +357,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                 <Box className={`content-wrapper`}>
                     <Paper
                         component={'div'}
-                        className={`file-input ${
+                        className={`paper file-input ${
                             isDragEnter ? 'drag-enter' : ''
                         }`}
                         ref={containerElement}
@@ -362,7 +367,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                     </Paper>
                     <RenameTool onChange={handleChangeFormData} />
 
-                    <Paper className={`rename-tools`}>
+                    <Paper className={`paper`}>
                         <ButtonGroup color="primary" variant="contained">
                             <Button
                                 disabled={!enablePreviewButton}
@@ -379,41 +384,13 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                             </Button>
                         </ButtonGroup>
                     </Paper>
-                    <Paper>
+                    <Paper className={`paper`}>
                         <FileListTable
                             files={files}
                             renameFiles={renamedFiles}
                             onRemoveFile={handleClickRemoveFile}
                         />
                     </Paper>
-
-                    {/* <Box className={`content-container`}>
-                        <Grid container spacing={2} component="div">
-                            <Grid item xs={6} component="div">
-                                <Paper className={`content-wrapper`}>
-                                    <Typography variant="h6" component="h3">
-                                        Before
-                                    </Typography>
-                                </Paper>
-                                <FileList
-                                    files={files}
-                                    showRemoveButton={true}
-                                    onRemoveFile={handleClickRemoveFile}
-                                />
-                            </Grid>
-                            <Grid item={true} xs={6} component="div">
-                                <React.Fragment>
-                                    <Paper className={`content-wrapper`}>
-                                        <Typography variant="h6" component="h3">
-                                            After
-                                        </Typography>
-                                    </Paper>
-
-                                    <FileList files={renamedFiles} />
-                                </React.Fragment>
-                            </Grid>
-                        </Grid>
-                    </Box> */}
                 </Box>
                 <GoToTop />
                 <AddFileTool
