@@ -28,60 +28,53 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build:prod
-      - name: package-version
-        run: node -p -e '`PACKAGE_VERSION=${require("./package.json").version}`' >> $GITHUB_ENV
-      - name: check git tag exists
-        uses: mukunku/tag-exists-action@v1.0.0
-        id: checkGitTag
+
+      - uses: bbonkr/get-version-action@v1.0.3
+        id: get_version
         with:
-          tag: "v${{ env.PACKAGE_VERSION }}"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          project: "./package.json"
 
       - name: check git tag
-        uses: bbonkr/git-tag-check-action@latest
+        uses: bbonkr/git-tag-check-action@1.0.9
         id: gitTagCheck 
         with:
-          tag: "v${{ env.PACKAGE_VERSION }}"
+          tag: "v${{ steps.get_version.outputs.version }}"
           github_token: ${{ secrets.GH_TOKEN }}
 
-      - name: check git tag result 
-        run: |
-          echo "found tag: ${{ steps.gitTagCheck.outputs.tag }}"
-        
       - name: Does not run because tag is exists
         run: |
-          echo "TAG v${{ env.PACKAGE_VERSION }} is exists. (steps.checkGitTag.outputs.exists=${{ steps.checkGitTag.outputs.exists }})" 
-        if: ${{ steps.checkGitTag.outputs.exists }}
+          echo "TAG v${{ steps.gitTagCheck.outputs.tag }} is exists." 
+        if: ${{ steps.gitTagCheck.outputs.tag != '' }}
+
       - name: package-version-to-git-tag
         uses: pkgdeps/git-tag-action@v2
-        if: ${{ steps.checkGitTag.outputs.exists == 'false' }}
+        if: ${{ steps.gitTagCheck.outputs.tag == '' }}
         with:
           github_token: ${{ secrets.GH_TOKEN }}
           github_repo: ${{ github.repository }}
-          version: ${{ env.PACKAGE_VERSION }}
+          version: ${{ steps.get_version.outputs.version }}
           git_commit_sha: ${{ github.sha }}
           git_tag_prefix: "v"
+
       - name: Release Drafter
         id: release_drafter
-        # if: ${{ success() }}
-        if: ${{ steps.checkGitTag.outputs.exists == 'false' }}
+        if: ${{ steps.gitTagCheck.outputs.tag == '' }}
         uses: release-drafter/release-drafter@v5
         with:
           config-name: release-drafter.yml
-          version: ${{ env.PACKAGE_VERSION }}
+          version: "v${{ steps.get_version.outputs.version }}"
           publish: true
           # prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
       - name: Check Upload Url
-        # if: ${{ success() }}
-        if: ${{ steps.checkGitTag.outputs.exists == 'false' }}
+        if: ${{ steps.gitTagCheck.outputs.tag == '' }}
         run: echo ${{ steps.release_drafter.outputs.upload_url }}
+
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v1
-        # if: ${{ success() }}
-        if: ${{ steps.checkGitTag.outputs.exists == 'false' }}
+        if: ${{ steps.gitTagCheck.outputs.tag == '' }}
         with:
           token: ${{ secrets.GH_TOKEN }}
           repository: bbonkr/renameapp
