@@ -35,7 +35,7 @@ jobs:
           project: "./package.json"
 
       - name: check git tag
-        uses: bbonkr/git-tag-check-action@1.0.9
+        uses: bbonkr/git-tag-check-action@v1.0.9
         id: gitTagCheck 
         with:
           tag: "v${{ steps.get_version.outputs.version }}"
