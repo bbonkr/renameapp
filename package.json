@@ -1,7 +1,7 @@
 {
     "name": "rename",
     "peoductName": "Rename",
-    "version": "1.5.11",
+    "version": "1.6.0",
     "description": "Rename files.",
     "author": {
         "name": "Pon Cheol Ku",
@@ -20,7 +20,7 @@
     "main": "dist/main.js",
     "scripts": {
         "start": "npm run build:prod && cross-env NODE_ENV=production npm run electron",
-        "dev": "concurrently \"npm run dev:main\" \"npm run dev:renderer\" \"wait-on http://localhost:3000 && npm run electron\"",
+        "dev": "concurrently \"npm run dev:main\" \"npm run dev:renderer\" \"wait-on http://localhost:26498 && npm run electron\"",
         "build": "webpack",
         "build:dev": "cross-env NODE_ENV=development npm run build",
         "build:prod": "cross-env NODE_ENV=production npm run build",
@@ -38,10 +38,12 @@
         "clean:artifacts": "ts-node scripts/post-pack.ts"
     },
     "dependencies": {
-        "@material-ui/core": "^4.11.3",
-        "@material-ui/icons": "^4.11.2",
+        "@emotion/react": "^11.8.1",
+        "@emotion/styled": "^11.8.1",
+        "@mui/icons-material": "^5.4.2",
+        "@mui/material": "^5.4.3",
         "autoprefixer": "^10.2.4",
-        "notistack": "^1.0.3",
+        "notistack": "^1.0.10",
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
         "react-transition-group": "^4.4.1"

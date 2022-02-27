@@ -1,0 +1,4 @@
+.file-list-table-container tr th,
+.file-list-table-container tr td {
+    min-width: 120px;
+}

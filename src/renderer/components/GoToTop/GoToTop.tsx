@@ -1,6 +1,6 @@
 import React from 'react';
-import { Fab } from '@material-ui/core';
-import ArrowUpward from '@material-ui/icons/ArrowUpward';
+import { Fab } from '@mui/material';
+import ArrowUpward from '@mui/icons-material/ArrowUpward';
 import './GoToTop.css';
 
 export const GoToTop = () => {

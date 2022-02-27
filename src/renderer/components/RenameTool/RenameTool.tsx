@@ -22,12 +22,14 @@ import {
     // CssBaseline,
     // IconButton,
     TextField,
-} from '@material-ui/core';
-import './RenameTool.css';
+    SelectChangeEvent,
+} from '@mui/material';
 import { FormData } from './FormData';
 
+import './RenameTool.css';
+
 interface RenameToolProps {
-    onChange?: (formData: FormData) => void;
+    onChange?: (_formData: FormData) => void;
 }
 
 export const RenameTool = ({ onChange }: RenameToolProps) => {
@@ -38,22 +40,10 @@ export const RenameTool = ({ onChange }: RenameToolProps) => {
     });
 
     const handleReplaceTypeChanged = (
-        event: React.ChangeEvent<{
-            name?: string | undefined;
-            value: unknown;
-        }>,
-        child: React.ReactNode,
+        event: SelectChangeEvent<ReplaceTypeKey>,
     ) => {
         const selectedValue = event.target.value as ReplaceTypeKey;
 
-        // setType(selectedValue);
-        // setAppend('');
-        // setLookup('');
-        // setReplace('');
-        // setLookupRegExp('');
-        // setReplaceRegExp('');
-        // setEnablePreviewButton(false);
-        // setEnabledRenameButton(false);
         setFormData(prevState => {
             if (!formData || formData.type !== selectedValue) {
                 return {
@@ -101,12 +91,13 @@ export const RenameTool = ({ onChange }: RenameToolProps) => {
                     <InputLabel id="selectOperationType">Type</InputLabel>
                     <Select
                         labelId="selectOperationType"
+                        variant="standard"
                         id="demo-simple-select"
                         value={formData.type}
                         onChange={handleReplaceTypeChanged}
                         margin="none"
                     >
-                        {types.map((v, i) => {
+                        {types.map(v => {
                             return (
                                 <MenuItem key={v.key} value={v.key}>
                                     {v.value}
@@ -136,9 +127,10 @@ export const RenameTool = ({ onChange }: RenameToolProps) => {
                                 onChange={handleTextFieldChange}
                                 className={'text-field'}
                                 margin="none"
+                                variant="standard"
                                 fullWidth
                                 helperText={`입력된 문자열이 ${
-                                    formData.type === '2' ? '앞' : '뒷'
+                                    formData.type === '2' ? '앞' : '뒤'
                                 }에 추가됩니다.`}
                             />
                         </FormControl>
@@ -159,6 +151,7 @@ export const RenameTool = ({ onChange }: RenameToolProps) => {
                                     className={'text-field'}
                                     placeholder="찾는 문자열"
                                     margin="none"
+                                    variant="standard"
                                     fullWidth
                                     helperText="변경하기 위해 찾을 문자열"
                                 />
@@ -177,6 +170,7 @@ export const RenameTool = ({ onChange }: RenameToolProps) => {
                                     placeholder="변경할 문자열"
                                     aria-describedby="replace-text-input-helper"
                                     margin="none"
+                                    variant="standard"
                                     helperText="첫번째 발견된 문자열만 변경됩니다."
                                     fullWidth
                                 />
@@ -197,6 +191,7 @@ export const RenameTool = ({ onChange }: RenameToolProps) => {
                                     onChange={handleTextFieldChange}
                                     className={'text-field'}
                                     margin="none"
+                                    variant="standard"
                                     placeholder="정규식"
                                     aria-describedby="lookup-regexp-input-help-text"
                                     InputProps={{
@@ -218,6 +213,7 @@ export const RenameTool = ({ onChange }: RenameToolProps) => {
                                     value={formData.value}
                                     onChange={handleTextFieldChange}
                                     margin="none"
+                                    variant="standard"
                                     className={'text-field'}
                                     fullWidth
                                     helperText=""

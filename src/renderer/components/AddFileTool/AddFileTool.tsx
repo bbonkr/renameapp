@@ -1,13 +1,7 @@
-import React, { useRef } from 'react';
-import {
-    Typography,
-    Fab,
-    Popper,
-    Grow,
-    ClickAwayListener,
-} from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
-import CloseIcon from '@material-ui/icons/Close';
+import React, { useEffect, useRef } from 'react';
+import { Typography, Fab, Popper, ClickAwayListener, Box } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import CloseIcon from '@mui/icons-material/Close';
 import './AddFileTool.css';
 
 interface AddFileToolProps {
@@ -28,44 +22,40 @@ export const AddFileTool = ({
     onOpen,
     onClose,
 }: AddFileToolProps) => {
+    const [anchorRef, setAnchorRef] = React.useState<HTMLDivElement | null>(
+        null,
+    );
     const fabButtonAnchorRef = useRef<HTMLDivElement>(null);
-    // const [openFabButtons, setOpenFabButtons] = useState(false);
 
-    const handleOpen = (_: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        // setOpenFabButtons(prevOpen => !prevOpen);
+    const handleOpen = () => {
         if (onOpen) {
             onOpen();
         }
     };
 
-    const handleClose = (event: React.MouseEvent<Document, MouseEvent>) => {
-        if (
-            fabButtonAnchorRef.current &&
-            fabButtonAnchorRef.current.contains(event.target as HTMLElement)
-        ) {
-            return;
-        }
-
+    const handleClose = () => {
         if (onClose) {
             onClose();
         }
     };
 
-    const handleClickOpenFile = (
-        _: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    ) => {
+    const handleClickOpenFile = () => {
         if (onOpenFileClick) {
             onOpenFileClick();
         }
     };
 
-    const handleOpenFileAndAppend = (
-        _: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    ) => {
+    const handleOpenFileAndAppend = () => {
         if (onOpenFileAndAppendClick) {
             onOpenFileAndAppendClick();
         }
     };
+
+    useEffect(() => {
+        if (fabButtonAnchorRef.current) {
+            setAnchorRef(_ => fabButtonAnchorRef.current);
+        }
+    }, []);
 
     return (
         <React.Fragment>
@@ -83,13 +73,13 @@ export const AddFileTool = ({
             <Popper
                 open={isOpened ?? false}
                 unselectable="on"
-                anchorEl={fabButtonAnchorRef.current}
-                transition={true}
+                anchorEl={anchorRef}
+                // transition={true}
                 disablePortal={true}
                 placement="bottom-end"
             >
                 {({ TransitionProps, placement }) => (
-                    <Grow
+                    <Box
                         {...TransitionProps}
                         style={{
                             transformOrigin:
@@ -98,7 +88,11 @@ export const AddFileTool = ({
                                     : 'center bottom',
                         }}
                     >
-                        <ClickAwayListener onClickAway={handleClose}>
+                        <ClickAwayListener
+                            onClickAway={handleClose}
+                            mouseEvent="onClick"
+                            touchEvent="onTouchEnd"
+                        >
                             <div className="tool-item">
                                 <div>
                                     <Typography component="span">
@@ -132,7 +126,7 @@ export const AddFileTool = ({
                                 </div>
                             </div>
                         </ClickAwayListener>
-                    </Grow>
+                    </Box>
                 )}
             </Popper>
         </React.Fragment>

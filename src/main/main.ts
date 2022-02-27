@@ -8,6 +8,7 @@ import electron, {
 } from 'electron';
 import fs from 'fs';
 import path from 'path';
+import { FileInfoModel } from '../models';
 import { format, URL } from 'url';
 import { FileInfo } from '../lib/FileInfo';
 // import setupEvents from './setup-events';
@@ -39,9 +40,9 @@ let mainWindow: electron.BrowserWindow | null;
 const createMainWindow = () => {
     mainWindow = new electron.BrowserWindow({
         width: 800,
-        height: 600,
+        height: 640,
         minWidth: 800,
-        minHeight: 480,
+        minHeight: 640,
         title: 'Rename App',
         frame: isMac,
         titleBarStyle: isMac ? 'default' : 'hidden',
@@ -52,10 +53,6 @@ const createMainWindow = () => {
         },
     });
 
-    // if (process.platform !== 'darwin') {
-    //     mainWindow.setMenu(null);
-    // }
-
     // 개발자 도구를 엽니다.
     // if (isDev) {
     //     mainWindow.webContents.openDevTools();
@@ -63,7 +60,7 @@ const createMainWindow = () => {
 
     if (isDev) {
         mainWindow
-            .loadURL('http://localhost:3000')
+            .loadURL('http://localhost:26498')
             .then(() => {
                 console.info('[MAIN:DEV] Window Loaded.');
             })
@@ -87,20 +84,6 @@ const createMainWindow = () => {
             });
     }
 
-    // if (isDevelopment) {
-    //     win.loadURL(
-    //         `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
-    //     );
-    // } else {
-    //     win.loadURL(
-    //         formatUrl({
-    //             pathname: path.join(__dirname, 'index.html'),
-    //             protocol: 'file',
-    //             slashes: true
-    //         })
-    //     );
-    // }
-
     mainWindow.webContents.on('devtools-opened', () => {
         if (mainWindow) {
             mainWindow.focus();
@@ -120,10 +103,9 @@ const createMainWindow = () => {
     });
 };
 
-// 이 메서드는 Electron이 초기화를 마치고
-// 브라우저 창을 생성할 준비가 되었을 때  호출될 것입니다.
+// 이 메서드는 Electron이 초기화를 마치고 브라우저 창을 생성할 준비가 되었을 때 호출될 것입니다.
 // 어떤 API는 이 이벤트가 나타난 이후에만 사용할 수 있습니다.
-app.on('ready', () => {
+app.whenReady().then(() => {
     createMainWindow();
 
     if (mainWindow && process.platform !== 'darwin') {
@@ -134,20 +116,30 @@ app.on('ready', () => {
 });
 
 app.on('window-all-closed', () => {
-    // macOS에서는 사용자가 명확하게 Cmd + Q를 누르기 전까지는
-    // 애플리케이션이나 메뉴 바가 활성화된 상태로 머물러 있는 것이 일반적입니다.
+    // macOS에서는 사용자가 명확하게 Cmd + Q를 누르기 전까지는 애플리케이션이나 메뉴 바가 활성화된 상태로 머물러 있는 것이 일반적입니다.
     if (!isMac) {
         app.quit();
     }
 });
 
 app.on('activate', () => {
-    // macOS에서는 dock 아이콘이 클릭되고 다른 윈도우가 열려있지 않았다면
-    // 앱에서 새로운 창을 다시 여는 것이 일반적입니다.
+    // macOS에서는 dock 아이콘이 클릭되고 다른 윈도우가 열려있지 않았다면 앱에서 새로운 창을 다시 여는 것이 일반적입니다.
     if (!mainWindow) {
         createMainWindow();
     }
 });
+
+const createFileInfos = (files: string[]): FileInfo[] | undefined => {
+    if (files.length === 0) {
+        return undefined;
+    }
+
+    const fileInfos = FileInfo.fromPath(files);
+
+    return fileInfos.sort((a, b): number => {
+        return a.fullPath > b.fullPath ? 1 : -1;
+    });
+};
 
 ipcMain.on(
     Channels.OPEN_FILE_DIALOG,
@@ -161,26 +153,17 @@ ipcMain.on(
                     properties: ['openFile', 'multiSelections'],
                 })
                 .then(result => {
-                    const { filePaths } = result;
-                    if (filePaths) {
-                        const fileInfos = filePaths
-                            .sort((a: string, b: string): number => {
-                                return a > b ? 1 : -1;
-                            })
-                            .map(
-                                (v: string): FileInfo => {
-                                    // return getFileInfo(v);
-                                    return FileInfo.fromFilePath(v);
-                                },
-                            );
+                    const { canceled, filePaths } = result;
 
-                        event.sender.send(
-                            // Channels.GET_SELECTED_FIELS,
-                            callbackChannel,
-                            fileInfos,
-                        );
+                    if (!canceled) {
+                        if (filePaths) {
+                            const fileInfos = createFileInfos(filePaths);
+                            if (fileInfos) {
+                                event.sender.send(callbackChannel, fileInfos);
+                            }
+                        }
                     } else {
-                        // console.log('Canceled');
+                        console.info('[MAIN][OPEN_FILE_DIALOG] Cancled');
                     }
                 })
                 .catch(err => {
@@ -190,6 +173,17 @@ ipcMain.on(
     },
 );
 
+ipcMain.on(Channels.DROP_FILES, (event: Electron.IpcMainEvent, args: any[]) => {
+    const callbackChannel: Channels =
+        args && args.length > 0 ? args[0] : Channels.GET_SELECTED_FILES;
+    const files = args && args.length > 1 ? args[1] : [];
+    if (files) {
+        const fileInfos = createFileInfos(files);
+
+        event.sender.send(callbackChannel, fileInfos);
+    }
+});
+
 ipcMain.on(Channels.RENAME_FILES, (event, args) => {
     // const renameFilePromise = (o: string, n: string): Promise<void> => {
     //     return new Promise((resolve, reject) => {
@@ -197,44 +191,20 @@ ipcMain.on(Channels.RENAME_FILES, (event, args) => {
     //     });
     // };
 
-    const renameResults = args.map((v: any, i: any) => {
+    const files: FileInfoModel[] = args;
+
+    const renameResults = files.map(v => {
         const oldPath = v.fullPath;
         const dirname = path.dirname(v.fullPath);
         const extension = path.extname(v.fullPath);
         const newPath = path.join(dirname, `${v.name}${extension}`);
 
         let error = '';
-        const hasError = false;
 
         let renamed = false;
         let resultName = oldPath;
 
         if (oldPath !== newPath) {
-            // console.log(`Rename: ${oldPath} ==> ${newPath}`);
-            // async
-            // fs.rename(oldPath, newPath, err => {
-            //     if (err) {
-            //         error = err.message;
-            //         renamed = false;
-            //         hasError = true;
-            //     } else {
-            //         error = null;
-            //         renamed = true;
-            //         hasError = false;
-            //     }
-            // });
-
-            // promise
-            // renameFilePromise(oldPath, newPath)
-            //     .then(t => {
-            //         resultName = t;
-            //     })
-            //     .catch((t, err) => {
-            //         resultName = t;
-            //         hasError = true;
-            //         error = err;
-            //     });
-
             // sync
             try {
                 fs.renameSync(oldPath, newPath);
@@ -242,8 +212,10 @@ ipcMain.on(Channels.RENAME_FILES, (event, args) => {
                 renamed = true;
             } catch (err) {
                 resultName = oldPath;
-                error = err;
                 renamed = false;
+                if (err instanceof Error) {
+                    error = err.message;
+                }
             }
         }
 
@@ -265,7 +237,7 @@ ipcMain.on('showItemInFolder', (event, args) => {
     event.sender.send('showItemInFolder-callback', result);
 });
 
-ipcMain.on(Channels.WINDOW_CLOSE, (e, args) => {
+ipcMain.on(Channels.WINDOW_CLOSE, (_, __) => {
     console.info(`[IPC-MAIN] ${Channels.WINDOW_CLOSE}`);
 
     if (mainWindow?.webContents.isDevToolsOpened()) {
@@ -274,13 +246,13 @@ ipcMain.on(Channels.WINDOW_CLOSE, (e, args) => {
     mainWindow?.close();
 });
 
-ipcMain.on(Channels.WINDOW_MINIMIZE, (e, args) => {
+ipcMain.on(Channels.WINDOW_MINIMIZE, (_, __) => {
     console.info(`[IPC-MAIN] ${Channels.WINDOW_MINIMIZE}`);
 
     mainWindow?.minimize();
 });
 
-ipcMain.on(Channels.WINDOW_MAXIMIZE, (e, args) => {
+ipcMain.on(Channels.WINDOW_MAXIMIZE, (_, __) => {
     console.info(`[IPC-MAIN] ${Channels.WINDOW_MAXIMIZE}`);
 
     const isMaximized = mainWindow?.isMaximized();
