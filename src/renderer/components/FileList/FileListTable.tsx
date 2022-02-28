@@ -10,7 +10,7 @@ import {
     Fab,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-
+import HourglassEmptyOutlined from '@mui/icons-material/HourglassEmptyOutlined';
 import './FileListTable.css';
 
 interface FileListItemModel {
@@ -60,8 +60,9 @@ export const FileListTable = ({
                                 component="th"
                                 scope="col"
                                 variant="head"
+                                align="center"
                             >
-                                Remove
+                                #
                             </TableCell>
                             <TableCell
                                 component="th"
@@ -87,34 +88,51 @@ export const FileListTable = ({
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {record.map(item => {
-                            return (
-                                <TableRow key={item.original.fullPath}>
-                                    <TableCell>
-                                        <Fab
-                                            size="small"
-                                            color="error"
-                                            onClick={handleRemoveFileItem(
-                                                item.original,
-                                            )}
+                        {record.length > 0 ? (
+                            record.map(item => {
+                                return (
+                                    <TableRow key={item.original.fullPath}>
+                                        <TableCell align="center">
+                                            <Fab
+                                                size="small"
+                                                color="error"
+                                                onClick={handleRemoveFileItem(
+                                                    item.original,
+                                                )}
+                                            >
+                                                <DeleteIcon />
+                                            </Fab>
+                                        </TableCell>
+                                        <TableCell title={item.original.name}>
+                                            {item.original.name}
+                                        </TableCell>
+                                        <TableCell title={item.rename?.name}>
+                                            {item.rename?.name}
+                                        </TableCell>
+                                        <TableCell
+                                            title={item.original.directoryName}
                                         >
-                                            <DeleteIcon />
-                                        </Fab>
-                                    </TableCell>
-                                    <TableCell title={item.original.name}>
-                                        {item.original.name}
-                                    </TableCell>
-                                    <TableCell title={item.rename?.name}>
-                                        {item.rename?.name}
-                                    </TableCell>
-                                    <TableCell
-                                        title={item.original.directoryName}
-                                    >
-                                        {item.original.directoryName}
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })}
+                                            {item.original.directoryName}
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })
+                        ) : (
+                            <TableRow>
+                                <TableCell
+                                    colSpan={4}
+                                    align="center"
+                                    valign="middle"
+                                >
+                                    <div className="no-data">
+                                        <div>
+                                            <HourglassEmptyOutlined fontSize="large" />
+                                        </div>
+                                        <div>No files selected.</div>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>
