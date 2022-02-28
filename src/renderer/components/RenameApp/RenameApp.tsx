@@ -353,7 +353,11 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             {windowSetting && !windowSetting.isMac && (
                 <Header title="Rename App" />
             )}
-            <Container maxWidth={false} className={'container-root'}>
+            <Container
+                disableGutters
+                maxWidth={false}
+                className={'container-root'}
+            >
                 <Box className={`content-wrapper`}>
                     <Paper
                         component={'div'}
@@ -384,7 +388,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                             </Button>
                         </ButtonGroup>
                     </Paper>
-                    <Paper className={`paper`}>
+                    <Paper className={`paper flex-1`}>
                         <FileListTable
                             files={files}
                             renameFiles={renamedFiles}

@@ -1,4 +1,36 @@
-.file-list-table-container tr th,
-.file-list-table-container tr td {
-    min-width: 120px;
+.file-list-table-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.file-list-table-container table tr th,
+.file-list-table-container table tr td {
+    width: 30%;
+    min-width: 30%;
+    max-width: 30%;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+.file-list-table-container table tr th:first-child,
+.file-list-table-container table tr td:first-child {
+    width: 5rem;
+    min-width: 5rem;
+    max-width: 5rem;
+}
+
+.file-list-table-container table tr th:last-child,
+.file-list-table-container table tr td:last-child {
+    width: auto;
+}
+
+.no-data {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* padding: 4rem; */
 }

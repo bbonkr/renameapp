@@ -20,13 +20,13 @@ export default {
     devServer: {
         port: 26498,
         host: '0.0.0.0',
-        contentBase: path.resolve('dist'),
-        historyApiFallback: true,
         hot: true,
-        hotOnly: true,
-        inline: true,
-        publicPath: '/',
-        watchContentBase: true,
-        writeToDisk: true,
+
+        devMiddleware: {
+            writeToDisk: true,
+        },
+        static: {
+            directory: path.resolve('dist'),
+        },
     },
 };
