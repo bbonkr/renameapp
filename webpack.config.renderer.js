@@ -11,7 +11,7 @@ module.exports = {
     entry: {
         app: './src/renderer/index',
     },
-    target: 'electron-renderer',
+    // target: 'electron-renderer',
     output: {
         ...common.output,
         filename: '[name].bundle.js',

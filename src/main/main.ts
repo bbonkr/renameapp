@@ -49,7 +49,9 @@ const createMainWindow = () => {
         // renderer console error
         // resolve: Uncaught ReferenceError: require is not defined
         webPreferences: {
+            contextIsolation: false,
             nodeIntegration: true,
+            nodeIntegrationInWorker: true,
         },
     });
 
