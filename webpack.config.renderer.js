@@ -1,12 +1,12 @@
-// const path = require('path');
-// const common = require('./webpack.config.common');
-// const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
+const common = require('./webpack.config.common');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-import path from 'path';
-import common from './webpack.config.common';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
+// import path from 'path';
+// import common from './webpack.config.common';
+// import HtmlWebpackPlugin from 'html-webpack-plugin';
 
-export default {
+module.exports = {
     ...common,
     entry: {
         app: './src/renderer/index',
