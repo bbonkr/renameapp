@@ -40,7 +40,7 @@
     "dependencies": {
         "@emotion/react": "^11.8.1",
         "@emotion/styled": "^11.8.1",
-        "@mui/icons-material": "^5.4.2",
+        "@mui/icons-material": "^5.10.15",
         "@mui/material": "^5.4.3",
         "autoprefixer": "^10.2.4",
         "notistack": "^1.0.10",
