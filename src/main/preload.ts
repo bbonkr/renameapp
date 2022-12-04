@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
 import type { IpcRendererEvent } from 'electron';
-import { Channels, FileInfoModel } from '../models';
+import { Channels, FileInfoModel, WindowSetting } from '../models';
 
 contextBridge.exposeInMainWorld('electronApi', {
     node: () => process.versions.node,
@@ -8,12 +8,13 @@ contextBridge.exposeInMainWorld('electronApi', {
     electron: () => process.versions.electron,
     ping: () => ipcRenderer.invoke('ping'),
     // we can also expose variables, not just functions
-    openFile: (callbackChannels: Channels[]) =>
+    // renderer to main
+    openFileDialog: (callbackChannels: Channels[]) =>
         ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
             // Channels.GET_SELECTED_FILES,
             ...callbackChannels,
         ]),
-    openFileAndAppend: (callbackChannels: Channels[]) =>
+    openFileDialogAndAppend: (callbackChannels: Channels[]) =>
         ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
             // Channels.GET_SELECTED_FILES_APPEND,
             ...callbackChannels,
@@ -25,6 +26,13 @@ contextBridge.exposeInMainWorld('electronApi', {
         ]),
     renameFiles: (files: FileInfoModel[]) =>
         ipcRenderer.send(Channels.RENAME_FILES, files),
+
+    windowLoaded: () => ipcRenderer.send(Channels.WINDOW_LOADED, []),
+    windowClose: () => ipcRenderer.send(Channels.WINDOW_CLOSE),
+    windowMinimize: () => ipcRenderer.send(Channels.WINDOW_MINIMIZE),
+    windowMaximize: () => ipcRenderer.send(Channels.WINDOW_MAXIMIZE),
+
+    // main to renderer
     onRenameFiles: (
         callback: (_ev: IpcRendererEvent, _args?: FileInfoModel[]) => void,
     ) => ipcRenderer.on(Channels.REANME_FILES_CALLBACK, callback),
@@ -34,4 +42,7 @@ contextBridge.exposeInMainWorld('electronApi', {
     onFileAppended: (
         callback: (_ev: IpcRendererEvent, _args: FileInfoModel[]) => void,
     ) => ipcRenderer.on(Channels.GET_SELECTED_FILES_APPEND, callback),
+    onWindowLoaded: (
+        callback: (_ev: IpcRendererEvent, _args: WindowSetting) => void,
+    ) => ipcRenderer.on(Channels.WINDOW_LOADED_CALLBACK, callback),
 });

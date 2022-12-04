@@ -132,6 +132,13 @@ const handleRenameFiles = (event: Electron.IpcMainEvent, args: any) => {
     event.sender.send(Channels.REANME_FILES_CALLBACK, renameResults);
 };
 
+const handleWindowLoaded = (event: Electron.IpcMainEvent, _args?: any) => {
+    event.sender.send(Channels.WINDOW_LOADED_CALLBACK, {
+        isMac: process.platform === 'darwin',
+        isDark: nativeTheme.shouldUseDarkColors,
+    });
+};
+
 const createMainWindow = () => {
     mainWindow = new electron.BrowserWindow({
         width: 800,
@@ -144,7 +151,7 @@ const createMainWindow = () => {
         // renderer console error
         // resolve: Uncaught ReferenceError: require is not defined
         webPreferences: {
-            contextIsolation: false,
+            contextIsolation: true,
             nodeIntegration: true,
             nodeIntegrationInWorker: true,
             preload: path.join(__dirname, 'preload.js'),
@@ -207,6 +214,53 @@ app.whenReady().then(() => {
     ipcMain.on(Channels.OPEN_FILE_DIALOG, handleOpenFileDialog);
     ipcMain.on(Channels.DROP_FILES, handleDropFiles);
     ipcMain.on(Channels.RENAME_FILES, handleRenameFiles);
+    ipcMain.on(Channels.WINDOW_LOADED, handleWindowLoaded);
+
+    ipcMain.on('showItemInFolder', (event, args) => {
+        const dirname = args.path;
+        const result = shell.showItemInFolder(dirname);
+
+        event.sender.send('showItemInFolder-callback', result);
+    });
+
+    ipcMain.on(Channels.WINDOW_CLOSE, (_, __) => {
+        console.info(`[IPC-MAIN] ${Channels.WINDOW_CLOSE}`);
+
+        if (mainWindow?.webContents.isDevToolsOpened()) {
+            mainWindow?.webContents.closeDevTools();
+        }
+        mainWindow?.close();
+    });
+
+    ipcMain.on(Channels.WINDOW_MINIMIZE, (_, __) => {
+        console.info(`[IPC-MAIN] ${Channels.WINDOW_MINIMIZE}`);
+
+        mainWindow?.minimize();
+    });
+
+    ipcMain.on(Channels.WINDOW_MAXIMIZE, (_, __) => {
+        console.info(`[IPC-MAIN] ${Channels.WINDOW_MAXIMIZE}`);
+
+        const isMaximized = mainWindow?.isMaximized();
+        const isMaximizable = mainWindow?.isMaximizable();
+        if (
+            typeof isMaximized === 'boolean' &&
+            typeof isMaximizable === 'boolean'
+        ) {
+            if (!isMaximized && isMaximizable) {
+                mainWindow?.maximize();
+            } else {
+                mainWindow?.unmaximize();
+            }
+        }
+    });
+
+    app.on('activate', () => {
+        // macOS에서는 dock 아이콘이 클릭되고 다른 윈도우가 열려있지 않았다면 앱에서 새로운 창을 다시 여는 것이 일반적입니다.
+        if (!mainWindow) {
+            createMainWindow();
+        }
+    });
 
     createMainWindow();
 
@@ -222,57 +276,4 @@ app.on('window-all-closed', () => {
     if (!isMac) {
         app.quit();
     }
-});
-
-app.on('activate', () => {
-    // macOS에서는 dock 아이콘이 클릭되고 다른 윈도우가 열려있지 않았다면 앱에서 새로운 창을 다시 여는 것이 일반적입니다.
-    if (!mainWindow) {
-        createMainWindow();
-    }
-});
-
-ipcMain.on('showItemInFolder', (event, args) => {
-    const dirname = args.path;
-    const result = shell.showItemInFolder(dirname);
-
-    event.sender.send('showItemInFolder-callback', result);
-});
-
-ipcMain.on(Channels.WINDOW_CLOSE, (_, __) => {
-    console.info(`[IPC-MAIN] ${Channels.WINDOW_CLOSE}`);
-
-    if (mainWindow?.webContents.isDevToolsOpened()) {
-        mainWindow?.webContents.closeDevTools();
-    }
-    mainWindow?.close();
-});
-
-ipcMain.on(Channels.WINDOW_MINIMIZE, (_, __) => {
-    console.info(`[IPC-MAIN] ${Channels.WINDOW_MINIMIZE}`);
-
-    mainWindow?.minimize();
-});
-
-ipcMain.on(Channels.WINDOW_MAXIMIZE, (_, __) => {
-    console.info(`[IPC-MAIN] ${Channels.WINDOW_MAXIMIZE}`);
-
-    const isMaximized = mainWindow?.isMaximized();
-    const isMaximizable = mainWindow?.isMaximizable();
-    if (
-        typeof isMaximized === 'boolean' &&
-        typeof isMaximizable === 'boolean'
-    ) {
-        if (!isMaximized && isMaximizable) {
-            mainWindow?.maximize();
-        } else {
-            mainWindow?.unmaximize();
-        }
-    }
-});
-
-ipcMain.on(Channels.WINDOW_LOADED, (event, _args) => {
-    event.sender.send(Channels.WINDOW_LOADED_CALLBACK, {
-        isMac: process.platform === 'darwin',
-        isDark: nativeTheme.shouldUseDarkColors,
-    });
 });

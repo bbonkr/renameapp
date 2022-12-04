@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-    // ipcRenderer,
-    IpcRendererEvent,
-} from 'electron';
+import type { IpcRendererEvent } from 'electron';
 import { FileListTable } from '../FileList';
 import { Box, Paper, Button, ButtonGroup, Container } from '@mui/material';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
@@ -188,20 +185,22 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
 
     useEffect(() => {
         // ipcRenderer.on(Channels.REANME_FILES_CALLBACK, renameFilesCallback);
-        window.electronApi.onRenameFiles(renameFilesCallback);
+        window.electronApi?.onRenameFiles(renameFilesCallback);
 
         // ipcRenderer.on(Channels.GET_SELECTED_FILES, getSelectedFiles);
-        window.electronApi.onFileSelected(getSelectedFiles);
+        window.electronApi?.onFileSelected(getSelectedFiles);
 
         // ipcRenderer.on(
         //     Channels.GET_SELECTED_FILES_APPEND,
         //     getSelectedFilesAndAppend,
         // );
-        window.electronApi.onFileAppended(getSelectedFilesAndAppend);
+        window.electronApi?.onFileAppended(getSelectedFilesAndAppend);
 
-        ipcRenderer.on(Channels.WINDOW_LOADED_CALLBACK, handleWindowLoaded);
+        // ipcRenderer.on(Channels.WINDOW_LOADED_CALLBACK, handleWindowLoaded);
+        window.electronApi?.onWindowLoaded(handleWindowLoaded);
 
-        ipcRenderer.send(Channels.WINDOW_LOADED, []);
+        // ipcRenderer.send(Channels.WINDOW_LOADED, []);
+        window.electronApi?.windowLoaded();
 
         const container = containerElement.current;
         if (container) {
@@ -212,19 +211,19 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         }
 
         return () => {
-            ipcRenderer.off(Channels.GET_SELECTED_FILES, getSelectedFiles);
-            ipcRenderer.off(
-                Channels.REANME_FILES_CALLBACK,
-                renameFilesCallback,
-            );
-            ipcRenderer.off(
-                Channels.GET_SELECTED_FILES_APPEND,
-                getSelectedFilesAndAppend,
-            );
-            ipcRenderer.off(
-                Channels.WINDOW_LOADED_CALLBACK,
-                handleWindowLoaded,
-            );
+            // ipcRenderer.off(Channels.GET_SELECTED_FILES, getSelectedFiles);
+            // ipcRenderer.off(
+            //     Channels.REANME_FILES_CALLBACK,
+            //     renameFilesCallback,
+            // );
+            // ipcRenderer.off(
+            //     Channels.GET_SELECTED_FILES_APPEND,
+            //     getSelectedFilesAndAppend,
+            // );
+            // ipcRenderer.off(
+            //     Channels.WINDOW_LOADED_CALLBACK,
+            //     handleWindowLoaded,
+            // );
 
             if (container) {
                 container.removeEventListener('dragleave', handleDragLeave);

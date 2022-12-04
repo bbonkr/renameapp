@@ -20,7 +20,8 @@
     "main": "dist/main.js",
     "scripts": {
         "start": "npm run build:prod && cross-env NODE_ENV=production npm run electron",
-        "dev": "concurrently \"npm run dev:main\" \"npm run dev:renderer\" \"wait-on http://localhost:26498 && npm run electron\"",
+        "dev": "concurrently \"npm run dev:main\" \"npm run dev:renderer\" \"wait-on -d 3000 http://localhost:26498/ && npm run electron\"",
+        "dev:t": "concurrently \"npm run dev:main\" \"npm run dev:renderer\" \"npm run electron\"",
         "build": "webpack",
         "build:dev": "cross-env NODE_ENV=development npm run build",
         "build:prod": "cross-env NODE_ENV=production npm run build",

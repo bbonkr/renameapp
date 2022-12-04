@@ -1,5 +1,6 @@
+import { createRoot } from 'react-dom/client';
 import React from 'react';
-import ReactDOM from 'react-dom';
+// import ReactDOM from 'react-dom';
 import { RenameApp } from './components/RenameApp';
 import { SnackbarProvider } from 'notistack';
 import { ThemeProvider } from '@mui/system';
@@ -8,17 +9,52 @@ import { theme } from './theme';
 
 import './css/app.css';
 
-ReactDOM.render(
-    <React.StrictMode>
-        <React.Fragment>
-            <CssBaseline enableColorScheme />
+const container = document.getElementById('app');
 
-            <ThemeProvider theme={theme}>
-                <SnackbarProvider maxSnack={4}>
-                    <RenameApp />
-                </SnackbarProvider>
-            </ThemeProvider>
-        </React.Fragment>
-    </React.StrictMode>,
-    document.getElementById('app'),
-);
+if (container) {
+    const root = createRoot(container);
+
+    root.render(
+        <React.StrictMode>
+            <React.Fragment>
+                <CssBaseline enableColorScheme />
+
+                <ThemeProvider theme={theme}>
+                    <SnackbarProvider maxSnack={4}>
+                        <RenameApp />
+                    </SnackbarProvider>
+                </ThemeProvider>
+            </React.Fragment>
+        </React.StrictMode>,
+    );
+} else {
+    const rootElement = document.createElement('div');
+    rootElement.id = 'app';
+    document.append(rootElement);
+
+    const root = createRoot(rootElement);
+
+    root.render(
+        <React.StrictMode>
+            <React.Fragment>
+                <div>
+                    <h1>The app failed to start.</h1>
+                </div>
+            </React.Fragment>
+        </React.StrictMode>,
+    );
+}
+// ReactDOM.render(
+//     <React.StrictMode>
+//         <React.Fragment>
+//             <CssBaseline enableColorScheme />
+
+//             <ThemeProvider theme={theme}>
+//                 <SnackbarProvider maxSnack={4}>
+//                     <RenameApp />
+//                 </SnackbarProvider>
+//             </ThemeProvider>
+//         </React.Fragment>
+//     </React.StrictMode>,
+//     document.getElementById('app'),
+// );

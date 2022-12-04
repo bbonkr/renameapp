@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Channels, FileInfoModel } from '../models';
+import { Channels, FileInfoModel, WindowSetting } from '../models';
+import type { IpcRendererEvent } from 'electron';
 
 /* eslint-disable no-unused-vars */
 export interface IpcRender {
@@ -20,27 +21,28 @@ export interface IpcRender {
 // }
 
 export interface ElectronApi {
+    // renderer to main
     openFileDialog: (callbackChannel?: Channels[]) => void;
     openFileDialogAndAppend: (callbackChannel?: Channels[]) => void;
     dropFiles: (files: string[]) => void;
     renameFiles: (files: FileInfoModel[]) => void;
+    windowLoaded: () => void;
+    windowClose: () => void;
+    windowMinimize: () => void;
+    windowMaximize: () => void;
+
+    // main to renderer
     onRenameFiles: (
-        callback: (
-            _ev: Electron.IpcRendererEvent,
-            _args?: FileInfoModel[],
-        ) => void,
+        callback: (_ev: IpcRendererEvent, _args?: FileInfoModel[]) => void,
     ) => Electron.IpcRenderer;
     onFileSelected: (
-        callback: (
-            _ev: Electron.IpcRendererEvent,
-            _args?: FileInfoModel[],
-        ) => void,
+        callback: (_ev: IpcRendererEvent, _args?: FileInfoModel[]) => void,
     ) => Electron.IpcRenderer;
     onFileAppended: (
-        callback: (
-            _ev: Electron.IpcRendererEvent,
-            _args: FileInfoModel[],
-        ) => void,
+        callback: (_ev: IpcRendererEvent, _args: FileInfoModel[]) => void,
+    ) => Electron.IpcRenderer;
+    onWindowLoaded: (
+        callback: (_ev: IpcRendererEvent, _args: WindowSetting) => void,
     ) => Electron.IpcRenderer;
 }
 
