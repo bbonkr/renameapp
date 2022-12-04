@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ipcRenderer, IpcRendererEvent } from 'electron';
+import {
+    // ipcRenderer,
+    IpcRendererEvent,
+} from 'electron';
 import { FileListTable } from '../FileList';
 import { Box, Paper, Button, ButtonGroup, Container } from '@mui/material';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
@@ -15,6 +18,7 @@ import './RenameApp.css';
 type RenameAppProps = WithSnackbarProps;
 
 const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
+    // const ipcRenderer = window.electron.ipcRenderer;
     /** drag & drop container */
     const containerElement = useRef<HTMLDivElement>(null);
 
@@ -62,10 +66,11 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                 }
             }
 
-            ipcRenderer.send(Channels.DROP_FILES, [
-                Channels.GET_SELECTED_FILES,
-                filePaths,
-            ]);
+            // ipcRenderer.send(Channels.DROP_FILES, [
+            //     Channels.GET_SELECTED_FILES,
+            //     filePaths,
+            // ]);
+            window.electronApi.dropFiles(filePaths);
         }
         setIsDragEnter(_ => false);
     };
@@ -150,7 +155,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
 
     const renameFilesCallback = (
         _ev: IpcRendererEvent,
-        args: FileInfoModel[],
+        args?: FileInfoModel[],
     ) => {
         if (args) {
             setFiles(args);
@@ -182,14 +187,17 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
     };
 
     useEffect(() => {
-        ipcRenderer.on(Channels.REANME_FILES_CALLBACK, renameFilesCallback);
+        // ipcRenderer.on(Channels.REANME_FILES_CALLBACK, renameFilesCallback);
+        window.electronApi.onRenameFiles(renameFilesCallback);
 
-        ipcRenderer.on(Channels.GET_SELECTED_FILES, getSelectedFiles);
+        // ipcRenderer.on(Channels.GET_SELECTED_FILES, getSelectedFiles);
+        window.electronApi.onFileSelected(getSelectedFiles);
 
-        ipcRenderer.on(
-            Channels.GET_SELECTED_FILES_APPEND,
-            getSelectedFilesAndAppend,
-        );
+        // ipcRenderer.on(
+        //     Channels.GET_SELECTED_FILES_APPEND,
+        //     getSelectedFilesAndAppend,
+        // );
+        window.electronApi.onFileAppended(getSelectedFilesAndAppend);
 
         ipcRenderer.on(Channels.WINDOW_LOADED_CALLBACK, handleWindowLoaded);
 
@@ -278,15 +286,18 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
     }, [windowSetting]);
 
     const handleOpenFileClick = () => {
-        ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
-            Channels.GET_SELECTED_FILES,
-        ]);
+        // ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
+        //     Channels.GET_SELECTED_FILES,
+        // ]);
+
+        window.electronApi.openFileDialog([Channels.GET_SELECTED_FILES]);
     };
 
     const onOpenFileAndAppendClick = () => {
-        ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
-            Channels.GET_SELECTED_FILES_APPEND,
-        ]);
+        // ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
+        //     Channels.GET_SELECTED_FILES_APPEND,
+        // ]);
+        window.electronApi.openFileDialog([Channels.GET_SELECTED_FILES_APPEND]);
     };
 
     const handleOpenAddFileTool = () => {
@@ -298,7 +309,8 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
 
     const handleClickRename = () => {
         if (renamedFiles && renamedFiles.length > 0) {
-            ipcRenderer.send(Channels.RENAME_FILES, renamedFiles);
+            // ipcRenderer.send(Channels.RENAME_FILES, renamedFiles);
+            window.electronApi.renameFiles(renamedFiles);
             setEnabledRenameButton(false);
         }
     };
@@ -325,7 +337,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             // return obj;
             return {
                 ...v,
-                name: name,
+                name,
                 error: null,
                 renamed: false,
             };

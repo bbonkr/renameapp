@@ -1,5 +1,5 @@
 import React from 'react';
-import { ipcRenderer } from 'electron';
+// import { ipcRenderer } from 'electron';
 import {
     AppBar,
     // Toolbar,
@@ -20,6 +20,8 @@ interface HeaderProps {
 }
 
 export const Header = ({ title }: HeaderProps) => {
+    const ipcRenderer = window.electron.ipcRenderer;
+
     const handleClickClose = () => {
         ipcRenderer.send(Channels.WINDOW_CLOSE);
     };

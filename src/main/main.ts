@@ -37,6 +37,101 @@ const isMac = process.platform === 'darwin';
 
 let mainWindow: electron.BrowserWindow | null;
 
+const createFileInfos = (files: string[]): FileInfo[] | undefined => {
+    if (files.length === 0) {
+        return undefined;
+    }
+
+    const fileInfos = FileInfo.fromPath(files);
+
+    return fileInfos.sort((a, b): number => {
+        return a.fullPath > b.fullPath ? 1 : -1;
+    });
+};
+
+const handleOpenFileDialog = (
+    event: Electron.IpcMainEvent,
+    args: any[],
+): void => {
+    const callbackChannel: Channels =
+        args && args.length > 0 ? args[0] : Channels.GET_SELECTED_FILES;
+
+    if (mainWindow) {
+        dialog
+            .showOpenDialog(mainWindow, {
+                properties: ['openFile', 'multiSelections'],
+            })
+            .then(result => {
+                const { canceled, filePaths } = result;
+
+                if (!canceled) {
+                    if (filePaths) {
+                        const fileInfos = createFileInfos(filePaths);
+                        if (fileInfos) {
+                            event.sender.send(callbackChannel, fileInfos);
+                        }
+                    }
+                } else {
+                    console.info('[MAIN][OPEN_FILE_DIALOG] Cancled');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    }
+};
+
+const handleDropFiles = (event: Electron.IpcMainEvent, args: any[]) => {
+    const callbackChannel: Channels =
+        args && args.length > 0 ? args[0] : Channels.GET_SELECTED_FILES;
+    const files = args && args.length > 1 ? args[1] : [];
+    if (files) {
+        const fileInfos = createFileInfos(files);
+
+        event.sender.send(callbackChannel, fileInfos);
+    }
+};
+
+const handleRenameFiles = (event: Electron.IpcMainEvent, args: any) => {
+    const files: FileInfoModel[] = args;
+
+    const renameResults = files.map(v => {
+        const oldPath = v.fullPath;
+        const dirname = path.dirname(v.fullPath);
+        const extension = path.extname(v.fullPath);
+        const newPath = path.join(dirname, `${v.name}${extension}`);
+
+        let error = '';
+
+        let renamed = false;
+        let resultName = oldPath;
+
+        if (oldPath !== newPath) {
+            // sync
+            try {
+                fs.renameSync(oldPath, newPath);
+                resultName = newPath;
+                renamed = true;
+            } catch (err) {
+                resultName = oldPath;
+                renamed = false;
+                if (err instanceof Error) {
+                    error = err.message;
+                }
+            }
+        }
+
+        const resuleFileInfo = FileInfo.fromFilePath(resultName);
+
+        resuleFileInfo.error = error;
+        resuleFileInfo.renamed = renamed;
+
+        return resuleFileInfo;
+    });
+
+    event.sender.send(Channels.REANME_FILES_CALLBACK, renameResults);
+};
+
 const createMainWindow = () => {
     mainWindow = new electron.BrowserWindow({
         width: 800,
@@ -52,6 +147,7 @@ const createMainWindow = () => {
             contextIsolation: false,
             nodeIntegration: true,
             nodeIntegrationInWorker: true,
+            preload: path.join(__dirname, 'preload.js'),
         },
     });
 
@@ -108,6 +204,10 @@ const createMainWindow = () => {
 // 이 메서드는 Electron이 초기화를 마치고 브라우저 창을 생성할 준비가 되었을 때 호출될 것입니다.
 // 어떤 API는 이 이벤트가 나타난 이후에만 사용할 수 있습니다.
 app.whenReady().then(() => {
+    ipcMain.on(Channels.OPEN_FILE_DIALOG, handleOpenFileDialog);
+    ipcMain.on(Channels.DROP_FILES, handleDropFiles);
+    ipcMain.on(Channels.RENAME_FILES, handleRenameFiles);
+
     createMainWindow();
 
     if (mainWindow && process.platform !== 'darwin') {
@@ -129,107 +229,6 @@ app.on('activate', () => {
     if (!mainWindow) {
         createMainWindow();
     }
-});
-
-const createFileInfos = (files: string[]): FileInfo[] | undefined => {
-    if (files.length === 0) {
-        return undefined;
-    }
-
-    const fileInfos = FileInfo.fromPath(files);
-
-    return fileInfos.sort((a, b): number => {
-        return a.fullPath > b.fullPath ? 1 : -1;
-    });
-};
-
-ipcMain.on(
-    Channels.OPEN_FILE_DIALOG,
-    (event: Electron.IpcMainEvent, args: any[]): void => {
-        const callbackChannel: Channels =
-            args && args.length > 0 ? args[0] : Channels.GET_SELECTED_FILES;
-
-        if (mainWindow) {
-            dialog
-                .showOpenDialog(mainWindow, {
-                    properties: ['openFile', 'multiSelections'],
-                })
-                .then(result => {
-                    const { canceled, filePaths } = result;
-
-                    if (!canceled) {
-                        if (filePaths) {
-                            const fileInfos = createFileInfos(filePaths);
-                            if (fileInfos) {
-                                event.sender.send(callbackChannel, fileInfos);
-                            }
-                        }
-                    } else {
-                        console.info('[MAIN][OPEN_FILE_DIALOG] Cancled');
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                });
-        }
-    },
-);
-
-ipcMain.on(Channels.DROP_FILES, (event: Electron.IpcMainEvent, args: any[]) => {
-    const callbackChannel: Channels =
-        args && args.length > 0 ? args[0] : Channels.GET_SELECTED_FILES;
-    const files = args && args.length > 1 ? args[1] : [];
-    if (files) {
-        const fileInfos = createFileInfos(files);
-
-        event.sender.send(callbackChannel, fileInfos);
-    }
-});
-
-ipcMain.on(Channels.RENAME_FILES, (event, args) => {
-    // const renameFilePromise = (o: string, n: string): Promise<void> => {
-    //     return new Promise((resolve, reject) => {
-    //         fs.renameSync(o, n);
-    //     });
-    // };
-
-    const files: FileInfoModel[] = args;
-
-    const renameResults = files.map(v => {
-        const oldPath = v.fullPath;
-        const dirname = path.dirname(v.fullPath);
-        const extension = path.extname(v.fullPath);
-        const newPath = path.join(dirname, `${v.name}${extension}`);
-
-        let error = '';
-
-        let renamed = false;
-        let resultName = oldPath;
-
-        if (oldPath !== newPath) {
-            // sync
-            try {
-                fs.renameSync(oldPath, newPath);
-                resultName = newPath;
-                renamed = true;
-            } catch (err) {
-                resultName = oldPath;
-                renamed = false;
-                if (err instanceof Error) {
-                    error = err.message;
-                }
-            }
-        }
-
-        const resuleFileInfo = FileInfo.fromFilePath(resultName);
-
-        resuleFileInfo.error = error;
-        resuleFileInfo.renamed = renamed;
-
-        return resuleFileInfo;
-    });
-
-    event.sender.send(Channels.REANME_FILES_CALLBACK, renameResults);
 });
 
 ipcMain.on('showItemInFolder', (event, args) => {

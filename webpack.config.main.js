@@ -4,6 +4,7 @@ module.exports = {
     ...common,
     entry: {
         main: './src/main/main.ts',
+        preload: './src/main/preload.ts',
     },
     target: 'electron-main',
     output: {
