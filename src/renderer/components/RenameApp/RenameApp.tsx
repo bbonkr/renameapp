@@ -14,7 +14,10 @@ import './RenameApp.css';
 
 type RenameAppProps = WithSnackbarProps;
 
-const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
+const RenameAppInternal = ({
+    enqueueSnackbar,
+    closeSnackbar,
+}: RenameAppProps) => {
     // const ipcRenderer = window.electron.ipcRenderer;
     /** drag & drop container */
     const containerElement = useRef<HTMLDivElement>(null);
@@ -28,15 +31,17 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
     const [enabledRenameButton, setEnabledRenameButton] = useState(false);
     const [openAddFileTool, setOpenAddFileTool] = useState(false);
     const [windowSetting, setWindowSetting] = useState<WindowSetting>();
+
     const notistackAnchorOptions: SnackbarOrigin = {
         vertical: 'top',
         horizontal: 'right',
     };
+
     const [isDragEnter, setIsDragEnter] = useState(false);
 
     const getNewKey = () => {
-        const date = new Date();
-        return date.getUTCMilliseconds().toString();
+        const date = +new Date();
+        return date.toString();
     };
 
     const handleChangeFormData = (data: FormData) => {
@@ -63,11 +68,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                 }
             }
 
-            // ipcRenderer.send(Channels.DROP_FILES, [
-            //     Channels.GET_SELECTED_FILES,
-            //     filePaths,
-            // ]);
-            window.electronApi.dropFiles(filePaths);
+            window.electronApi?.dropFiles(filePaths);
         }
         setIsDragEnter(_ => false);
     };
@@ -98,13 +99,19 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         console.info('[RENDERER][getSelectedFiles] args: ', args);
 
         if (args) {
-            setFiles(args);
+            setFiles(_ => args);
             setRenamedFiles([]);
             if (args && args.length > 0) {
+                const snackbarKey = getNewKey();
+                console.info('enqueueSnackbar', snackbarKey);
+
                 enqueueSnackbar('Files opened.', {
-                    key: getNewKey(),
+                    key: snackbarKey,
                     variant: 'info',
                     anchorOrigin: notistackAnchorOptions,
+                    onClick: () => {
+                        closeSnackbar(snackbarKey);
+                    },
                 });
             }
         }
@@ -138,10 +145,14 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             setRenamedFiles([]);
 
             if (args && args.length > 0) {
+                const snackbarKey = getNewKey();
                 enqueueSnackbar('Files opened.', {
-                    key: getNewKey(),
+                    key: snackbarKey,
                     variant: 'info',
                     anchorOrigin: notistackAnchorOptions,
+                    onClick: () => {
+                        closeSnackbar(snackbarKey);
+                    },
                 });
             }
         }
@@ -157,22 +168,20 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         if (args) {
             setFiles(args);
             setRenamedFiles([]);
-            // setAppend('');
-            // setLookup('');
-            // setReplace('');
-            // setLookupRegExp('');
-            // setReplaceRegExp('');
 
             setReplaceLookup('');
             setReplaceValue('');
 
             setEnablePreviewButton(false);
             setEnabledRenameButton(false);
-
+            const snackbarKey = getNewKey();
             enqueueSnackbar('Renamed!', {
-                key: getNewKey(),
+                key: snackbarKey,
                 variant: 'success',
                 anchorOrigin: notistackAnchorOptions,
+                onClick: () => {
+                    closeSnackbar(snackbarKey);
+                },
             });
         }
     };
@@ -184,22 +193,14 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
     };
 
     useEffect(() => {
-        // ipcRenderer.on(Channels.REANME_FILES_CALLBACK, renameFilesCallback);
         window.electronApi?.onRenameFiles(renameFilesCallback);
 
-        // ipcRenderer.on(Channels.GET_SELECTED_FILES, getSelectedFiles);
         window.electronApi?.onFileSelected(getSelectedFiles);
 
-        // ipcRenderer.on(
-        //     Channels.GET_SELECTED_FILES_APPEND,
-        //     getSelectedFilesAndAppend,
-        // );
         window.electronApi?.onFileAppended(getSelectedFilesAndAppend);
 
-        // ipcRenderer.on(Channels.WINDOW_LOADED_CALLBACK, handleWindowLoaded);
         window.electronApi?.onWindowLoaded(handleWindowLoaded);
 
-        // ipcRenderer.send(Channels.WINDOW_LOADED, []);
         window.electronApi?.windowLoaded();
 
         const container = containerElement.current;
@@ -211,19 +212,10 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         }
 
         return () => {
-            // ipcRenderer.off(Channels.GET_SELECTED_FILES, getSelectedFiles);
-            // ipcRenderer.off(
-            //     Channels.REANME_FILES_CALLBACK,
-            //     renameFilesCallback,
-            // );
-            // ipcRenderer.off(
-            //     Channels.GET_SELECTED_FILES_APPEND,
-            //     getSelectedFilesAndAppend,
-            // );
-            // ipcRenderer.off(
-            //     Channels.WINDOW_LOADED_CALLBACK,
-            //     handleWindowLoaded,
-            // );
+            window.electronApi?.offRenameFiles(renameFilesCallback);
+            window.electronApi?.offFileSelected(getSelectedFiles);
+            window.electronApi?.offFileAppended(getSelectedFilesAndAppend);
+            window.electronApi?.offWindowLoaded(handleWindowLoaded);
 
             if (container) {
                 container.removeEventListener('dragleave', handleDragLeave);
@@ -285,32 +277,25 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
     }, [windowSetting]);
 
     const handleOpenFileClick = () => {
-        // ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
-        //     Channels.GET_SELECTED_FILES,
-        // ]);
-
         window.electronApi.openFileDialog([Channels.GET_SELECTED_FILES]);
     };
 
     const onOpenFileAndAppendClick = () => {
-        // ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
-        //     Channels.GET_SELECTED_FILES_APPEND,
-        // ]);
         window.electronApi.openFileDialog([Channels.GET_SELECTED_FILES_APPEND]);
     };
 
     const handleOpenAddFileTool = () => {
         setOpenAddFileTool(_ => true);
     };
+
     const handleCloseAddFileTool = () => {
         setOpenAddFileTool(_ => false);
     };
 
     const handleClickRename = () => {
         if (renamedFiles && renamedFiles.length > 0) {
-            // ipcRenderer.send(Channels.RENAME_FILES, renamedFiles);
             window.electronApi.renameFiles(renamedFiles);
-            setEnabledRenameButton(false);
+            setEnabledRenameButton(_ => false);
         }
     };
 
@@ -342,7 +327,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             };
         });
 
-        setRenamedFiles(candidateFiles);
+        setRenamedFiles(_ => candidateFiles);
     };
 
     const handleClickPreview = () => {
@@ -356,7 +341,17 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             return prevFiles.filter(f => f.fullPath !== file.fullPath);
         });
 
-        setRenamedFiles([]);
+        setRenamedFiles(_ => []);
+
+        const snackbarKey = getNewKey();
+        enqueueSnackbar('Removed', {
+            key: snackbarKey,
+            variant: 'success',
+            anchorOrigin: notistackAnchorOptions,
+            onClick: () => {
+                closeSnackbar(snackbarKey);
+            },
+        });
     };
 
     return (

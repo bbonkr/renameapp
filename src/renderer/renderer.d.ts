@@ -16,10 +16,6 @@ export interface IpcRender {
     send: (channel: string, ...args: any[]) => void;
 }
 
-// export interface Electron {
-//     ipcRenderer: IpcRender;
-// }
-
 export interface ElectronApi {
     // renderer to main
     openFileDialog: (callbackChannel?: Channels[]) => void;
@@ -44,11 +40,23 @@ export interface ElectronApi {
     onWindowLoaded: (
         callback: (_ev: IpcRendererEvent, _args: WindowSetting) => void,
     ) => Electron.IpcRenderer;
+
+    offRenameFiles: (
+        callback: (_ev: IpcRendererEvent, _args?: FileInfoModel[]) => void,
+    ) => Electron.IpcRenderer;
+    offFileSelected: (
+        callback: (_ev: IpcRendererEvent, _args?: FileInfoModel[]) => void,
+    ) => Electron.IpcRenderer;
+    offFileAppended: (
+        callback: (_ev: IpcRendererEvent, _args: FileInfoModel[]) => void,
+    ) => Electron.IpcRenderer;
+    offWindowLoaded: (
+        callback: (_ev: IpcRendererEvent, _args: WindowSetting) => void,
+    ) => Electron.IpcRenderer;
 }
 
 declare global {
     interface Window {
-        // electron: Electron;
         electronApi: ElectronApi;
     }
 }

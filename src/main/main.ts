@@ -50,7 +50,7 @@ const createFileInfos = (files: string[]): FileInfo[] | undefined => {
 };
 
 const handleOpenFileDialog = (
-    event: Electron.IpcMainEvent,
+    _event: Electron.IpcMainEvent,
     args: any[],
 ): void => {
     const callbackChannel: Channels =
@@ -68,7 +68,12 @@ const handleOpenFileDialog = (
                     if (filePaths) {
                         const fileInfos = createFileInfos(filePaths);
                         if (fileInfos) {
-                            event.sender.send(callbackChannel, fileInfos);
+                            // event.sender.send(callbackChannel, fileInfos);
+                            console.info('[main][handleOpenFileDialog]');
+                            mainWindow?.webContents.send(
+                                callbackChannel,
+                                fileInfos,
+                            );
                         }
                     }
                 } else {
@@ -81,18 +86,19 @@ const handleOpenFileDialog = (
     }
 };
 
-const handleDropFiles = (event: Electron.IpcMainEvent, args: any[]) => {
+const handleDropFiles = (_event: Electron.IpcMainEvent, args: any[]) => {
     const callbackChannel: Channels =
         args && args.length > 0 ? args[0] : Channels.GET_SELECTED_FILES;
     const files = args && args.length > 1 ? args[1] : [];
     if (files) {
         const fileInfos = createFileInfos(files);
 
-        event.sender.send(callbackChannel, fileInfos);
+        // event.sender.send(callbackChannel, fileInfos);
+        mainWindow?.webContents.send(callbackChannel, fileInfos);
     }
 };
 
-const handleRenameFiles = (event: Electron.IpcMainEvent, args: any) => {
+const handleRenameFiles = (_event: Electron.IpcMainEvent, args: any) => {
     const files: FileInfoModel[] = args;
 
     const renameResults = files.map(v => {
@@ -109,6 +115,15 @@ const handleRenameFiles = (event: Electron.IpcMainEvent, args: any) => {
         if (oldPath !== newPath) {
             // sync
             try {
+                const newPathIsExists = fs.existsSync(newPath);
+
+                if (newPathIsExists) {
+                    throw new Error(
+                        `Path is exists already. (target: ${newPath})`,
+                    );
+                }
+
+                // Rename
                 fs.renameSync(oldPath, newPath);
                 resultName = newPath;
                 renamed = true;
@@ -129,11 +144,17 @@ const handleRenameFiles = (event: Electron.IpcMainEvent, args: any) => {
         return resuleFileInfo;
     });
 
-    event.sender.send(Channels.REANME_FILES_CALLBACK, renameResults);
+    // event.sender.send(Channels.REANME_FILES_CALLBACK, renameResults);
+    mainWindow?.webContents.send(Channels.REANME_FILES_CALLBACK, renameResults);
 };
 
-const handleWindowLoaded = (event: Electron.IpcMainEvent, _args?: any) => {
-    event.sender.send(Channels.WINDOW_LOADED_CALLBACK, {
+const handleWindowLoaded = (_event: Electron.IpcMainEvent, _args?: any) => {
+    // event.sender.send(Channels.WINDOW_LOADED_CALLBACK, {
+    //     isMac: process.platform === 'darwin',
+    //     isDark: nativeTheme.shouldUseDarkColors,
+    // });
+
+    mainWindow?.webContents.send(Channels.WINDOW_LOADED_CALLBACK, {
         isMac: process.platform === 'darwin',
         isDark: nativeTheme.shouldUseDarkColors,
     });
@@ -175,12 +196,9 @@ const createMainWindow = () => {
         mainWindow.webContents.openDevTools();
     } else {
         // 앱의 index.html 파일을 로드합니다.
+        const url = new URL(`file:///${path.join(__dirname, './index.html')}`);
         mainWindow
-            .loadURL(
-                format(
-                    new URL(`file:///${path.join(__dirname, './index.html')}`),
-                ),
-            )
+            .loadURL(format(url))
             .then(() => {
                 console.info('[MAIN] Window Loaded.');
             })
@@ -216,11 +234,12 @@ app.whenReady().then(() => {
     ipcMain.on(Channels.RENAME_FILES, handleRenameFiles);
     ipcMain.on(Channels.WINDOW_LOADED, handleWindowLoaded);
 
-    ipcMain.on('showItemInFolder', (event, args) => {
+    ipcMain.on('showItemInFolder', (_event, args) => {
         const dirname = args.path;
         const result = shell.showItemInFolder(dirname);
 
-        event.sender.send('showItemInFolder-callback', result);
+        // event.sender.send('showItemInFolder-callback', result);
+        mainWindow?.webContents.send('showItemInFolder-callback', result);
     });
 
     ipcMain.on(Channels.WINDOW_CLOSE, (_, __) => {

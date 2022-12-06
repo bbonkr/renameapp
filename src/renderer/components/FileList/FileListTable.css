@@ -5,6 +5,9 @@
     right: 0;
     bottom: 0;
 }
+.file-list-table-container .no-files {
+    min-height: 100%;
+}
 
 .file-list-table-container table tr th,
 .file-list-table-container table tr td {

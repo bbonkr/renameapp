@@ -45,4 +45,17 @@ contextBridge.exposeInMainWorld('electronApi', {
     onWindowLoaded: (
         callback: (_ev: IpcRendererEvent, _args: WindowSetting) => void,
     ) => ipcRenderer.on(Channels.WINDOW_LOADED_CALLBACK, callback),
+
+    offRenameFiles: (
+        callback: (_ev: IpcRendererEvent, _args?: FileInfoModel[]) => void,
+    ) => ipcRenderer.off(Channels.REANME_FILES_CALLBACK, callback),
+    offFileSelected: (
+        callback: (_ev: IpcRendererEvent, _args?: FileInfoModel[]) => void,
+    ) => ipcRenderer.off(Channels.GET_SELECTED_FILES, callback),
+    offFileAppended: (
+        callback: (_ev: IpcRendererEvent, _args: FileInfoModel[]) => void,
+    ) => ipcRenderer.off(Channels.GET_SELECTED_FILES_APPEND, callback),
+    offWindowLoaded: (
+        callback: (_ev: IpcRendererEvent, _args: WindowSetting) => void,
+    ) => ipcRenderer.off(Channels.WINDOW_LOADED_CALLBACK, callback),
 });
