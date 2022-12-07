@@ -1,0 +1,34 @@
+name: PR main
+description: Describe what you want
+title: "🚀: "
+labels: ["triage"]
+# assignees:
+#   - bbonkr
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Are you ready to merge into `main`? 
+
+  - type: textarea
+    id: main-content
+    attributes:
+      label: Description
+      value: |
+        ## Overview
+
+    validations:
+      required: true
+
+  - type: textarea
+    id: related-issues
+    attributes:
+      label: Related 
+      description: |
+        examples:
+          - Resolves #123
+          - #111
+      value: |
+        - 
+    validations:
+      required: true
