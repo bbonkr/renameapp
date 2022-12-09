@@ -27,10 +27,12 @@ jobs:
 
       - name: Install dependencies
         id: npm_install
-        run: npm install --legacy-peer-deps
+        run: |
+          npm install 
 
       - name: Build
-        run: npm run build:prod
+        run: |
+          npm run build:prod
         env:
          NODE_ENV: production
 
