@@ -7,7 +7,7 @@ import {
     TableContainer,
     TableRow,
     TableCell,
-    Fab,
+    Button,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HourglassEmptyOutlined from '@mui/icons-material/HourglassEmptyOutlined';
@@ -52,8 +52,13 @@ export const FileListTable = ({
 
     return (
         <>
-            <TableContainer className="file-list-table-container">
-                <Table stickyHeader size="medium" padding="normal">
+            <TableContainer className={`file-list-table-container`}>
+                <Table
+                    stickyHeader
+                    size="medium"
+                    padding="normal"
+                    className={`${files.length === 0 && 'no-files'}`}
+                >
                     <TableHead>
                         <TableRow>
                             <TableCell
@@ -93,21 +98,31 @@ export const FileListTable = ({
                                 return (
                                     <TableRow key={item.original.fullPath}>
                                         <TableCell align="center">
-                                            <Fab
+                                            <Button
                                                 size="small"
                                                 color="error"
                                                 onClick={handleRemoveFileItem(
                                                     item.original,
                                                 )}
+                                                title="Remove item from list"
                                             >
                                                 <DeleteIcon />
-                                            </Fab>
+                                            </Button>
                                         </TableCell>
                                         <TableCell title={item.original.name}>
-                                            {item.original.name}
+                                            <span>{item.original.name}</span>
+                                            <span>
+                                                {item.original.extension}
+                                            </span>
                                         </TableCell>
                                         <TableCell title={item.rename?.name}>
-                                            {item.rename?.name}
+                                            <span>
+                                                <mark>{item.rename?.name}</mark>
+                                            </span>
+                                            <span>
+                                                {item.rename?.name &&
+                                                    item.rename?.extension}
+                                            </span>
                                         </TableCell>
                                         <TableCell
                                             title={item.original.directoryName}
