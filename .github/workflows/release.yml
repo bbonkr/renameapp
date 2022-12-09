@@ -10,10 +10,11 @@ on:
 
 jobs:
   Release:
+    name: "build 👉 ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macOS-10.15, windows-latest] # ubuntu-latest, macos-latest
+        os: [macOS-latest, windows-latest] # ubuntu-latest, macos-latest
     steps:
       - name: Context
         env:

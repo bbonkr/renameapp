@@ -4,20 +4,21 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
-  workflow_dispatch:
-  push:
-    branches: 
-      - main
-      - dev
-    paths-ignore:
-      - '**.md'
+  # workflow_dispatch:
+  # push:
+  #   branches: 
+  #     - main
+  #     - dev
+  #   paths-ignore:
+  #     - '**.md'
 
 jobs:
   build:
+    name: "build 👉 ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-10.15, windows-latest]
+        os: [ubuntu-latest, macOS-latest, windows-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
