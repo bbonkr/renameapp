@@ -58,3 +58,7 @@
 .flex-1 {
     flex: 1;
 }
+
+.flex {
+    display: flex;
+}

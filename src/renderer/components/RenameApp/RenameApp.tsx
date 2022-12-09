@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { IpcRendererEvent } from 'electron';
 import { FileListTable } from '../FileList';
 import { Box, Paper, Button, ButtonGroup, Container } from '@mui/material';
@@ -13,6 +13,11 @@ import { GoToTop } from '../GoToTop';
 import './RenameApp.css';
 
 type RenameAppProps = WithSnackbarProps;
+
+const getNewKey = () => {
+    const date = +new Date();
+    return date.toString();
+};
 
 const RenameAppInternal = ({
     enqueueSnackbar,
@@ -39,10 +44,28 @@ const RenameAppInternal = ({
 
     const [isDragEnter, setIsDragEnter] = useState(false);
 
-    const getNewKey = () => {
-        const date = +new Date();
-        return date.toString();
-    };
+    const errorMessage: string = useMemo(() => {
+        console.info('renamedFiles changed:', renamedFiles);
+
+        if (!renamedFiles || renamedFiles.length === 0) {
+            return '';
+        }
+        const errorItem = renamedFiles
+            .filter(x => x.error)
+            .find((_, index, arr) => index === arr.length - 1);
+
+        if (errorItem) {
+            return errorItem.error.message;
+        }
+
+        const samePathItems = renamedFiles.map(x => x.name);
+        const distinctItems = new Set(samePathItems);
+        if (samePathItems.length !== distinctItems.size) {
+            return `Please check your renmae destination. It has Same detination path.`;
+        }
+
+        return '';
+    }, [renamedFiles]);
 
     const handleChangeFormData = (data: FormData) => {
         setType(_ => data.type);
@@ -100,10 +123,10 @@ const RenameAppInternal = ({
 
         if (args) {
             setFiles(_ => args);
-            setRenamedFiles([]);
-            if (args && args.length > 0) {
+            setRenamedFiles(_ => []);
+
+            if (args.length > 0) {
                 const snackbarKey = getNewKey();
-                console.info('enqueueSnackbar', snackbarKey);
 
                 enqueueSnackbar('Files opened.', {
                     key: snackbarKey,
@@ -142,7 +165,7 @@ const RenameAppInternal = ({
                 );
             });
 
-            setRenamedFiles([]);
+            setRenamedFiles(_ => []);
 
             if (args && args.length > 0) {
                 const snackbarKey = getNewKey();
@@ -165,8 +188,8 @@ const RenameAppInternal = ({
         _ev: IpcRendererEvent,
         args?: FileInfoModel[],
     ) => {
-        if (args) {
-            setFiles(args);
+        if (args && args.length > 0) {
+            setFiles(_ => args);
             setRenamedFiles([]);
 
             setReplaceLookup('');
@@ -194,11 +217,8 @@ const RenameAppInternal = ({
 
     useEffect(() => {
         window.electronApi?.onRenameFiles(renameFilesCallback);
-
         window.electronApi?.onFileSelected(getSelectedFiles);
-
         window.electronApi?.onFileAppended(getSelectedFilesAndAppend);
-
         window.electronApi?.onWindowLoaded(handleWindowLoaded);
 
         window.electronApi?.windowLoaded();
@@ -257,7 +277,7 @@ const RenameAppInternal = ({
         };
         const previewButtonEanbeld = getPreviewButtonEnabled();
 
-        setEnablePreviewButton(previewButtonEanbeld);
+        setEnablePreviewButton(_ => previewButtonEanbeld);
     }, [files, type, replaceLookup, replaceValue]);
 
     useEffect(() => {
@@ -275,6 +295,10 @@ const RenameAppInternal = ({
     useEffect(() => {
         console.info('window setting', windowSetting);
     }, [windowSetting]);
+
+    useEffect(() => {
+        console.info('files changed', files);
+    }, [files]);
 
     const handleOpenFileClick = () => {
         window.electronApi.openFileDialog([Channels.GET_SELECTED_FILES]);
@@ -377,7 +401,7 @@ const RenameAppInternal = ({
                     </Paper>
                     <RenameTool onChange={handleChangeFormData} />
 
-                    <Paper className={`paper`}>
+                    <Paper className="paper flex">
                         <ButtonGroup color="primary" variant="contained">
                             <Button
                                 disabled={!enablePreviewButton}
@@ -387,12 +411,19 @@ const RenameAppInternal = ({
                             </Button>
 
                             <Button
-                                disabled={!enabledRenameButton}
+                                disabled={
+                                    !enabledRenameButton ||
+                                    Boolean(errorMessage)
+                                }
                                 onClick={handleClickRename}
                             >
                                 Rename
                             </Button>
                         </ButtonGroup>
+
+                        <Box padding="0.3rem 1.2rem" color="red">
+                            {errorMessage}
+                        </Box>
                     </Paper>
                     <Paper className={`paper flex-1`}>
                         <FileListTable
