@@ -1,7 +1,7 @@
 {
     "name": "rename",
     "peoductName": "Rename",
-    "version": "1.8.5",
+    "version": "1.8.6",
     "description": "Rename files.",
     "author": {
         "name": "Pon Cheol Ku",
@@ -82,9 +82,8 @@
         "eslint-plugin-react-hooks": "^4.6.0",
         "file-loader": "^6.2.0",
         "glob": "^7.2.0",
-        "got": "^12.5.3",
         "html-webpack-plugin": "^5.5.0",
-        "minimatch": "^5.1.1",
+        "latest-version": "^7.0.0",
         "prettier": "^2.2.1",
         "react-refresh": "^0.14.0",
         "shx": "^0.3.4",
@@ -132,9 +131,7 @@
                 {
                     "target": "nsis",
                     "arch": [
-                        "x64",
-                        "ia32",
-                        "arm64"
+                        "x64"
                     ]
                 }
             ],
