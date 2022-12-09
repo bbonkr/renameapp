@@ -69,7 +69,7 @@
         "cross-env": "^7.0.3",
         "css-loader": "^5.0.1",
         "electron": "^22.0.0",
-        "electron-builder": "^22.10.3",
+        "electron-builder": "^23.6.0",
         "electron-packager": "^17.1.1",
         "eslint": "^8.28.0",
         "eslint-config-prettier": "^8.5.0",
@@ -112,7 +112,14 @@
         ],
         "mac": {
             "target": [
-                "default"
+                {
+                    "target": "default",
+                    "arch": [
+                        "universal",
+                        "x64",
+                        "arm64"
+                    ]
+                }
             ],
             "icon": "./resources/installer/appicon.icns",
             "artifactName": "${productName}-${os}-${arch}-${version}.${ext}"
@@ -127,7 +134,9 @@
                     "target": "nsis",
                     "arch": [
                         "x64",
-                        "ia32"
+                        "ia32",
+                        "arm64",
+                        "universal"
                     ]
                 }
             ],
