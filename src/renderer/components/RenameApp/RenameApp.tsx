@@ -72,7 +72,7 @@ const RenameAppInternal = ({
         const samePathItems = renamedFiles.map(x => x.name);
         const distinctItems = new Set(samePathItems);
         if (samePathItems.length !== distinctItems.size) {
-            return `Please check your renmae destination. It has Same detination path.`;
+            return `Please check your rename destination. It has Same destination path.`;
         }
 
         return '';
