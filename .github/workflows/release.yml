@@ -33,10 +33,12 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: |
+          npm install 
 
       - name: Pack
-        run: npm run pack
+        run: |
+          npm run pack
         env:
          NODE_ENV: production     
       
