@@ -1,9 +1,8 @@
-// const path = require('path');
-import path from 'path';
+const path = require('path');
 
 const isEnvDevelopment = process.env.NODE_ENV !== 'production';
 
-export default {
+module.exports = {
     devtool: isEnvDevelopment ? 'source-map' : false,
     mode: isEnvDevelopment ? 'development' : 'production',
     output: { path: path.join(__dirname, 'dist') },

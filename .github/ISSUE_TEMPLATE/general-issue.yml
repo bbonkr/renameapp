@@ -1,0 +1,18 @@
+name: General issue
+description: Describe what you want
+title: "🚀 "
+labels: ["triage"]
+# assignees:
+#   - bbonkr
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your interest.
+
+  - type: textarea
+    id: main-content
+    attributes:
+      label: Description
+    validations:
+      required: true
