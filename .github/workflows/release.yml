@@ -34,6 +34,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install dependencies
+        if: ${{ failure() }}
+        run: |
+          npm install --legacy-peer-deps
+
       - name: Pack
         run: npm run pack
         env:

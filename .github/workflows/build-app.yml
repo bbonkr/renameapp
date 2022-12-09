@@ -25,7 +25,14 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
+        id: npm_install
         run: npm install
+
+      - name: Install dependencies
+        if: ${{ failure() }}
+        run: |
+          npm install --legacy-peer-deps
+
       - name: Build
         run: npm run build:prod
         env:
