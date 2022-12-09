@@ -1,7 +1,18 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { IpcRendererEvent } from 'electron';
 import { FileListTable } from '../FileList';
-import { Box, Paper, Button, ButtonGroup, Container } from '@mui/material';
+import {
+    Box,
+    Paper,
+    Button,
+    ButtonGroup,
+    Container,
+    // AppBar,
+    // Toolbar,
+    // IconButton,
+} from '@mui/material';
+// import Typography from '@mui/material/Typography';
+// import MenuIcon from '@mui/icons-material/Menu';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
 import { SnackbarOrigin } from '@mui/material/Snackbar';
 import { FileInfoModel, WindowSetting, Channels } from '../../../models';
@@ -388,6 +399,28 @@ const RenameAppInternal = ({
                 maxWidth={false}
                 className={'container-root'}
             >
+                {/* <Box sx={{ flexGrow: 1 }}>
+                    <AppBar position="static">
+                        <Toolbar>
+                            <IconButton
+                                size="large"
+                                edge="start"
+                                color="inherit"
+                                aria-label="menu"
+                                sx={{ mr: 2 }}
+                            >
+                                <MenuIcon />
+                            </IconButton>
+                            <Typography
+                                variant="h6"
+                                component="div"
+                                sx={{ flexGrow: 1 }}
+                            >
+                                Rename App
+                            </Typography>
+                        </Toolbar>
+                    </AppBar>
+                </Box> */}
                 <Box className={`content-wrapper`}>
                     <Paper
                         component={'div'}
