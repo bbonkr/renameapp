@@ -1,5 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { Typography, Fab, Popper, ClickAwayListener, Box } from '@mui/material';
+import {
+    Typography,
+    Fab,
+    Popper,
+    ClickAwayListener,
+    Box,
+    Fade,
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import './AddFileTool.css';
@@ -74,59 +81,56 @@ export const AddFileTool = ({
                 open={isOpened ?? false}
                 unselectable="on"
                 anchorEl={anchorRef}
-                // transition={true}
                 disablePortal={true}
                 placement="bottom-end"
+                transition
+                nonce={undefined}
+                onResize={undefined}
+                onResizeCapture={undefined}
             >
-                {({ TransitionProps, placement }) => (
-                    <Box
-                        {...TransitionProps}
-                        style={{
-                            transformOrigin:
-                                placement === 'bottom'
-                                    ? 'center top'
-                                    : 'center bottom',
-                        }}
-                    >
-                        <ClickAwayListener
-                            onClickAway={handleClose}
-                            mouseEvent="onClick"
-                            touchEvent="onTouchEnd"
-                        >
-                            <div className="tool-item">
-                                <div>
-                                    <Typography component="span">
-                                        파일 열기
-                                    </Typography>
-                                    <Fab
-                                        color="primary"
-                                        size="medium"
-                                        aria-label="add file"
-                                        title="파일 목록을 초기화하고 파일을 추가합니다."
-                                        onClick={handleClickOpenFile}
-                                    >
-                                        <AddIcon />
-                                    </Fab>
-                                </div>
-
+                {({ TransitionProps }) => (
+                    <Fade {...TransitionProps}>
+                        <Box>
+                            <ClickAwayListener
+                                onClickAway={handleClose}
+                                mouseEvent="onClick"
+                                touchEvent="onTouchEnd"
+                            >
                                 <div className="tool-item">
-                                    <Typography component="span">
-                                        파일 추가
-                                    </Typography>
+                                    <div>
+                                        <Typography component="span">
+                                            파일 열기
+                                        </Typography>
+                                        <Fab
+                                            color="primary"
+                                            size="medium"
+                                            aria-label="add file"
+                                            title="파일 목록을 초기화하고 파일을 추가합니다."
+                                            onClick={handleClickOpenFile}
+                                        >
+                                            <AddIcon />
+                                        </Fab>
+                                    </div>
 
-                                    <Fab
-                                        color="secondary"
-                                        size="medium"
-                                        aria-label="append file"
-                                        title="파일을 현재 목록에 추가합니다."
-                                        onClick={handleOpenFileAndAppend}
-                                    >
-                                        <AddIcon />
-                                    </Fab>
+                                    <div className="tool-item">
+                                        <Typography component="span">
+                                            파일 추가
+                                        </Typography>
+
+                                        <Fab
+                                            color="secondary"
+                                            size="medium"
+                                            aria-label="append file"
+                                            title="파일을 현재 목록에 추가합니다."
+                                            onClick={handleOpenFileAndAppend}
+                                        >
+                                            <AddIcon />
+                                        </Fab>
+                                    </div>
                                 </div>
-                            </div>
-                        </ClickAwayListener>
-                    </Box>
+                            </ClickAwayListener>
+                        </Box>
+                    </Fade>
                 )}
             </Popper>
         </React.Fragment>
