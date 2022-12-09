@@ -1,26 +1,12 @@
 import React, { useState, useEffect } from 'react';
-
-import {
-    // ReplaceType,
-    types,
-    ReplaceTypeKey,
-} from '../../../models/replaceType';
+import { types, ReplaceTypeKey } from '../../../models/replaceType';
 import {
     Box,
-    // Grid,
-    // AppBar,
-    // Toolbar,
     Paper,
-    // Button,
-    // ButtonGroup,
     Select,
     MenuItem,
     InputLabel,
     FormControl,
-    // Typography,
-    // Container,
-    // CssBaseline,
-    // IconButton,
     TextField,
     SelectChangeEvent,
 } from '@mui/material';

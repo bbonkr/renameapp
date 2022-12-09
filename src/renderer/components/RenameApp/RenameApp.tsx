@@ -1,7 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ipcRenderer, IpcRendererEvent } from 'electron';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import type { IpcRendererEvent } from 'electron';
 import { FileListTable } from '../FileList';
-import { Box, Paper, Button, ButtonGroup, Container } from '@mui/material';
+import {
+    Box,
+    Paper,
+    Button,
+    ButtonGroup,
+    Container,
+    // AppBar,
+    // Toolbar,
+    // IconButton,
+} from '@mui/material';
+// import Typography from '@mui/material/Typography';
+// import MenuIcon from '@mui/icons-material/Menu';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
 import { SnackbarOrigin } from '@mui/material/Snackbar';
 import { FileInfoModel, WindowSetting, Channels } from '../../../models';
@@ -14,7 +25,16 @@ import './RenameApp.css';
 
 type RenameAppProps = WithSnackbarProps;
 
-const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
+const getNewKey = () => {
+    const date = +new Date();
+    return date.toString();
+};
+
+const RenameAppInternal = ({
+    enqueueSnackbar,
+    closeSnackbar,
+}: RenameAppProps) => {
+    // const ipcRenderer = window.electron.ipcRenderer;
     /** drag & drop container */
     const containerElement = useRef<HTMLDivElement>(null);
 
@@ -27,16 +47,36 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
     const [enabledRenameButton, setEnabledRenameButton] = useState(false);
     const [openAddFileTool, setOpenAddFileTool] = useState(false);
     const [windowSetting, setWindowSetting] = useState<WindowSetting>();
+
     const notistackAnchorOptions: SnackbarOrigin = {
         vertical: 'top',
         horizontal: 'right',
     };
+
     const [isDragEnter, setIsDragEnter] = useState(false);
 
-    const getNewKey = () => {
-        const date = new Date();
-        return date.getUTCMilliseconds().toString();
-    };
+    const errorMessage: string = useMemo(() => {
+        console.info('renamedFiles changed:', renamedFiles);
+
+        if (!renamedFiles || renamedFiles.length === 0) {
+            return '';
+        }
+        const errorItem = renamedFiles
+            .filter(x => x.error)
+            .find((_, index, arr) => index === arr.length - 1);
+
+        if (errorItem) {
+            return errorItem.error.message;
+        }
+
+        const samePathItems = renamedFiles.map(x => x.name);
+        const distinctItems = new Set(samePathItems);
+        if (samePathItems.length !== distinctItems.size) {
+            return `Please check your rename destination. It has Same destination path.`;
+        }
+
+        return '';
+    }, [renamedFiles]);
 
     const handleChangeFormData = (data: FormData) => {
         setType(_ => data.type);
@@ -62,10 +102,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                 }
             }
 
-            ipcRenderer.send(Channels.DROP_FILES, [
-                Channels.GET_SELECTED_FILES,
-                filePaths,
-            ]);
+            window.electronApi?.dropFiles(filePaths);
         }
         setIsDragEnter(_ => false);
     };
@@ -96,13 +133,19 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         console.info('[RENDERER][getSelectedFiles] args: ', args);
 
         if (args) {
-            setFiles(args);
-            setRenamedFiles([]);
-            if (args && args.length > 0) {
+            setFiles(_ => args);
+            setRenamedFiles(_ => []);
+
+            if (args.length > 0) {
+                const snackbarKey = getNewKey();
+
                 enqueueSnackbar('Files opened.', {
-                    key: getNewKey(),
+                    key: snackbarKey,
                     variant: 'info',
                     anchorOrigin: notistackAnchorOptions,
+                    onClick: () => {
+                        closeSnackbar(snackbarKey);
+                    },
                 });
             }
         }
@@ -133,13 +176,17 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                 );
             });
 
-            setRenamedFiles([]);
+            setRenamedFiles(_ => []);
 
             if (args && args.length > 0) {
+                const snackbarKey = getNewKey();
                 enqueueSnackbar('Files opened.', {
-                    key: getNewKey(),
+                    key: snackbarKey,
                     variant: 'info',
                     anchorOrigin: notistackAnchorOptions,
+                    onClick: () => {
+                        closeSnackbar(snackbarKey);
+                    },
                 });
             }
         }
@@ -150,27 +197,25 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
 
     const renameFilesCallback = (
         _ev: IpcRendererEvent,
-        args: FileInfoModel[],
+        args?: FileInfoModel[],
     ) => {
-        if (args) {
-            setFiles(args);
+        if (args && args.length > 0) {
+            setFiles(_ => args);
             setRenamedFiles([]);
-            // setAppend('');
-            // setLookup('');
-            // setReplace('');
-            // setLookupRegExp('');
-            // setReplaceRegExp('');
 
             setReplaceLookup('');
             setReplaceValue('');
 
             setEnablePreviewButton(false);
             setEnabledRenameButton(false);
-
+            const snackbarKey = getNewKey();
             enqueueSnackbar('Renamed!', {
-                key: getNewKey(),
+                key: snackbarKey,
                 variant: 'success',
                 anchorOrigin: notistackAnchorOptions,
+                onClick: () => {
+                    closeSnackbar(snackbarKey);
+                },
             });
         }
     };
@@ -182,18 +227,12 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
     };
 
     useEffect(() => {
-        ipcRenderer.on(Channels.REANME_FILES_CALLBACK, renameFilesCallback);
+        window.electronApi?.onRenameFiles(renameFilesCallback);
+        window.electronApi?.onFileSelected(getSelectedFiles);
+        window.electronApi?.onFileAppended(getSelectedFilesAndAppend);
+        window.electronApi?.onWindowLoaded(handleWindowLoaded);
 
-        ipcRenderer.on(Channels.GET_SELECTED_FILES, getSelectedFiles);
-
-        ipcRenderer.on(
-            Channels.GET_SELECTED_FILES_APPEND,
-            getSelectedFilesAndAppend,
-        );
-
-        ipcRenderer.on(Channels.WINDOW_LOADED_CALLBACK, handleWindowLoaded);
-
-        ipcRenderer.send(Channels.WINDOW_LOADED, []);
+        window.electronApi?.windowLoaded();
 
         const container = containerElement.current;
         if (container) {
@@ -204,19 +243,10 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         }
 
         return () => {
-            ipcRenderer.off(Channels.GET_SELECTED_FILES, getSelectedFiles);
-            ipcRenderer.off(
-                Channels.REANME_FILES_CALLBACK,
-                renameFilesCallback,
-            );
-            ipcRenderer.off(
-                Channels.GET_SELECTED_FILES_APPEND,
-                getSelectedFilesAndAppend,
-            );
-            ipcRenderer.off(
-                Channels.WINDOW_LOADED_CALLBACK,
-                handleWindowLoaded,
-            );
+            window.electronApi?.offRenameFiles(renameFilesCallback);
+            window.electronApi?.offFileSelected(getSelectedFiles);
+            window.electronApi?.offFileAppended(getSelectedFilesAndAppend);
+            window.electronApi?.offWindowLoaded(handleWindowLoaded);
 
             if (container) {
                 container.removeEventListener('dragleave', handleDragLeave);
@@ -258,7 +288,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         };
         const previewButtonEanbeld = getPreviewButtonEnabled();
 
-        setEnablePreviewButton(previewButtonEanbeld);
+        setEnablePreviewButton(_ => previewButtonEanbeld);
     }, [files, type, replaceLookup, replaceValue]);
 
     useEffect(() => {
@@ -277,29 +307,30 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
         console.info('window setting', windowSetting);
     }, [windowSetting]);
 
+    useEffect(() => {
+        console.info('files changed', files);
+    }, [files]);
+
     const handleOpenFileClick = () => {
-        ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
-            Channels.GET_SELECTED_FILES,
-        ]);
+        window.electronApi.openFileDialog([Channels.GET_SELECTED_FILES]);
     };
 
     const onOpenFileAndAppendClick = () => {
-        ipcRenderer.send(Channels.OPEN_FILE_DIALOG, [
-            Channels.GET_SELECTED_FILES_APPEND,
-        ]);
+        window.electronApi.openFileDialog([Channels.GET_SELECTED_FILES_APPEND]);
     };
 
     const handleOpenAddFileTool = () => {
         setOpenAddFileTool(_ => true);
     };
+
     const handleCloseAddFileTool = () => {
         setOpenAddFileTool(_ => false);
     };
 
     const handleClickRename = () => {
         if (renamedFiles && renamedFiles.length > 0) {
-            ipcRenderer.send(Channels.RENAME_FILES, renamedFiles);
-            setEnabledRenameButton(false);
+            window.electronApi.renameFiles(renamedFiles);
+            setEnabledRenameButton(_ => false);
         }
     };
 
@@ -325,13 +356,13 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             // return obj;
             return {
                 ...v,
-                name: name,
+                name,
                 error: null,
                 renamed: false,
             };
         });
 
-        setRenamedFiles(candidateFiles);
+        setRenamedFiles(_ => candidateFiles);
     };
 
     const handleClickPreview = () => {
@@ -345,7 +376,17 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
             return prevFiles.filter(f => f.fullPath !== file.fullPath);
         });
 
-        setRenamedFiles([]);
+        setRenamedFiles(_ => []);
+
+        const snackbarKey = getNewKey();
+        enqueueSnackbar('Removed', {
+            key: snackbarKey,
+            variant: 'success',
+            anchorOrigin: notistackAnchorOptions,
+            onClick: () => {
+                closeSnackbar(snackbarKey);
+            },
+        });
     };
 
     return (
@@ -358,6 +399,28 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                 maxWidth={false}
                 className={'container-root'}
             >
+                {/* <Box sx={{ flexGrow: 1 }}>
+                    <AppBar position="static">
+                        <Toolbar>
+                            <IconButton
+                                size="large"
+                                edge="start"
+                                color="inherit"
+                                aria-label="menu"
+                                sx={{ mr: 2 }}
+                            >
+                                <MenuIcon />
+                            </IconButton>
+                            <Typography
+                                variant="h6"
+                                component="div"
+                                sx={{ flexGrow: 1 }}
+                            >
+                                Rename App
+                            </Typography>
+                        </Toolbar>
+                    </AppBar>
+                </Box> */}
                 <Box className={`content-wrapper`}>
                     <Paper
                         component={'div'}
@@ -371,7 +434,7 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                     </Paper>
                     <RenameTool onChange={handleChangeFormData} />
 
-                    <Paper className={`paper`}>
+                    <Paper className="paper flex">
                         <ButtonGroup color="primary" variant="contained">
                             <Button
                                 disabled={!enablePreviewButton}
@@ -381,12 +444,19 @@ const RenameAppInternal = ({ enqueueSnackbar }: RenameAppProps) => {
                             </Button>
 
                             <Button
-                                disabled={!enabledRenameButton}
+                                disabled={
+                                    !enabledRenameButton ||
+                                    Boolean(errorMessage)
+                                }
                                 onClick={handleClickRename}
                             >
                                 Rename
                             </Button>
                         </ButtonGroup>
+
+                        <Box padding="0.3rem 1.2rem" color="red">
+                            {errorMessage}
+                        </Box>
                     </Paper>
                     <Paper className={`paper flex-1`}>
                         <FileListTable
