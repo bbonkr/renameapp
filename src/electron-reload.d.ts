@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-unused-vars */
 declare module 'electron-reload' {
     function _exports(
         glob: string | string[],

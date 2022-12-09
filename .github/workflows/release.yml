@@ -19,21 +19,25 @@ jobs:
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
+
       - name: Verify Upload Url
         run: echo ${{ github.event.client_payload }}
+
       - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v3
+
       - name: Install Node.js, Npm
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '18'
 
       - name: Install dependencies
         run: npm install
+
       - name: Pack
-        run: npm run pack     
+        run: npm run pack
+        env:
+         NODE_ENV: production     
       
       - name: Upload Assets to Release with a wildcard
         uses: csexton/release-asset-action@v2
