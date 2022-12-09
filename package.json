@@ -45,8 +45,8 @@
         "@mui/material": "^5.10.16",
         "autoprefixer": "^10.4.13",
         "notistack": "^2.0.8",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
+        "react": "^18.0.0",
+        "react-dom": "^18.0.0",
         "react-transition-group": "^4.4.5"
     },
     "devDependencies": {
@@ -69,7 +69,7 @@
         "cross-env": "^7.0.3",
         "css-loader": "^5.0.1",
         "electron": "^22.0.0",
-        "electron-builder": "^23.6.0",
+        "electron-builder": "^22.10.3",
         "electron-packager": "^17.1.1",
         "eslint": "^8.28.0",
         "eslint-config-prettier": "^8.5.0",
