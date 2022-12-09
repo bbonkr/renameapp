@@ -38,6 +38,9 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    border-style: solid;
+    border-width: 0.4rem;
+    border-color: transparent;
 }
 
 .paper {
@@ -49,8 +52,13 @@
 .drag-enter {
     border-style: dashed;
     border-color: #f83204;
+    border-width: 0.4rem;
 }
 
 .flex-1 {
     flex: 1;
+}
+
+.flex {
+    display: flex;
 }

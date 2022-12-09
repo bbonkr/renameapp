@@ -1,5 +1,5 @@
 import React from 'react';
-import { ipcRenderer } from 'electron';
+// import { ipcRenderer } from 'electron';
 import {
     AppBar,
     // Toolbar,
@@ -11,25 +11,30 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import SquareIcon from '@mui/icons-material/CropSquare';
 import BarIcon from '@mui/icons-material/Remove';
+// import { Channels } from '../../../models/channels';
 
 import './Header.css';
-import { Channels } from '../../../models/channels';
 
 interface HeaderProps {
     title: string;
 }
 
 export const Header = ({ title }: HeaderProps) => {
+    // const ipcRenderer = window.electron.ipcRenderer;
+
     const handleClickClose = () => {
-        ipcRenderer.send(Channels.WINDOW_CLOSE);
+        // ipcRenderer.send(Channels.WINDOW_CLOSE);
+        window.electronApi.windowClose();
     };
 
     const handleClickMinimize = () => {
-        ipcRenderer.send(Channels.WINDOW_MINIMIZE);
+        // ipcRenderer.send(Channels.WINDOW_MINIMIZE);
+        window.electronApi.windowMinimize();
     };
 
     const handleClickMaximize = () => {
-        ipcRenderer.send(Channels.WINDOW_MAXIMIZE);
+        // ipcRenderer.send(Channels.WINDOW_MAXIMIZE);
+        window.electronApi.windowMaximize();
     };
 
     return (

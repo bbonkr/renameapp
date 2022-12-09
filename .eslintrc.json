@@ -10,16 +10,15 @@
     "extends": [
         "standard",
         "plugin:prettier/recommended"
-    ],   
+    ],
     "parserOptions": {
         "ecmaVersion": 12
     },
-    "rules": {
-       
-    },
+    "rules": {},
     "overrides": [
         {
             "env": {
+                "node": true,
                 "browser": true,
                 "es2021": true
             },
@@ -60,7 +59,7 @@
                         "ignoreParameters": true
                     }
                 ],
-                "@typescript-eslint/explicit-module-boundary-types":"off",
+                "@typescript-eslint/explicit-module-boundary-types": "off",
                 "@typescript-eslint/no-unused-vars": "off",
                 "eslint-disable-next-line": "off",
                 "no-use-before-define": "off",
