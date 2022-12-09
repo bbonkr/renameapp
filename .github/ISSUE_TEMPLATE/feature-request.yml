@@ -9,14 +9,16 @@ body:
     attributes:
       value: |
         Thank you for your interest.
-  - type: input
-    id: contact
-    attributes:
-      label: Contact Details
-      description: How can we get in touch with you if we need more info?
-      placeholder: ex. email@example.com
-    validations:
-      required: false
+
+  # - type: input
+  #   id: contact
+  #   attributes:
+  #     label: Contact Details
+  #     description: How can we get in touch with you if we need more info?
+  #     placeholder: ex. email@example.com
+  #   validations:
+  #     required: false
+
   - type: textarea
     id: what-featue
     attributes:
@@ -24,7 +26,6 @@ body:
       description: Also tell us, what did you expect to happen?
       placeholder: Tell us what you want!
       value: "I want this feature"
-      render: Markdown
     validations:
       required: true
 

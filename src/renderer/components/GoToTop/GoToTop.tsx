@@ -5,7 +5,16 @@ import './GoToTop.css';
 
 export const GoToTop = () => {
     const handleClickGoToTop = () => {
-        window.scrollTo({ left: 0, top: 0, behavior: 'smooth' });
+        const fileListTableContainerElement = window.document.querySelector<HTMLDivElement>(
+            '.file-list-table-container',
+        );
+        if (fileListTableContainerElement) {
+            fileListTableContainerElement.scrollTo({
+                left: 0,
+                top: 0,
+                behavior: 'smooth',
+            });
+        }
     };
     return (
         <div className={'app-button-go-to-top'}>
