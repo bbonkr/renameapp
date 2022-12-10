@@ -1,6 +1,6 @@
 #header.app-header {
     -webkit-app-region: drag;
-    height: 24px;
+    height: 32px;
     padding: 2px 0.6rem;
     flex-direction: row !important;
     justify-content: space-between;

@@ -1,9 +1,7 @@
 .file-list-table-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    flex: 1;
+    display: flex;
+    position: relative;
 }
 .file-list-table-container .no-files {
     min-height: 100%;

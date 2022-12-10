@@ -1,23 +1,14 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { IpcRendererEvent } from 'electron';
 import { FileListTable } from '../FileList';
-import {
-    Box,
-    Paper,
-    Button,
-    ButtonGroup,
-    Container,
-    // AppBar,
-    // Toolbar,
-    // IconButton,
-} from '@mui/material';
+import { Box, Paper, Button, ButtonGroup, Container } from '@mui/material';
 // import Typography from '@mui/material/Typography';
 // import MenuIcon from '@mui/icons-material/Menu';
 import { withSnackbar, WithSnackbarProps } from 'notistack';
 import { SnackbarOrigin } from '@mui/material/Snackbar';
 import { FileInfoModel, WindowSetting, Channels } from '../../../models';
 import { AddFileTool } from '../AddFileTool';
-import { Header } from '../Header';
+// import { Header } from '../Header';
 import { RenameTool, FormData } from '../RenameTool';
 import { GoToTop } from '../GoToTop';
 
@@ -391,38 +382,16 @@ const RenameAppInternal = ({
 
     return (
         <>
-            {windowSetting && !windowSetting.isMac && (
+            {/* {windowSetting && !windowSetting.isMac && (
                 <Header title="Rename App" />
-            )}
+            )} */}
             <Container
                 disableGutters
                 maxWidth={false}
                 className={'container-root'}
             >
-                {/* <Box sx={{ flexGrow: 1 }}>
-                    <AppBar position="static">
-                        <Toolbar>
-                            <IconButton
-                                size="large"
-                                edge="start"
-                                color="inherit"
-                                aria-label="menu"
-                                sx={{ mr: 2 }}
-                            >
-                                <MenuIcon />
-                            </IconButton>
-                            <Typography
-                                variant="h6"
-                                component="div"
-                                sx={{ flexGrow: 1 }}
-                            >
-                                Rename App
-                            </Typography>
-                        </Toolbar>
-                    </AppBar>
-                </Box> */}
                 <Box className={`content-wrapper`}>
-                    <Paper
+                    <Box
                         component={'div'}
                         className={`paper file-input ${
                             isDragEnter ? 'drag-enter' : ''
@@ -430,41 +399,48 @@ const RenameAppInternal = ({
                         ref={containerElement}
                         onClick={handleOpenFileClick}
                     >
-                        Click to open file dialog or Drag and drop files Here.
-                    </Paper>
-                    <RenameTool onChange={handleChangeFormData} />
+                        <p className="text-center">
+                            클릭해서 파일탐색창을 열거나, 파일을 가져와서
+                            놓아주세요. <br />
+                            Click to open file dialog or Drag and drop files
+                            Here.
+                        </p>
+                    </Box>
+                    <Box className="content-header">
+                        <RenameTool onChange={handleChangeFormData} />
 
-                    <Paper className="paper flex">
-                        <ButtonGroup color="primary" variant="contained">
-                            <Button
-                                disabled={!enablePreviewButton}
-                                onClick={handleClickPreview}
-                            >
-                                Preview
-                            </Button>
+                        <Paper className="paper flex">
+                            <ButtonGroup color="primary" variant="contained">
+                                <Button
+                                    disabled={!enablePreviewButton}
+                                    onClick={handleClickPreview}
+                                >
+                                    Preview
+                                </Button>
 
-                            <Button
-                                disabled={
-                                    !enabledRenameButton ||
-                                    Boolean(errorMessage)
-                                }
-                                onClick={handleClickRename}
-                            >
-                                Rename
-                            </Button>
-                        </ButtonGroup>
+                                <Button
+                                    disabled={
+                                        !enabledRenameButton ||
+                                        Boolean(errorMessage)
+                                    }
+                                    onClick={handleClickRename}
+                                >
+                                    Rename
+                                </Button>
+                            </ButtonGroup>
 
-                        <Box padding="0.3rem 1.2rem" color="red">
-                            {errorMessage}
-                        </Box>
-                    </Paper>
-                    <Paper className={`paper flex-1`}>
+                            <Box padding="0.3rem 1.2rem" color="red">
+                                {errorMessage}
+                            </Box>
+                        </Paper>
+                    </Box>
+                    <Box className={`paper flex-1`}>
                         <FileListTable
                             files={files}
                             renameFiles={renamedFiles}
                             onRemoveFile={handleClickRemoveFile}
                         />
-                    </Paper>
+                    </Box>
                 </Box>
                 <GoToTop />
                 <AddFileTool
