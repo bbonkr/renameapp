@@ -5,16 +5,22 @@ import './GoToTop.css';
 
 export const GoToTop = () => {
     const handleClickGoToTop = () => {
-        const fileListTableContainerElement = window.document.querySelector<HTMLDivElement>(
-            '.file-list-table-container',
-        );
-        if (fileListTableContainerElement) {
-            fileListTableContainerElement.scrollTo({
-                left: 0,
-                top: 0,
-                behavior: 'smooth',
-            });
-        }
+        // const containerElement = window.document.querySelector<HTMLDivElement>(
+        //     '.content-wrapper ',
+        // );
+        // if (containerElement) {
+        //     containerElement.scrollTo({
+        //         left: 0,
+        //         top: 0,
+        //         behavior: 'smooth',
+        //     });
+        // }
+
+        window.scrollTo({
+            left: 0,
+            top: 0,
+            behavior: 'smooth',
+        });
     };
     return (
         <div className={'app-button-go-to-top'}>

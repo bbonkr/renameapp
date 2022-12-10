@@ -5,6 +5,7 @@ import electron, {
     Menu,
     nativeTheme,
     shell,
+    BrowserWindow,
 } from 'electron';
 import fs from 'fs';
 import path from 'path';
@@ -13,6 +14,7 @@ import { format, URL } from 'url';
 import { FileInfo } from '../lib/FileInfo';
 // import setupEvents from './setup-events';
 import { Channels } from '../models/channels';
+import getMenus from './getMenus';
 
 // const isProd = process.env.NODE_ENV === 'production';
 const isDev = process.env.NODE_ENV !== 'production';
@@ -167,8 +169,8 @@ const createMainWindow = () => {
         minWidth: 800,
         minHeight: 640,
         title: 'Rename App',
-        frame: isMac,
-        titleBarStyle: isMac ? 'default' : 'hidden',
+        // frame: isMac,
+        // titleBarStyle: isMac ? 'default' : 'hidden',
         // renderer console error
         // resolve: Uncaught ReferenceError: require is not defined
         webPreferences: {
@@ -177,6 +179,7 @@ const createMainWindow = () => {
             nodeIntegrationInWorker: true,
             preload: path.join(__dirname, 'preload.js'),
         },
+        // autoHideMenuBar: true,
     });
 
     // 개발자 도구를 엽니다.
@@ -189,11 +192,12 @@ const createMainWindow = () => {
             .loadURL('http://localhost:26498')
             .then(() => {
                 console.info('[MAIN:DEV] Window Loaded.');
+
+                mainWindow?.webContents.openDevTools();
             })
             .catch(err => {
                 console.error(err);
             });
-        mainWindow.webContents.openDevTools();
     } else {
         // 앱의 index.html 파일을 로드합니다.
         const url = new URL(`file:///${path.join(__dirname, './index.html')}`);
@@ -274,19 +278,27 @@ app.whenReady().then(() => {
         }
     });
 
-    app.on('activate', () => {
-        // macOS에서는 dock 아이콘이 클릭되고 다른 윈도우가 열려있지 않았다면 앱에서 새로운 창을 다시 여는 것이 일반적입니다.
-        if (!mainWindow) {
-            createMainWindow();
-        }
-    });
+    try {
+        const template = getMenus(app.name, shell, isMac);
+        const menu = Menu.buildFromTemplate(template);
+        Menu.setApplicationMenu(menu);
+    } catch (error) {
+        console.error('[MAIN][app.whenReady] Menu does not configure', error);
+    }
+
+    // if (mainWindow && process.platform !== 'darwin') {
+    //     // 메뉴 사용안함
+    //     mainWindow.setMenu(null);
+    //     Menu.setApplicationMenu(null);
+    // }
 
     createMainWindow();
+});
 
-    if (mainWindow && process.platform !== 'darwin') {
-        // 메뉴 사용안함
-        mainWindow.setMenu(null);
-        Menu.setApplicationMenu(null);
+app.on('activate', () => {
+    // macOS에서는 dock 아이콘이 클릭되고 다른 윈도우가 열려있지 않았다면 앱에서 새로운 창을 다시 여는 것이 일반적입니다.
+    if (BrowserWindow.getAllWindows().length === 0) {
+        createMainWindow();
     }
 });
 

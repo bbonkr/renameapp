@@ -1,5 +1,5 @@
 .container-root {
-    min-height: 100vh;
+    /* min-height: 100vh; */
 }
 
 .content-wrapper {
@@ -9,11 +9,23 @@
     align-items: stretch;
     row-gap: 0.8rem;
     flex: 1;
-    min-height: 100vh;
+    /* min-height: 100vh; */
+    padding: 1.2rem 0.6rem;
+    position: relative;
 }
-
+.text-center {
+    text-align: center;
+}
 .content-container {
     margin: 0 0.3rem;
+}
+
+.content-header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
 }
 
 .form-control {
@@ -32,7 +44,7 @@
 
 .file-input {
     padding: 1.8rem 1rem !important;
-    margin: 0.3rem;
+    margin: 1.2rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -41,6 +53,10 @@
     border-style: solid;
     border-width: 0.4rem;
     border-color: transparent;
+
+    border-style: dashed;
+    border-color: #3e3e3e32;
+    border-width: 0.4rem;
 }
 
 .paper {
