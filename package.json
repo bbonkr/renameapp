@@ -1,7 +1,7 @@
 {
     "name": "rename",
     "peoductName": "Rename",
-    "version": "1.9.0",
+    "version": "1.9.1",
     "description": "Rename files.",
     "author": {
         "name": "Pon Cheol Ku",
@@ -33,6 +33,9 @@
         "prepack": "ts-node scripts/pre-pack.ts && npm run build:prod",
         "pack": "cross-env NODE_ENV=production electron-builder build --publish never",
         "postpack": "ts-node scripts/post-pack.ts",
+        "prepack:macos-arm64": "ts-node scripts/pre-pack.ts && npm run build:prod",
+        "pack:macos-arm64": "cross-env NODE_ENV=production electron-builder build --mac --arm64 --publish never",
+        "postpack:macos-arm64": "ts-node scripts/post-pack.ts",
         "publish": "cross-env NODE_ENV=production electron-builder build --publish onTag",
         "clean": "npm run clean:dist && npm run clean:packages",
         "clean:dist": "ts-node scripts/pre-pack.ts",
@@ -113,10 +116,7 @@
             "target": [
                 {
                     "target": "default",
-                    "arch": [
-                        "x64",
-                        "arm64"
-                    ]
+                    "arch": "universal"
                 }
             ],
             "icon": "./resources/installer/appicon.icns",
