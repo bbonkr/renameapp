@@ -45,7 +45,7 @@
         "@emotion/react": "^11.10.5",
         "@emotion/styled": "^11.10.5",
         "@mui/icons-material": "^5.10.16",
-        "@mui/material": "^5.10.16",
+        "@mui/material": "^5.11.7",
         "autoprefixer": "^10.4.13",
         "notistack": "^2.0.8",
         "react": "^18.0.0",
